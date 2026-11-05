@@ -1,3 +1,4 @@
+<!-- ... existing code ... -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -56,12 +57,13 @@
       background: #94a3b8;
     }
     @keyframes pulseGlow {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.8)); }
-      50% { transform: scale(1.4); filter: drop-shadow(0 0 10px rgba(239, 68, 68, 1)); }
+      0%, 100% { transform: scale(1) translate(-50%, -50%); filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.8)); }
+      50% { transform: scale(1.35) translate(-50%, -50%); filter: drop-shadow(0 0 10px rgba(239, 68, 68, 1)); }
     }
     .active-map-pin {
       animation: pulseGlow 1.2s infinite ease-in-out;
-      z-index: 30 !important;
+      z-index: 40 !important;
+      background-color: #ef4444 !important;
     }
   </style>
 </head>
@@ -124,6 +126,7 @@
             <span>Hệ thống xác thực trực tuyến qua Google Sheets</span>
           </p>
         </div>
+
       </form>
     </div>
   </div>
@@ -210,7 +213,7 @@
     <!-- MAIN BODY CONTENT AREA -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
       
-      <!-- TAB 1: DASHBOARD -->
+      <!-- TAB 1: DASHBOARD WITH MAP -->
       <div id="tab-dashboard" class="tab-content block space-y-6">
         <!-- KPI METRICS -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -258,10 +261,10 @@
             <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm">
               <i class="fa-solid fa-magnifying-glass"></i>
             </span>
-            <input type="text" id="dealerSearchInput" oninput="renderDealerCards()" placeholder="Tìm tên đại lý, khu vực hoặc tên kỹ thuật viên..." class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent focus:border-transparent">
+            <input type="text" id="dealerSearchInput" oninput="renderDashboardView()" placeholder="Tìm tên đại lý, khu vực hoặc tên kỹ thuật viên..." class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent focus:border-transparent">
           </div>
           <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
-            <select id="dealerSortSelect" onchange="renderDealerCards()" class="px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-geely-accent font-medium">
+            <select id="dealerSortSelect" onchange="renderDashboardView()" class="px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-geely-accent font-medium">
               <option value="tech-desc">Sắp xếp: Kỹ thuật viên (Cao -> Thấp)</option>
               <option value="tech-asc">Sắp xếp: Kỹ thuật viên (Thấp -> Cao)</option>
               <option value="cert-desc">Sắp xếp: Chứng chỉ (Cao -> Thấp)</option>
@@ -271,41 +274,39 @@
           </div>
         </div>
 
-        <!-- MAIN SPLIT: DEALER CARDS (LEFT) & VIETNAM MAP (RIGHT - DESKTOP ONLY) -->
+        <!-- SPLIT VIEW: DEALER CARDS (LEFT) & VIETNAM MAP (RIGHT) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <!-- LEFT: DEALER CARDS GRID (8 cols) -->
           <div class="lg:col-span-8">
-            <div id="dealersGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div id="dealersGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <!-- Rendered dynamically -->
             </div>
           </div>
 
-          <!-- RIGHT: VIETNAM LOCATION MAP (DESKTOP ONLY) -->
+          <!-- RIGHT: INTERACTIVE VIETNAM MAP (4 cols) - DESKTOP ONLY -->
           <div class="hidden lg:block lg:col-span-4 sticky top-20">
-            <div class="bg-white p-4 rounded-3xl border-2 border-slate-300 shadow-xl max-w-[340px] mx-auto flex flex-col">
-              <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200">
-                <div class="flex items-center space-x-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <h4 class="font-black text-xs text-slate-800 uppercase tracking-tight">Bản Đồ Mạng Lưới Đại Lý</h4>
-                </div>
-                <span class="text-[9px] font-black px-2 py-0.5 rounded-full bg-geely-blue text-white tracking-wider">VIỆT NAM</span>
+            <div class="bg-white p-5 rounded-3xl border-2 border-slate-300 shadow-xl space-y-4">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="font-black text-slate-800 text-sm uppercase tracking-tight flex items-center space-x-2">
+                  <i class="fa-solid fa-map-location-dot text-geely-accent"></i>
+                  <span>Mạng Lưới Đại Lý Toàn Quốc</span>
+                </h3>
+                <span id="mapLegendCount" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <i class="fa-solid fa-location-dot mr-1"></i> 66 Điểm
+                </span>
               </div>
-              <p class="text-[10px] text-slate-500 mb-2 leading-tight">Rê chuột vào thẻ đại lý bên trái để định vị nhanh trên bản đồ.</p>
+              <p class="text-[11px] text-slate-500">Rê chuột vào thẻ đại lý bên trái hoặc chấm trên bản đồ để xem thông tin chi tiết.</p>
 
-              <!-- MAP CONTAINER WITH EXACT PNG IMAGE & MATCHING PINS -->
-              <div id="vietnamMapBox" class="relative w-full aspect-[1/1.95] max-h-[560px] rounded-2xl border-2 border-slate-200 overflow-hidden shadow-inner bg-slate-100">
-                <!-- PNG MAP IMAGE -->
+              <!-- MAP BOX -->
+              <div id="vietnamMapBox" class="relative w-full aspect-[1/1.95] max-h-[520px] rounded-2xl border-2 border-slate-200 overflow-hidden shadow-inner bg-slate-100 flex items-center justify-center">
                 <img src="Vietnam_location_map.png" alt="Bản đồ Việt Nam" class="absolute inset-0 w-full h-full object-fill pointer-events-none select-none">
+                <div id="mapMarkersLayer" class="absolute inset-0 w-full h-full pointer-events-auto z-20"></div>
 
-                <!-- OVERLAY PINS LAYER -->
-                <div id="mapMarkersLayer" class="absolute inset-0 w-full h-full pointer-events-auto">
-                  <!-- Rendered dynamically -->
-                </div>
-
-                <!-- FLOATING TOOLTIP -->
-                <div id="mapTooltip" class="absolute pointer-events-none hidden bg-slate-900/95 text-white p-2.5 rounded-xl text-xs shadow-2xl border border-white/20 z-40 transform -translate-x-1/2 -translate-y-full transition-all">
-                  <div id="mapTooltipName" class="font-black text-emerald-400 uppercase tracking-tight text-[11px] whitespace-nowrap"></div>
-                  <div id="mapTooltipRegion" class="text-[9px] text-slate-300"></div>
-                  <div class="flex items-center space-x-3 mt-1.5 pt-1.5 border-t border-white/10 text-[9px]">
+                <!-- TOOLTIP -->
+                <div id="mapTooltip" class="absolute pointer-events-none hidden bg-slate-900/95 text-white p-3 rounded-2xl text-xs shadow-2xl border border-white/20 z-50 transform -translate-x-1/2 -translate-y-[115%] transition-all duration-150 min-w-[180px]">
+                  <div id="mapTooltipName" class="font-black text-emerald-400 uppercase tracking-tight text-xs mb-0.5"></div>
+                  <div id="mapTooltipRegion" class="text-[10px] text-slate-300 pb-1.5 border-b border-white/10"></div>
+                  <div class="flex items-center justify-between pt-1.5 text-[11px]">
                     <span id="mapTooltipTechs" class="font-bold text-emerald-300"></span>
                     <span id="mapTooltipCerts" class="font-bold text-amber-300"></span>
                   </div>
@@ -313,10 +314,9 @@
               </div>
 
               <!-- LEGEND -->
-              <div class="flex items-center justify-between text-[10px] text-slate-500 pt-2 border-t border-slate-100 mt-2 font-medium">
-                <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-slate-700 inline-block mr-1"></span> Đại lý</span>
-                <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping inline-block mr-1"></span> Đang soi</span>
-                <span id="mapLegendCount" class="font-bold text-geely-blue"><i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> 66 Điểm</span>
+              <div class="pt-2 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-slate-800 border border-white inline-block mr-1.5"></span> Đại lý</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-rose-500 border border-white inline-block mr-1.5 animate-pulse"></span> Đang soi</span>
               </div>
             </div>
           </div>
@@ -348,25 +348,6 @@
                 <label class="block font-semibold text-slate-600 mb-1">Địa chỉ</label>
                 <input type="text" id="dealerAddressInput" placeholder="Địa chỉ đại lý..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
               </div>
-
-              <!-- CHẤM VỊ TRÍ TRÊN BẢN ĐỒ KHI TẠO ĐẠI LÝ -->
-              <div class="p-3 bg-sky-50/70 border border-sky-200 rounded-xl">
-                <div class="flex items-center justify-between mb-1">
-                  <label class="font-bold text-slate-700 flex items-center space-x-1 text-xs">
-                    <i class="fa-solid fa-map-pin text-rose-500"></i>
-                    <span>Chấm vị trí trên bản đồ:</span>
-                  </label>
-                  <span id="entryCoordBadge" class="text-[10px] font-mono font-bold text-emerald-700 bg-white px-2 py-0.5 rounded border border-sky-200">Chưa ghim</span>
-                </div>
-                <p class="text-[10px] text-slate-500 mb-2">Nhấp chuột trực tiếp lên bản đồ bên dưới để đặt vị trí.</p>
-                <div class="relative w-full aspect-[1/1.95] max-h-52 rounded-lg border border-sky-200 overflow-hidden cursor-crosshair mx-auto shadow-inner bg-slate-100" onclick="handleNewDealerMapClick(event)">
-                  <img src="Vietnam_location_map.png" alt="Map" class="absolute inset-0 w-full h-full object-fill pointer-events-none select-none">
-                  <div id="newDealerPinDot" class="absolute w-3.5 h-3.5 rounded-full bg-rose-500 border-2 border-white shadow -translate-x-1/2 -translate-y-1/2 hidden pointer-events-none"></div>
-                  <input type="hidden" id="entryMapX" value="">
-                  <input type="hidden" id="entryMapY" value="">
-                </div>
-              </div>
-
               <div>
                 <label class="block font-semibold text-slate-600 mb-1">Hotline Dịch vụ</label>
                 <input type="text" id="dealerPhoneInput" placeholder="Ví dụ: 1900 xxxx" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
@@ -375,7 +356,20 @@
                 <label class="block font-semibold text-slate-600 mb-1">Người phụ trách đào tạo</label>
                 <input type="text" id="dealerContactInput" placeholder="Họ tên người phụ trách..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
               </div>
-              <button type="submit" class="w-full py-2.5 bg-geely-blue hover:bg-slate-900 text-white font-bold rounded-xl shadow transition">
+
+              <!-- MAP PICKER FOR NEW DEALER -->
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Ghim vị trí trên bản đồ (Nhấp chuột để chọn)</label>
+                <div id="newDealerMapBox" onclick="handleNewDealerMapClick(event)" class="relative w-full aspect-[1/1.95] max-h-[300px] rounded-xl border-2 border-slate-200 overflow-hidden cursor-crosshair bg-slate-100 flex items-center justify-center">
+                  <img src="Vietnam_location_map.png" alt="Map" class="absolute inset-0 w-full h-full object-fill pointer-events-none select-none">
+                  <div id="newDealerPinDot" class="absolute w-4 h-4 bg-rose-500 border-2 border-white rounded-full shadow-lg transform -translate-x-1/2 -translate-y-1/2 hidden z-30 pointer-events-none"></div>
+                </div>
+                <input type="hidden" id="entryMapX">
+                <input type="hidden" id="entryMapY">
+                <p class="text-[10px] text-slate-400 mt-1">Nhấp vào vị trí trên bản đồ để định vị đại lý mới.</p>
+              </div>
+
+              <button type="submit" id="btnSaveDealer" class="w-full py-2.5 bg-geely-blue hover:bg-slate-900 text-white font-bold rounded-xl shadow transition">
                 Lưu Đại Lý
               </button>
             </form>
@@ -392,7 +386,7 @@
                 <span id="dealerCountBadge" class="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">66 Đại lý</span>
               </div>
             </div>
-            <div class="overflow-x-auto max-h-[500px] custom-scrollbar border border-slate-100 rounded-xl">
+            <div class="overflow-x-auto max-h-[520px] custom-scrollbar border border-slate-100 rounded-xl">
               <table class="w-full text-left text-xs">
                 <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider sticky top-0 border-b border-slate-200">
                   <tr>
@@ -401,7 +395,7 @@
                     <th class="py-2.5 px-3">Khu Vực</th>
                     <th class="py-2.5 px-3 text-center">KTV</th>
                     <th class="py-2.5 px-3 text-center">Chứng chỉ</th>
-                    <th class="py-2.5 px-3 text-center">Vị trí Map</th>
+                    <th class="py-2.5 px-3 text-center">Tọa độ Map</th>
                     <th class="py-2.5 px-3 text-right">Thao tác</th>
                   </tr>
                 </thead>
@@ -507,13 +501,13 @@
               <button type="button" onclick="resetEntryForm()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold transition">
                 Làm mới
               </button>
-              <button type="submit" class="px-6 py-2.5 rounded-xl bg-geely-blue hover:bg-slate-900 text-white font-bold shadow-lg shadow-geely-blue/20 transition">
+              <button type="submit" id="btnSaveRecord" class="px-6 py-2.5 rounded-xl bg-geely-blue hover:bg-slate-900 text-white font-bold shadow-lg shadow-geely-blue/20 transition">
                 Lưu Hồ Sơ & Chuẩn Bị Chứng Chỉ
               </button>
             </div>
           </form>
 
-          <!-- TODAY CREATED CANDIDATES -->
+          <!-- RECENT CANDIDATES -->
           <div class="mt-8 pt-6 border-t border-slate-200">
             <div class="flex items-center justify-between mb-4">
               <div>
@@ -579,6 +573,7 @@
             </button>
           </div>
 
+          <!-- SUB-TAB 1 -->
           <div id="subtab-content-gaps" class="block">
             <div class="overflow-x-auto max-h-[500px] custom-scrollbar border border-slate-100 rounded-xl mt-4 text-xs">
               <table class="w-full text-left whitespace-nowrap">
@@ -591,13 +586,12 @@
                     <th class="py-2.5 px-3">Trạng Thái</th>
                   </tr>
                 </thead>
-                <tbody id="gapQueueTableBody" class="divide-y divide-slate-100">
-                  <!-- Rendered dynamically -->
-                </tbody>
+                <tbody id="gapQueueTableBody" class="divide-y divide-slate-100"></tbody>
               </table>
             </div>
           </div>
 
+          <!-- SUB-TAB 2 -->
           <div id="subtab-content-duplicates" class="hidden space-y-4 pt-4">
             <div id="duplicateAlertBox" class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start space-x-3 text-xs text-rose-800">
               <i class="fa-solid fa-triangle-exclamation text-rose-600 text-lg mt-0.5"></i>
@@ -620,16 +614,14 @@
                     <th class="py-2.5 px-3 text-right">Thao Tác</th>
                   </tr>
                 </thead>
-                <tbody id="duplicatesTableBody" class="divide-y divide-slate-100">
-                  <!-- Rendered dynamically -->
-                </tbody>
+                <tbody id="duplicatesTableBody" class="divide-y divide-slate-100"></tbody>
               </table>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- TAB 4: COURSES MANAGEMENT -->
+      <!-- TAB 4: COURSES -->
       <div id="tab-courses" class="tab-content hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm h-fit">
@@ -671,7 +663,7 @@
                 <label class="block font-semibold text-slate-600 mb-1">Giảng viên mặc định</label>
                 <input type="text" id="courseTrainerInput" value="LE KHANH VAN" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase">
               </div>
-              <button type="submit" class="w-full py-2.5 bg-geely-blue hover:bg-slate-900 text-white font-bold rounded-xl shadow transition">
+              <button type="submit" id="btnSaveCourse" class="w-full py-2.5 bg-geely-blue hover:bg-slate-900 text-white font-bold rounded-xl shadow transition">
                 Tạo Khóa Học
               </button>
             </form>
@@ -697,16 +689,14 @@
                     <th class="py-3 px-3 text-right">Thao Tác</th>
                   </tr>
                 </thead>
-                <tbody id="courseTableBody" class="divide-y divide-slate-100">
-                  <!-- Rendered dynamically -->
-                </tbody>
+                <tbody id="courseTableBody" class="divide-y divide-slate-100"></tbody>
               </table>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- TAB 5: REPORT & EXCEL EXPORT -->
+      <!-- TAB 5: REPORT -->
       <div id="tab-report" class="tab-content hidden space-y-6">
         <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
           <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
@@ -745,18 +735,18 @@
             <div>
               <label class="block font-semibold text-slate-600 mb-1">Ngày nhập (Từ - Đến)</label>
               <div class="flex items-center space-x-1">
-                <input type="date" id="reportEntryDateFrom" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]">
-                <input type="date" id="reportEntryDateTo" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]">
+                <input type="date" id="reportEntryDateFrom" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]" title="Từ ngày nhập">
+                <input type="date" id="reportEntryDateTo" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]" title="Đến ngày nhập">
               </div>
             </div>
             <div>
               <label class="block font-semibold text-slate-600 mb-1 flex items-center justify-between">
                 <span>Ngày cấp (Từ - Đến)</span>
-                <span id="reportCountLabel" class="text-[10px] text-slate-400 font-bold">196 bản ghi</span>
+                <span id="reportCountLabel" class="text-[10px] text-slate-400 font-bold">0 bản ghi</span>
               </label>
               <div class="flex items-center space-x-1">
-                <input type="date" id="reportDateFrom" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]">
-                <input type="date" id="reportDateTo" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]">
+                <input type="date" id="reportDateFrom" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]" title="Từ ngày cấp">
+                <input type="date" id="reportDateTo" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]" title="Đến ngày cấp">
               </div>
             </div>
           </div>
@@ -779,15 +769,13 @@
                   <th class="py-2.5 px-3 text-right">Certificate Code</th>
                 </tr>
               </thead>
-              <tbody id="reportTableBody" class="divide-y divide-slate-100">
-                <!-- Rendered dynamically -->
-              </tbody>
+              <tbody id="reportTableBody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- TAB 6: USERS MANAGEMENT -->
+      <!-- TAB 6: USERS -->
       <div id="tab-users" class="tab-content hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div id="addUserBox" class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm h-fit">
@@ -815,7 +803,7 @@
                   <option value="admin">Admin (Toàn quyền quản trị)</option>
                 </select>
               </div>
-              <button type="submit" class="w-full py-2.5 bg-geely-blue hover:bg-slate-900 text-white font-bold rounded-xl shadow transition">
+              <button type="submit" id="btnCreateUser" class="w-full py-2.5 bg-geely-blue hover:bg-slate-900 text-white font-bold rounded-xl shadow transition">
                 Tạo Tài Khoản
               </button>
             </form>
@@ -837,16 +825,14 @@
                     <th class="py-3 px-3 text-right">Thao Tác</th>
                   </tr>
                 </thead>
-                <tbody id="usersTableBody" class="divide-y divide-slate-100">
-                  <!-- Rendered dynamically -->
-                </tbody>
+                <tbody id="usersTableBody" class="divide-y divide-slate-100"></tbody>
               </table>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- TAB 7: GOOGLE SHEETS SYNC -->
+      <!-- TAB 7: GOOGLE SYNC -->
       <div id="tab-sync" class="tab-content hidden space-y-6">
         <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/90 shadow-sm">
           <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
@@ -891,7 +877,7 @@
     </main>
   </div>
 
-  <!-- MODALS -->
+  <!-- MODAL: DEALER DETAIL -->
   <div id="dealerModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full p-6 sm:p-8 max-h-[90vh] flex flex-col border border-slate-200">
       <div class="flex items-start justify-between pb-4 border-b border-slate-100">
@@ -939,14 +925,43 @@
               <th class="py-2.5 px-3 text-right">Thao Tác</th>
             </tr>
           </thead>
-          <tbody id="modalTechTableBody" class="divide-y divide-slate-100">
-            <!-- Rendered dynamically -->
-          </tbody>
+          <tbody id="modalTechTableBody" class="divide-y divide-slate-100"></tbody>
         </table>
       </div>
     </div>
   </div>
 
+  <!-- MODAL: EDIT DEALER LOCATION -->
+  <div id="dealerLocationModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+          <i class="fa-solid fa-map-pin text-geely-accent"></i>
+          <span>Điều chỉnh vị trí bản đồ: <strong id="dealerLocModalName"></strong></span>
+        </h3>
+        <button onclick="closeDealerLocationModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-500">Nhấp chuột trực tiếp lên bản đồ dưới đây để ghim lại vị trí mới cho đại lý:</p>
+
+      <div id="editDealerMapBox" onclick="handleEditDealerMapClick(event)" class="relative w-full aspect-[1/1.95] max-h-[360px] rounded-2xl border-2 border-slate-200 overflow-hidden cursor-crosshair bg-slate-100 flex items-center justify-center">
+        <img src="Vietnam_location_map.png" alt="Map" class="absolute inset-0 w-full h-full object-fill pointer-events-none select-none">
+        <div id="editDealerPinDot" class="absolute w-4 h-4 bg-rose-500 border-2 border-white rounded-full shadow-lg transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none"></div>
+      </div>
+
+      <div class="flex items-center justify-between pt-2">
+        <span id="editDealerCoordBadge" class="text-xs font-mono font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">X: 0%, Y: 0%</span>
+        <div class="space-x-2">
+          <button type="button" onclick="closeDealerLocationModal()" class="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold">Hủy</button>
+          <button type="button" onclick="saveDealerLocation()" class="px-4 py-2 rounded-xl bg-geely-blue text-white text-xs font-bold hover:bg-slate-900 transition">Lưu Vị Trí</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MANUAL CERT -->
   <div id="manualCertModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 border border-slate-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
@@ -976,43 +991,12 @@
 
       <div class="flex items-center justify-end space-x-2">
         <button type="button" onclick="closeManualCertModal()" class="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold text-xs">Hủy</button>
-        <button type="button" onclick="saveManualCertCode()" class="px-4 py-2 rounded-xl bg-geely-blue text-white font-bold hover:bg-slate-900 transition text-xs">Lưu Mã Chứng Chỉ</button>
+        <button type="button" onclick="saveManualCertCode()" class="px-4 py-2 rounded-xl bg-geely-blue text-white font-bold hover:bg-slate-900 transition text-xs">Lưu Mã</button>
       </div>
     </div>
   </div>
 
-  <div id="dealerLocationModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 border border-slate-200 flex flex-col items-center">
-      <div class="flex items-center justify-between w-full pb-3 border-b border-slate-100 mb-3">
-        <div>
-          <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
-            <i class="fa-solid fa-map-pin text-rose-500"></i>
-            <span>Ghim Vị Trí Bản Đồ</span>
-          </h3>
-          <p id="dealerLocModalName" class="text-xs font-bold text-geely-blue mt-0.5 uppercase"></p>
-        </div>
-        <button onclick="closeDealerLocationModal()" class="text-slate-400 hover:text-slate-600 p-1">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <p class="text-[11px] text-slate-500 mb-2 w-full text-left">Nhấp chuột trực tiếp lên vị trí tỉnh/thành của đại lý:</p>
-
-      <div class="relative w-full aspect-[1/1.95] max-h-72 rounded-xl border border-slate-200 overflow-hidden cursor-crosshair shadow-inner bg-slate-100" onclick="handleEditDealerMapClick(event)">
-        <img src="Vietnam_location_map.png" alt="Map" class="absolute inset-0 w-full h-full object-fill pointer-events-none select-none">
-        <div id="editDealerPinDot" class="absolute w-4 h-4 rounded-full bg-rose-500 border-2 border-white shadow -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-      </div>
-
-      <div class="w-full flex items-center justify-between mt-3 pt-3 border-t border-slate-100 text-xs">
-        <span id="editDealerCoordBadge" class="font-mono font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded">X: --%, Y: --%</span>
-        <div class="flex items-center space-x-2">
-          <button type="button" onclick="closeDealerLocationModal()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 font-semibold">Hủy</button>
-          <button type="button" onclick="saveDealerLocation()" class="px-4 py-1.5 rounded-xl bg-geely-blue text-white font-bold hover:bg-slate-900 transition shadow">Lưu vị trí</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <!-- MODAL: CHANGE PASSWORD -->
   <div id="changePasswordModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 border border-slate-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
@@ -1024,19 +1008,21 @@
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
+
       <p id="changePasswordUserLabel" class="text-xs text-slate-500 mb-4"></p>
+
       <form id="changePasswordForm" onsubmit="handleChangePassword(event)" class="space-y-3 text-xs">
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Mật khẩu hiện tại *</label>
-          <input type="password" id="currentPasswordInput" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+          <input type="password" id="currentPasswordInput" required placeholder="Nhập mật khẩu hiện tại" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
         </div>
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Mật khẩu mới *</label>
-          <input type="password" id="newPasswordInput" required minlength="6" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+          <input type="password" id="newPasswordInput" required minlength="6" placeholder="Tối thiểu 6 ký tự" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
         </div>
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Xác nhận mật khẩu mới *</label>
-          <input type="password" id="confirmNewPasswordInput" required minlength="6" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+          <input type="password" id="confirmNewPasswordInput" required minlength="6" placeholder="Nhập lại mật khẩu mới" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
         </div>
         <div class="pt-2 flex items-center justify-end space-x-2">
           <button type="button" onclick="closeChangePasswordModal()" class="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold text-xs">Hủy</button>
@@ -1046,6 +1032,7 @@
     </div>
   </div>
 
+  <!-- MODAL: EDIT COURSE -->
   <div id="editCourseModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-slate-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
@@ -1077,7 +1064,7 @@
         <div class="grid grid-cols-2 gap-3">
           <div id="editCoursePrefixContainer">
             <label class="block font-semibold text-slate-600 mb-1">Tiền tố chứng chỉ (Prefix) *</label>
-            <input type="text" id="editCoursePrefixInput" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase font-mono">
+            <input type="text" id="editCoursePrefixInput" placeholder="GMTC-D-1-VN-" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase font-mono">
           </div>
           <div id="editCourseDigitsContainer">
             <label class="block font-semibold text-slate-600 mb-1">Số chữ số</label>
@@ -1109,7 +1096,7 @@
     </div>
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
+  <!-- MAIN SCRIPT -->
   <script>
     const PRIMARY_GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxXy-DFSlE-KsuGqu1U2uWPq56WKzrb6ZHPojS9HAkOTRaE2m7We1LrHKuETA1sjGIt/exec';
 
@@ -1133,86 +1120,186 @@
       ["GEELY CAN THO (HUNG PHU)", "HUYNH HUU KHANG", "ONLINE UMU", "15/10/2025 - 1/12/2025", "GMTC LEVEL 1 (NEW)", "86/100, 88/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0028"],
       ["GEELY CAN THO (HUNG PHU)", "NGUYEN HOANG OANH", "ONLINE UMU", "15/10/2025 - 1/12/2025", "GMTC LEVEL 1 (NEW)", "88/100, 88/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0031"],
       ["GEELY TAN PHU", "HUYNH THUAN BINH", "ONLINE UMU", "15/10/2025 - 1/12/2025", "GMTC LEVEL 1 (NEW)", "78/100, 74/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0026"],
-      ["GEELY CA MAU", "CHAU PHUOC LOC", "ONLINE UMU", "15/10/2025 - 1/12/2025", "GMTC LEVEL 1 (NEW)", "78/100, 70/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0027"]
+      ["GEELY CA MAU", "CHAU PHUOC LOC", "ONLINE UMU", "15/10/2025 - 1/12/2025", "GMTC LEVEL 1 (NEW)", "78/100, 70/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0027"],
+      ["GEELY VO VAN KIET", "TO HOANG DUY", "ONLINE UMU", "1-31/12/2025", "GMTC LEVEL 1 (NEW)", "86/100, 84/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0033"],
+      ["GEELY VO VAN KIET", "NGUYEN TRUNG KHANH", "ONLINE UMU", "1-31/12/2025", "GMTC LEVEL 1 (NEW)", "74/100, 76/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0034"],
+      ["GEELY GIAI PHONG", "NGUYEN CONG CUONG", "ONLINE UMU", "1-31/12/2025", "GMTC LEVEL 1 (NEW)", "72/100, 92/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0037"],
+      ["GEELY HAI PHONG", "PHAM VAN LINH", "ONLINE UMU", "1-31/12/2025", "GMTC LEVEL 1 (NEW)", "80/100, 78/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0038"],
+      ["GEELY BINH PHUOC", "NGUYEN DUY HOANG", "ONLINE UMU", "1-31/12/2025", "GMTC LEVEL 1 (NEW)", "74/100, 76/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0039"],
+      ["GEELY HOA BINH", "VU MINH TIEN", "ONLINE UMU", "1-31/12/2025", "GMTC LEVEL 1 (NEW)", "90/100, 70/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0040"],
+      ["GEELY HOA BINH", "NGUYEN QUANG HIEU", "ONLINE UMU", "1-31/12/2025", "GMTC LEVEL 1 (NEW)", "90/100, 84/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0041"],
+      ["GEELY VUNG TAU", "MAI VAN DAI", "ONLINE UMU", "1-31/12/2025", "GMTC LEVEL 1 (NEW)", "76/100, 74/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0042"],
+      ["GEELY HUNG YEN", "DO QUANG LINH", "ONLINE UMU", "1-31/12/2025", "GMTC LEVEL 1 (NEW)", "80/100, 70/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0044"],
+      ["GEELY HAI DUONG", "TONG DUC HOA", "ONLINE UMU", "1-31/12/2025", "GMTC LEVEL 1 (NEW)", "80/100, 84/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0036"],
+      ["GEELY BAC GIANG", "NGO VAN THI", "ONLINE UMU", "1-31/12/2025", "GMTC LEVEL 1 (NEW)", "80/100, 86/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0046"],
+      ["GEELY HAI DUONG", "PHAM VAN KIEN", "ONLINE UMU", "1-31/12/2025", "GMTC LEVEL 1 (NEW)", "80/100, 86/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0048"],
+      ["GEELY CA MAU", "DO HOANG LINH", "ONLINE UMU", "1-31/01/2026", "GMTC LEVEL 1 (NEW)", "84/100, 88/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0050"],
+      ["GEELY DA NANG", "PHAM VAN THUAN", "ONLINE UMU", "1-31/01/2026", "GMTC LEVEL 1 (NEW)", "90/100, 92/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0061"],
+      ["GEELY VUNG TAU", "BUI VAN NAM", "ONLINE UMU", "1-31/01/2026", "GMTC LEVEL 1 (NEW)", "82/100, 84/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0058"],
+      ["GEELY TAY NINH", "TRUONG ANH DUNG", "ONLINE UMU", "1-31/01/2026", "GMTC LEVEL 1 (NEW)", "74/100, 78/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0059"],
+      ["GEELY TAY NINH", "TRAN MINH THIEN", "ONLINE UMU", "1-31/01/2026", "GMTC LEVEL 1 (NEW)", "82/100, 88/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0060"],
+      ["GEELY DA LAT", "PHAM TRONG KIEN", "ONLINE UMU", "1-31/01/2026", "GMTC LEVEL 1 (NEW)", "82/100, 82/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0066"],
+      ["GEELY DA LAT", "HA TRAN MINH HIEU", "ONLINE UMU", "1-31/01/2026", "GMTC LEVEL 1 (NEW)", "72/100, 74/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0063"],
+      ["GEELY DAK NONG", "NGUYEN THANH SON", "ONLINE UMU", "1-31/01/2026", "GMTC LEVEL 1 (NEW)", "90/100, 94/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0062"],
+      ["GEELY DAK NONG", "DOAN VAN TINH", "ONLINE UMU", "1-31/01/2026", "GMTC LEVEL 1 (NEW)", "94/100, 92/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0064"],
+      ["GEELY HAI PHONG", "VU TRUNG HIEU", "ONLINE UMU", "1-31/01/2026", "GMTC LEVEL 1 (NEW)", "80/100, 80/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0067"],
+      ["GEELY BINH THUAN", "NGUYEN TUAN VU", "ONLINE UMU", "1-31/01/2026", "GMTC LEVEL 1 (NEW)", "74/100, 86/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY NHA TRANG", "NGUYEN THANH TRONG", "ONLINE UMU", "1-31/01/2026", "GMTC LEVEL 1 (NEW)", "70/100, 84/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0071"],
+      ["GEELY HA NAM", "NGUYEN ANH DUC", "ONLINE UMU", "1-31/01/2026", "GMTC LEVEL 1 (NEW)", "88/100, 90/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0072"],
+      ["GEELY LANG SON", "LY VAN LONG", "ONLINE UMU", "1-28/02/2026", "GMTC LEVEL 1 (NEW)", "76/100, 76/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0075"],
+      ["GEELY CA MAU", "TRUONG TRONG QUYEN", "ONLINE UMU", "1-28/02/2026", "GMTC LEVEL 1 (NEW)", "84/100, 86/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0077"],
+      ["GEELY DAK LAK", "TA VAN NAM", "ONLINE UMU", "1-28/02/2026", "GMTC LEVEL 1 (NEW)", "94/100, 94/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0078"],
+      ["GEELY KIEN GIANG", "NGUYEN TRUNG NGHI", "ONLINE UMU", "1-28/02/2026", "GMTC LEVEL 1 (NEW)", "86/100, 90/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0079"],
+      ["GEELY GIA LAI", "HA TRONG PHU", "ONLINE UMU", "1-28/02/2026", "GMTC LEVEL 1 (NEW)", "76/100, 74/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0080"],
+      ["GEELY LONG AN", "LE MINH SANG", "ONLINE UMU", "1-28/02/2026", "GMTC LEVEL 1 (NEW)", "84/100, 86/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0081"],
+      ["GEELY BINH THUAN", "TRAN XUAN HUY", "ONLINE UMU", "1-28/02/2026", "GMTC LEVEL 1 (NEW)", "94/100, 74/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0082"],
+      ["GEELY NINH THUAN", "TRUONG NGOC PHAT", "ONLINE UMU", "1-28/02/2026", "GMTC LEVEL 1 (NEW)", "86/100, 74/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0083"],
+      ["GEELY NINH THUAN", "NGUYEN TRONG NHAN", "ONLINE UMU", "1-28/02/2026", "GMTC LEVEL 1 (NEW)", "76/100, 70/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0084"],
+      ["GEELY QUANG NGAI", "NGO VAN DAI", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "90/100, 86/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0086"],
+      ["GEELY BEN TRE", "NGUYEN THANH LIEM", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "86/100, 86/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0087"],
+      ["GEELY THANH HOA", "LE HAI TRIEU", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "78/100, 82/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0088"],
+      ["GEELY THANH HOA", "PHAM MINH DUONG", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "70/100, 76/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0089"],
+      ["GEELY KIEN GIANG", "TRAN NGOC DINH", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "80/100, 84/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0091"],
+      ["GEELY SON LA", "HOANG HOAI HUNG", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "78/100, 92/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0092"],
+      ["GEELY CAN THO (CAI RANG)", "NGUYEN TRAN PHUONG DUY", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "82/100, 94/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0093"],
+      ["GEELY CAN THO (CAI RANG)", "DUONG TRUNG KIEN", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "80/100, 94/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0094"],
+      ["GEELY CAN THO (CAI RANG)", "TRAN MINH DUY", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "74/100, 98/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0095"],
+      ["GEELY CAN THO (CAI RANG)", "NGUYEN VAN HIEU", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "84/100, 98/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0096"],
+      ["GEELY YEN BAI", "HOANG DINH HUNG", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "70/100, 72/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0097"],
+      ["GEELY YEN BAI", "NGUYEN DUC TOAN", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "70/100, 74/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0098"],
+      ["GEELY YEN BAI", "TRAN QUANG DUNG", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "72/100, 76/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0099"],
+      ["GEELY YEN BAI", "LUONG VAN TRUNG", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "72/100, 74/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0100"],
+      ["GEELY TRA VINH", "PHUNG QUOC VINH", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "72/100, 82/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0101"],
+      ["GEELY NINH THUAN", "TRUONG TAN HA", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "72/100, 72/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0102"],
+      ["GEELY DA NANG", "NGUYEN PHAN SANG", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "80/100, 88/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0103"],
+      ["GEELY DA NANG", "HUYNH LE TAN PHUC", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "84/100, 88/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0104"],
+      ["GEELY SON LA", "NGUYEN THE HUNG", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "84/100, 94/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0105"],
+      ["GEELY QUANG NGAI", "LE NGOC TUNG", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "90/100, 82/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0106"],
+      ["GEELY THAI BINH", "LE VAN MANH", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "76/100, 72/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0107"],
+      ["GEELY THAI BINH", "TRINH TIEN VUNG", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "74/100, 88/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0108"],
+      ["GEELY NHA TRANG", "HUYNH DUY THONG", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "70/100, 84/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0110"],
+      ["GEELY NHA TRANG", "NGUYEN HUU NGUYEN", "ONLINE UMU", "1-31/03/2026", "GMTC LEVEL 1 (NEW)", "70/100, 84/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0111"],
+      ["GEELY BAC LIEU", "THACH NGOC DAN", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "80/100, 74/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0051"],
+      ["GEELY BAC LIEU", "DANG HUNG DUNG", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "86/100, 80/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0109"],
+      ["GEELY LONG AN", "TRAN MINH TIEN", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "86/100, 88/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0054"],
+      ["GEELY LONG AN", "LE THANH TAM", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "86/100, 90/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0055"],
+      ["GEELY VINH LONG", "NGUYEN THANH TAM", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "74/100, 80/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0069"],
+      ["GEELY CAN THO", "THAI HUYNH SON DIEN", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "88/100, 86/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0070"],
+      ["GEELY VINH LONG", "PHAM QUOC CUONG", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "96/100, 76/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0073"],
+      ["GEELY DAK NONG", "BUI QUANG HUY", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "94/100, 92/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0090"],
+      ["GEELY NAM DINH", "NGUYEN MINH CONG", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "82/100, 92/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0112"],
+      ["GEELY DAK NONG", "NGUYEN VAN VUONG", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "92/100, 94/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0113"],
+      ["GEELY PHU QUOC", "TRAN QUOC DUY", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "74/100, 72/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0032"],
+      ["GEELY PHU MY HUNG", "THACH BO NI", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "72/100, 72/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0007"],
+      ["GEELY AN GIANG", "HO TY PHU NAM", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "76/100, 82/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0021"],
+      ["GEELY AN GIANG", "BUI TIEN GIANG", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "78/100, 86/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0024"],
+      ["GEELY HAU GIANG", "NGUYEN HOANG NHA", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "88/100, 78/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0020"],
+      ["GEELY LAI CHAU", "NGUYEN TRUONG DONG", "ONLINE UMU", "1-30/4/2026", "GMTC LEVEL 1 (NEW)", "80/100, 74/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0010"],
+      ["GEELY BAC NINH", "NGUYEN DINH QUYET", "ONLINE UMU", "1-31/5/2026", "GMTC LEVEL 1 (NEW)", "74/100, 88/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0029"],
+      ["GEELY BAC NINH", "NGUYEN VAN CHUC", "ONLINE UMU", "1-31/5/2026", "GMTC LEVEL 1 (NEW)", "76/100, 88/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0030"],
+      ["GEELY DIEN BIEN", "NGUYEN HUU TUAN ANH", "ONLINE UMU", "1-31/5/2026", "GMTC LEVEL 1 (NEW)", "90/100, 98/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0043"],
+      ["GEELY TUYEN QUANG", "LUONG VIET TIEN", "ONLINE UMU", "1-31/5/2026", "GMTC LEVEL 1 (NEW)", "94/100, 100/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0045"],
+      ["GEELY TUYEN QUANG", "TRINH NGOC DUC", "ONLINE UMU", "1-31/5/2026", "GMTC LEVEL 1 (NEW)", "100/100, 98/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0047"],
+      ["GEELY HA GIANG", "HOANG ANH TUAN", "ONLINE UMU", "1-31/5/2026", "GMTC LEVEL 1 (NEW)", "98/100, 98/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0065"],
+      ["GEELY HA GIANG", "NINH TIEN THIEN", "ONLINE UMU", "1-31/5/2026", "GMTC LEVEL 1 (NEW)", "100/100, 76/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0115"],
+      ["GEELY TAN PHU", "VO ANH KIET", "ONLINE UMU", "1-31/5/2026", "GMTC LEVEL 1 (NEW)", "94/100, 98/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0116"],
+      ["GEELY HAI DUONG", "TRAN MINH VUONG", "ONLINE UMU", "1-31/5/2026", "GMTC LEVEL 1 (NEW)", "98/100, 96/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0117"],
+      ["GEELY QUANG NAM", "NGUYEN TRAN HOANG LAN", "ONLINE UMU", "1-31/5/2026", "GMTC LEVEL 1 (NEW)", "98/100, 96/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0118"],
+      ["GEELY QUANG NAM", "DO QUANG VIET", "ONLINE UMU", "1-31/5/2026", "GMTC LEVEL 1 (NEW)", "100/100, 100/100", "LE KHANHVAN", "PASSED", "GMTC-D-1-VN-0119"],
+      ["GEELY BINH THUAN", "TRAN NGOC THAO", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "100/100, 98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0120"],
+      ["GEELY PHU QUOC", "PHAM TRONG NHAN", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "98/100, 86/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0121"],
+      ["GEELY HA DONG", "LE PHUOC LUA", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "100/100, 76/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0114"],
+      ["GEELY QUANG BINH", "NGUYEN NGOC HOAN", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "96/100, 90/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0122"],
+      ["GEELY VINH LONG", "NGUYEN TRUNG HIEU", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "96/100, 98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0123"],
+      ["GEELY PHU THO", "TRAN MANH LINH", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "94/100, 98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0124"],
+      ["GEELY DONG NAI", "LY VAN CHUNG", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "100/100, 100/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0125"],
+      ["GEELY DONG NAI", "HUYNH THANH SANG", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "100/100, 100/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0126"],
+      ["GEELY LONG BIEN", "BUI DUC TUYEN", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "84/100, 90/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0127"],
+      ["GEELY CA MAU", "HO THANH TOAN", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "100/100, 98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0052"],
+      ["GEELY TIEN GIANG", "BUI QUANG CAO NHAN", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "90/100, 90/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0128"],
+      ["GEELY CA MAU", "DIEP HOANG PHAT", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "92/100, 94/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0129"],
+      ["GEELY SOC TRANG", "SON MANH", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "100/100, 82/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0130"],
+      ["GEELY BINH PHUOC", "LE MINH TU", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "100/100, 94/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0131"],
+      ["GEELY TAN PHU", "LE CHAU GO BIN", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "92/100, 98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0132"],
+      ["GEELY TAN PHU", "LE TRUONG THANH VIET", "ONLINE UMU", "1-30/6/2026", "GMTC LEVEL 1 (NEW)", "92/100, 96/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0133"],
+      ["GEELY NGHI SON", "NGUYEN NGOC TUNG", "ONLINE UMU", "1-31/7/2026", "GMTC LEVEL 1 (NEW)", "94/100, 70/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0136"],
+      ["GEELY NGHI SON", "TRINH XUAN DUC", "ONLINE UMU", "1-31/7/2026", "GMTC LEVEL 1 (NEW)", "92/100, 98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0057"],
+      ["GEELY BINH DUONG (THUAN AN)", "VAN CONG ANH KHOA", "ONLINE UMU", "1-31/7/2026", "GMTC LEVEL 1 (NEW)", "96/100, 80/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0014"],
+      ["GEELY BINH DUONG (THUAN AN)", "PHAN THANH NAM", "ONLINE UMU", "1-31/7/2026", "GMTC LEVEL 1 (NEW)", "100/100, 100/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0134"],
+      ["GEELY KON TUM", "THAI HONG ANH", "ONLINE UMU", "1-31/7/2026", "GMTC LEVEL 1 (NEW)", "72/100, 72/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0135"],
+      ["GEELY BAC GIANG", "GIAP VAN CUONG", "ONLINE UMU", "1-31/7/2026", "GMTC LEVEL 1 (NEW)", "96/100, 98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0137"],
+      ["GEELY THAI NGUYEN", "NGUYEN THANH PHUONG", "ONLINE UMU", "1-31/7/2026", "GMTC LEVEL 1 (NEW)", "76/100, 96/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0138"],
+      ["GEELY KON TUM", "TA HOANG HUY", "ONLINE UMU", "1-31/7/2026", "GMTC LEVEL 1 (NEW)", "70/100, 82/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0139"],
+      ["GEELY DONG THAP", "NGO QUOC KIET", "ONLINE UMU", "1-31/7/2026", "GMTC LEVEL 1 (NEW)", "78/100, 84/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0140"],
+      ["GEELY THANH HOA", "NGUYEN VAN TIEN", "ONLINE UMU", "1-31/7/2026", "GMTC LEVEL 1 (NEW)", "82/100, 98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0142"],
+      ["GEELY GIAI PHONG", "TRAN DUC THO", "ONLINE UMU", "1-31/7/2026", "GMTC LEVEL 1 (NEW)", "78/100, 82/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0053"],
+      ["GEELY VINH PHUC", "NGUYEN MINH TAN", "ONLINE UMU", "1-31/8/2026", "GMTC LEVEL 1 (NEW)", "100/100, 98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0023"],
+      ["GEELY HA NAM", "TRAN VUONG BINH", "ONLINE UMU", "1-31/8/2026", "GMTC LEVEL 1 (NEW)", "90/100, 82/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0143"],
+      ["GEELY DA LAT", "PHAM BA HUNG", "ONLINE UMU", "1-31/8/2026", "GMTC LEVEL 1 (NEW)", "72/100, 72/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0144"],
+      ["GEELY PHU MY HUNG", "PHAN PHU VINH", "ONLINE UMU", "1-31/8/2026", "GMTC LEVEL 1 (NEW)", "88/100, 90/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0145"],
+      ["GEELY PHU QUOC", "HUYNH VAN PHI", "ONLINE UMU", "1-31/8/2026", "GMTC LEVEL 1 (NEW)", "98/100, 98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0074"],
+      ["GEELY VINH PHUC", "VU LE BINH", "ONLINE UMU", "1-30/9/2026", "GMTC LEVEL 1 (NEW)", "82/100, 100/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0146"],
+      ["GEELY DONG NAI", "TRAN LY VUONG", "ONLINE UMU", "1-30/9/2026", "GMTC LEVEL 1 (NEW)", "98/100, 98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0147"],
+      ["GEELY SOC TRANG", "NGUYEN HONG PHUC", "ONLINE UMU", "1-30/9/2026", "GMTC LEVEL 1 (NEW)", "100/100,98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0141"],
+      ["GEELY DA NANG", "LE HONG TRI", "ONLINE UMU", "1-30/9/2026", "GMTC LEVEL 1 (NEW)", "100/100, 98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0148"],
+      ["GEELY NHA TRANG", "NGUYEN QUOC TRONG", "ONLINE UMU", "1-30/9/2026", "GMTC LEVEL 1 (NEW)", "96/100, 96/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0149"],
+      ["GEELY TAY NINH", "NGUYEN THANH BINH", "ONLINE UMU", "1-30/10/2026", "GMTC LEVEL 1 (NEW)", "100/100, 100/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0076"],
+      ["GEELY LANG SON", "MA VAN NGHI", "ONLINE UMU", "1-30/10/2026", "GMTC LEVEL 1 (NEW)", "100/100, 98/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0085"],
+      ["GEELY BINH DUONG (THUAN AN)", "TRAN GIA LAC", "ONLINE UMU", "1-30/10/2026", "GMTC LEVEL 1 (NEW)", "98/100, 100/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0056"],
+      ["GEELY BINH DUONG (THUAN AN)", "TRAN HUU", "ONLINE UMU", "1-30/10/2026", "GMTC LEVEL 1 (NEW)", "96/100, 96/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0001"],
+      ["GEELY CHE LAN VIEN", "HUYNH THANH VU", "ONLINE UMU", "1-30/10/2026", "GMTC LEVEL 1 (NEW)", "70/100, 72/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0025"],
+      ["GEELY PHU QUOC", "HOANG TUAN TAI", "ONLINE UMU", "1-30/10/2026", "GMTC LEVEL 1 (NEW)", "100/100, 100/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0035"],
+      ["GEELY VUNG TAU", "DUONG THANH SON", "ONLINE", "1-30/10/2026", "GMTC LEVEL 1 (NEW)", "86/100, 96/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0049"],
+      ["GEELY THANH HOA", "LE HUU HOANG", "ONLINE", "1-30/10/2026", "GMTC LEVEL 1 (NEW)", "100/100, 100/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0068"],
+      ["GEELY DA NANG", "TRAN KHAC TRIEU", "HO CHI MINH", "22-23/12/2025", "GMTC LEVEL II", "85/100", "LE KHANH VAN", "PASSED", "GMTC-D-2-VN-0001"],
+      ["GEELY PHU MY HUNG", "VO HONG PHAT", "HO CHI MINH", "22-23/12/2025", "GMTC LEVEL II", "80/100", "LE KHANH VAN", "PASSED", "GMTC-D-2-VN-0002"],
+      ["GEELY BINH DUONG", "NGUYEN VAN LUAN", "HO CHI MINH", "22-23/12/2025", "GMTC LEVEL II", "80/100", "LE KHANH VAN", "PASSED", "GMTC-D-2-VN-0003"],
+      ["GEELY CA MAU", "CHAU PHUOC LOC", "HO CHI MINH", "22-23/12/2025", "GMTC LEVEL II", "100/100", "LE KHANH VAN", "PASSED", "GMTC-D-2-VN-0004"],
+      ["GEELY CAN THO", "NGUYEN HOANG OANH", "HO CHI MINH", "22-23/12/2025", "GMTC LEVEL II", "92.5/100", "LE KHANH VAN", "PASSED", "GMTC-D-2-VN-0005"],
+      ["GEELY VO VAN KIET", "TO HOANG DUY", "HO CHI MINH", "22-23/12/2025", "GMTC LEVEL II", "70/100", "LE KHANH VAN", "PASSED", "GMTC-D-2-VN-0006"],
+      ["GEELY VUNG TAU", "MAI VAN DAI", "HO CHI MINH", "22-23/12/2025", "GMTC LEVEL II", "97.5/100", "LE KHANH VAN", "PASSED", "GMTC-D-2-VN-0007"],
+      ["GEELY TAN PHU", "HUYNH THUAN BINH", "HO CHI MINH", "22-23/12/2025", "GMTC LEVEL II", "95/100", "LE KHANH VAN", "PASSED", "GMTC-D-2-VN-0008"],
+      ["GEELY BINH PHUOC", "NGUYEN DUY HOANG", "HO CHI MINH", "22-23/12/2025", "GMTC LEVEL II", "87.5/100", "LE KHANH VAN", "PASSED", "GMTC-D-2-VN-0009"],
+      ["GEELY QUANG NINH", "HOANG MINH QUYNH", "HA NOI", "22-23/12/2025", "GMTC LEVEL II", "75/100", "LE THE HOANG", "PASSED", "GMTC-D-2-VN-0010"],
+      ["GEELY GIAI PHONG", "HOANG VAN TOAN", "HA NOI", "22-23/12/2025", "GMTC LEVEL II", "80/100", "LE THE HOANG", "PASSED", "GMTC-D-2-VN-0011"],
+      ["GEELY LONG BIEN", "DUONG QUOC THUYEN", "HA NOI", "22-23/12/2025", "GMTC LEVEL II", "75/100", "LE THE HOANG", "PASSED", "GMTC-D-2-VN-0012"],
+      ["GEELY PHAM VAN DONG", "NGUYEN TIEN QUYNH", "HA NOI", "22-23/12/2025", "GMTC LEVEL II", "90/100", "LE THE HOANG", "PASSED", "GMTC-D-2-VN-0013"],
+      ["GEELY HA TINH", "PHAM HUU PHUC", "HA NOI", "22-23/12/2025", "GMTC LEVEL II", "87.5/100", "LE THE HOANG", "PASSED", "GMTC-D-2-VN-0014"],
+      ["GEELY THAI NGUYEN", "PHAM DOAN MANH", "HA NOI", "22-23/12/2025", "GMTC LEVEL II", "92.5/100", "LE THE HOANG", "PASSED", "GMTC-D-2-VN-0015"],
+      ["GEELY BAC GIANG", "NGO VAN THI", "HA NOI", "22-23/12/2025", "GMTC LEVEL II", "87.5/100", "LE THE HOANG", "PASSED", "GMTC-D-2-VN-0018"],
+      ["GEELY HUNG YEN", "DO QUANG LINH", "HA NOI", "22-23/12/2025", "GMTC LEVEL II", "87.5/100", "LE THE HOANG", "PASSED", "GMTC-D-2-VN-0016"],
+      ["GEELY NAM DINH", "TRAN VAN NGHIA", "HA NOI", "22-23/12/2025", "GMTC LEVEL II", "80/100", "LE THE HOANG", "PASSED", "GMTC-D-2-VN-0017"],
+      ["GEELY HAI DUONG", "PHAM VAN KIEN", "HA NOI", "22-23/12/2025", "GMTC LEVEL II", "85/100", "LE THE HOANG", "PASSED", "GMTC-D-2-VN-0019"],
+      ["GEELY HA DONG", "LE PHUOC LUA", "HA NOI", "21-22/5/2026", "GMTC LEVEL II", "93.5/100", "LE THE HOANG", "PASSED", ""],
+      ["GEELY QUANG BINH", "DINH THANH VINH", "HA NOI", "21-22/5/2026", "GMTC LEVEL II", "97.5/100", "LE THE HOANG", "PASSED", ""],
+      ["GEELY PHU THO", "TRAN MANH LINH", "HA NOI", "21-22/5/2026", "GMTC LEVEL II", "97.5/100", "LE THE HOANG", "PASSED", ""],
+      ["GEELY HOA BINH", "NGUYEN QUANG HIEU", "HA NOI", "21-22/5/2026", "GMTC LEVEL II", "84.5/100", "LE THE HOANG", "PASSED", ""],
+      ["GEELY HOA BINH", "VU MINH TIEN", "HA NOI", "21-22/5/2026", "GMTC LEVEL II", "82.5/100", "LE THE HOANG", "PASSED", ""],
+      ["GEELY VINH PHUC", "TRAN QUANG LUC", "HA NOI", "21-22/5/2026", "GMTC LEVEL II", "95/100", "LE THE HOANG", "PASSED", ""],
+      ["GEELY THAI BINH", "LE VAN MANH", "HA NOI", "21-22/5/2026", "GMTC LEVEL II", "92.5/100", "LE THE HOANG", "PASSED", ""],
+      ["GEELY THAI BINH", "TRINH TIEN VUNG", "HA NOI", "21-22/5/2026", "GMTC LEVEL II", "93.5/100", "LE THE HOANG", "PASSED", ""],
+      ["GEELY HAI PHONG", "VU PHUONG ANH", "HA NOI", "21-22/5/2026", "GMTC LEVEL II", "91/100", "LE THE HOANG", "PASSED", ""],
+      ["GEELY LANG SON", "PHUONG QUOC HUY", "HA NOI", "21-22/5/2026", "GMTC LEVEL II", "97.5/100", "LE THE HOANG", "PASSED", ""],
+      ["GEELY KIEN GIANG", "NGUYEN TRUNG NGHI", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "100/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY GIA LAI", "HA TRONG PHU", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "100/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY BINH THUAN", "NGUYEN TUAN VU", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "100/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY CHE LAN VIEN", "LAM HONG KY", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "90/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY CHE LAN VIEN", "VO VAN TUAN", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "98.5/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY CAN THO (HUNG PHU)", "THAI HUYNH SON DIEN", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "100/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY TAY NINH", "TRUONG ANH DUNG", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "100/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY TAY NINH", "NGUYEN HO TRI THUC", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "76/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY CA MAU", "NGUYEN THANH CONG", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "100/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY QUANG NGAI", "LE NGOC TUNG", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "80/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY DAK NONG", "BUI QUANG HUY", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "84.5/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY DAK NONG", "NGUYEN VAN VUONG", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "100/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY PHU MY HUNG", "NGUYEN TRONG NGUYEN", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "71/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY PHU MY HUNG", "NGUYEN THANH TRONG", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "74/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY LONG AN", "LE MINH SANG", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "100/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY BA RIA", "TRAN VAN MINH TRUONG", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "100/100", "LE KHANH VAN", "PASSED", ""],
+      ["GEELY DAK LAK", "TA VAN NAM", "HO CHI MINH", "21-22/5/2026", "GMTC LEVEL II", "61.5/100", "LE KHANH VAN", "PASSED", ""]
     ];
 
     const INITIAL_USERS = [];
-
-    const PROVINCE_PERCENT_MAP = {
-      'HA NOI': { x: 48.5, y: 15.5 },
-      'LONG BIEN': { x: 49.5, y: 15.7 },
-      'PHAM VAN DONG': { x: 47.5, y: 15.2 },
-      'GIAI PHONG': { x: 48.5, y: 16.2 },
-      'HA DONG': { x: 46.5, y: 16.5 },
-      'HAI PHONG': { x: 57.0, y: 16.2 },
-      'QUANG NINH': { x: 61.5, y: 14.8 },
-      'BAC GIANG': { x: 52.5, y: 13.5 },
-      'BAC NINH': { x: 50.5, y: 14.8 },
-      'THAI NGUYEN': { x: 48.0, y: 12.2 },
-      'LANG SON': { x: 57.0, y: 10.5 },
-      'HA GIANG': { x: 40.5, y: 7.0 },
-      'TUYEN QUANG': { x: 44.5, y: 11.2 },
-      'YEN BAI': { x: 40.5, y: 12.8 },
-      'PHU THO': { x: 44.0, y: 14.8 },
-      'VINH PHUC': { x: 46.5, y: 14.0 },
-      'HOA BINH': { x: 43.0, y: 18.5 },
-      'SON LA': { x: 34.0, y: 15.5 },
-      'DIEN BIEN': { x: 26.0, y: 13.2 },
-      'LAI CHAU': { x: 31.0, y: 10.0 },
-      'HUNG YEN': { x: 51.0, y: 16.8 },
-      'HAI DUONG': { x: 53.0, y: 16.0 },
-      'HA NAM': { x: 49.0, y: 17.8 },
-      'NAM DINH': { x: 51.5, y: 18.8 },
-      'THAI BINH': { x: 54.0, y: 18.0 },
-      'THANH HOA': { x: 47.0, y: 22.8 },
-      'NGHI SON': { x: 48.8, y: 25.0 },
-      'HA TINH': { x: 52.0, y: 30.2 },
-      'QUANG BINH': { x: 57.5, y: 34.5 },
-      'DA NANG': { x: 71.5, y: 45.8 },
-      'QUANG NAM': { x: 72.5, y: 48.0 },
-      'QUANG NGAI': { x: 75.5, y: 51.0 },
-      'GIA LAI': { x: 69.5, y: 59.8 },
-      'KON TUM': { x: 68.5, y: 55.5 },
-      'DAK LAK': { x: 70.5, y: 66.0 },
-      'DAK NONG': { x: 66.0, y: 70.0 },
-      'DA LAT': { x: 72.5, y: 72.5 },
-      'NHA TRANG': { x: 80.5, y: 68.5 },
-      'NINH THUAN': { x: 77.5, y: 73.0 },
-      'BINH THUAN': { x: 72.5, y: 76.5 },
-      'BINH DUONG': { x: 53.5, y: 78.5 },
-      'BINH PHOC': { x: 57.0, y: 74.5 },
-      'DONG NAI': { x: 58.0, y: 79.0 },
-      'BA RIA': { x: 61.0, y: 82.0 },
-      'VUNG TAU': { x: 60.0, y: 83.2 },
-      'HO CHI MINH': { x: 52.5, y: 80.5 },
-      'PHU MY HUNG': { x: 53.0, y: 81.5 },
-      'VO VAN KIET': { x: 52.0, y: 81.0 },
-      'TAN PHU': { x: 51.5, y: 80.2 },
-      'CHE LAN VIEN': { x: 51.0, y: 80.4 },
-      'TAY NINH': { x: 47.5, y: 77.0 },
-      'LONG AN': { x: 48.0, y: 82.0 },
-      'TIEN GIANG': { x: 45.5, y: 83.5 },
-      'BEN TRE': { x: 47.5, y: 84.8 },
-      'DONG THAP': { x: 41.5, y: 83.5 },
-      'VINH LONG': { x: 44.5, y: 85.2 },
-      'TRA VINH': { x: 47.0, y: 86.5 },
-      'CAN THO': { x: 41.5, y: 86.2 },
-      'HAU GIANG': { x: 40.5, y: 87.8 },
-      'SOC TRANG': { x: 43.5, y: 89.0 },
-      'AN GIANG': { x: 36.5, y: 83.8 },
-      'KIEN GIANG': { x: 32.5, y: 87.0 },
-      'PHU QUOC': { x: 24.5, y: 86.5 },
-      'BAC LIEU': { x: 38.5, y: 90.5 },
-      'CA MAU': { x: 34.5, y: 92.0 }
-    };
-
-    function getDealerPercentCoords(dealerName) {
-      const upper = (dealerName || '').toUpperCase();
-      for (const [key, coords] of Object.entries(PROVINCE_PERCENT_MAP)) {
-        if (upper.includes(key)) return coords;
-      }
-      return { x: 47, y: 14.5 };
-    }
 
     const state = {
       currentUser: null,
@@ -1284,6 +1371,27 @@
       return 'Miền Bắc';
     }
 
+    function getDealerPercentCoords(dealerName) {
+      const name = (dealerName || '').toUpperCase();
+      if (name.includes('HA NOI') || name.includes('LONG BIEN') || name.includes('GIAI PHONG') || name.includes('PHAM VAN DONG') || name.includes('HA DONG')) return { x: 34, y: 22 };
+      if (name.includes('HAI PHONG')) return { x: 42, y: 24 };
+      if (name.includes('QUANG NINH')) return { x: 48, y: 20 };
+      if (name.includes('DA NANG')) return { x: 62, y: 48 };
+      if (name.includes('HO CHI MINH') || name.includes('TAN PHU') || name.includes('PHU MY HUNG') || name.includes('VO VAN KIET') || name.includes('CHE LAN VIEN')) return { x: 42, y: 80 };
+      if (name.includes('CAN THO')) return { x: 36, y: 88 };
+      if (name.includes('PHU QUOC')) return { x: 26, y: 92 };
+      if (name.includes('HA TINH')) return { x: 46, y: 35 };
+      if (name.includes('THANH HOA')) return { x: 39, y: 28 };
+      if (name.includes('VINH')) return { x: 43, y: 32 };
+      if (name.includes('NHA TRANG')) return { x: 74, y: 64 };
+      if (name.includes('DA LAT')) return { x: 58, y: 72 };
+      if (name.includes('BIEN HOA') || name.includes('DONG NAI')) return { x: 46, y: 79 };
+      if (name.includes('BINH DUONG')) return { x: 42, y: 77 };
+      if (name.includes('VUNG TAU')) return { x: 48, y: 84 };
+      if (name.includes('CA MAU')) return { x: 32, y: 96 };
+      return { x: 40 + Math.floor(Math.random() * 20), y: 30 + Math.floor(Math.random() * 40) };
+    }
+
     function togglePassVisibility(inputId, iconId) {
       const inp = document.getElementById(inputId);
       const icon = document.getElementById(iconId);
@@ -1322,18 +1430,26 @@
 
     function toggleManualCourseFields() {
       const isManual = document.getElementById('courseIsManualCert').checked;
-      document.getElementById('coursePrefixContainer').style.display = isManual ? 'none' : 'block';
-      document.getElementById('courseDigitsContainer').style.display = isManual ? 'none' : 'block';
+      const prefixContainer = document.getElementById('coursePrefixContainer');
+      const digitsContainer = document.getElementById('courseDigitsContainer');
+      if (prefixContainer) prefixContainer.style.display = isManual ? 'none' : 'block';
+      if (digitsContainer) digitsContainer.style.display = isManual ? 'none' : 'block';
     }
 
     function toggleManualCourseFieldsEdit() {
       const isManual = document.getElementById('editCourseIsManualCert').checked;
-      document.getElementById('editCoursePrefixContainer').style.display = isManual ? 'none' : 'block';
-      document.getElementById('editCourseDigitsContainer').style.display = isManual ? 'none' : 'block';
+      const prefixContainer = document.getElementById('editCoursePrefixContainer');
+      const digitsContainer = document.getElementById('editCourseDigitsContainer');
+      if (prefixContainer) prefixContainer.style.display = isManual ? 'none' : 'block';
+      if (digitsContainer) digitsContainer.style.display = isManual ? 'none' : 'block';
     }
 
     function closeEditCourseModal() {
-      document.getElementById('editCourseModal').classList.replace('flex', 'hidden');
+      const modal = document.getElementById('editCourseModal');
+      if (modal) {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+      }
     }
 
     function saveCoursesToLocal() {
@@ -1356,10 +1472,13 @@
       pushToGoogleSheets(false);
     }
 
+    // ==============================================================
+    // AUTHENTICATION & LOGIN
+    // ==============================================================
     async function handleLogin(e) {
       if (e) e.preventDefault();
       const userVal = normalizeStr(document.getElementById('loginUser').value).toLowerCase();
-      const passVal = document.getElementById('loginPass').value.trim();
+      const passVal = document.getElementById('loginPass').value;
 
       const submitBtn = document.getElementById('loginSubmitBtn');
       const btnText = document.getElementById('loginBtnText');
@@ -1371,29 +1490,25 @@
         return;
       }
 
-      submitBtn.disabled = true;
-      btnText.innerText = 'Đang kiểm tra...';
-      btnIcon.className = 'fa-solid fa-spinner fa-spin text-sm';
-      statusP.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Đang đối soát tài khoản trên Google Sheets...`;
+      if (submitBtn) submitBtn.disabled = true;
+      if (btnText) btnText.innerText = 'Đang kiểm tra...';
+      if (btnIcon) btnIcon.className = 'fa-solid fa-spinner fa-spin text-sm';
+      if (statusP) statusP.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Đang xác thực trực tuyến...`;
 
       try {
-        const syncTarget = (state.syncUrl || PRIMARY_GOOGLE_SHEET_URL);
-        const requestUrl = syncTarget + (syncTarget.includes('?') ? '&' : '?') + 't=' + Date.now();
-        const response = await fetch(requestUrl);
+        const response = await fetch(`${state.syncUrl || PRIMARY_GOOGLE_SHEET_URL}?t=${Date.now()}`);
         const res = await response.json();
-
         if (res && res.status === 'SUCCESS' && res.data) {
-          if (res.data.users && Array.isArray(res.data.users) && res.data.users.length > 0) {
+          if (res.data.users && Array.isArray(res.data.users)) {
             state.users = res.data.users.map(u => ({
               username: normalizeStr(u.username).toLowerCase(),
               fullname: u.fullname || u.username,
               role: (u.role || 'viewer').toLowerCase(),
-              hash: (u.hash || '').trim(),
-              plainPassword: String(u.plainPassword || '').trim()
+              hash: (u.hash || '').toLowerCase().trim(),
+              plainPassword: u.plainPassword || ''
             }));
             localStorage.setItem('geely_users', JSON.stringify(state.users));
           }
-
           if (res.data.records && Array.isArray(res.data.records) && res.data.records.length > 0) {
             state.records = res.data.records.map(r => ({
               ...r,
@@ -1403,7 +1518,6 @@
             }));
             localStorage.setItem('geely_records', JSON.stringify(state.records));
           }
-
           if (res.data.dealers && Array.isArray(res.data.dealers) && res.data.dealers.length > 0) {
             state.dealers = res.data.dealers.map(d => ({
               ...d,
@@ -1411,22 +1525,19 @@
             }));
             localStorage.setItem('geely_custom_dealers', JSON.stringify(state.dealers));
           }
-
           if (res.data.courses && Array.isArray(res.data.courses) && res.data.courses.length > 0) {
             state.courses = res.data.courses;
             localStorage.setItem('geely_courses', JSON.stringify(state.courses));
           }
         }
       } catch (err) {
-        console.warn('Lưu ý khi gọi Google Sheet, chuyển sang bộ nhớ dự phòng:', err);
+        console.warn('Lỗi kết nối Sheet khi đăng nhập:', err);
       }
 
       const inputHash = (await sha256(passVal)).toLowerCase();
       let matchedUser = state.users.find(u => {
-        if (normalizeStr(u.username).toLowerCase() !== userVal) return false;
-        const uHash = (u.hash || '').toLowerCase();
-        const uPlain = String(u.plainPassword || '');
-        return (uHash && uHash === inputHash) || (uPlain && uPlain === passVal) || (uHash && uHash === passVal.toLowerCase());
+        if (u.username.toLowerCase() !== userVal) return false;
+        return (u.hash && u.hash === inputHash) || (u.plainPassword && u.plainPassword === passVal);
       });
 
       if (matchedUser) {
@@ -1435,48 +1546,48 @@
         enterApplication();
         showToast(`Đăng nhập thành công! Xin chào ${matchedUser.fullname || matchedUser.username}`, 'success');
       } else {
-        submitBtn.disabled = false;
-        btnText.innerText = 'Đăng nhập hệ thống';
-        btnIcon.className = 'fa-solid fa-arrow-right-to-bracket text-sm';
-        statusP.innerHTML = `<span class="text-rose-500 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Sai tài khoản hoặc mật khẩu!</span>`;
+        if (submitBtn) submitBtn.disabled = false;
+        if (btnText) btnText.innerText = 'Đăng nhập hệ thống';
+        if (btnIcon) btnIcon.className = 'fa-solid fa-arrow-right-to-bracket text-sm';
+        if (statusP) statusP.innerHTML = `<span class="text-rose-500 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Sai tài khoản hoặc mật khẩu!</span>`;
         showToast('Sai tài khoản hoặc mật khẩu!', 'error');
       }
     }
 
     function enterApplication() {
-      document.getElementById('loginScreen').style.display = 'none';
+      const loginScreen = document.getElementById('loginScreen');
       const appContainer = document.getElementById('appContainer');
-      appContainer.classList.replace('hidden', 'flex');
-
-      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
-
-      document.getElementById('currentUserLabel').innerText = state.currentUser ? (state.currentUser.fullname || state.currentUser.username) : 'Admin';
-      document.getElementById('currentUserRole').innerText = isAdmin ? 'Quản trị viên (Admin)' : 'Người xem (Viewer)';
-
-      const navUsers = document.getElementById('nav-users');
-      if (isAdmin) {
-        navUsers.classList.remove('hidden');
-      } else {
-        navUsers.classList.add('hidden');
+      if (loginScreen) loginScreen.style.display = 'none';
+      if (appContainer) {
+        appContainer.classList.remove('hidden');
+        appContainer.classList.add('flex');
       }
 
-      // Khóa toàn bộ form nếu tài khoản là viewer
-      const forms = document.querySelectorAll('#createDealerForm, #recordEntryForm, #createCourseForm, #createUserForm');
-      forms.forEach(f => {
-        const inputs = f.querySelectorAll('input, select, textarea, button');
-        inputs.forEach(inp => {
-          if (!isAdmin) {
-            inp.disabled = true;
-            inp.classList.add('opacity-60', 'cursor-not-allowed');
-          } else {
-            inp.disabled = false;
-            inp.classList.remove('opacity-60', 'cursor-not-allowed');
-          }
-        });
-      });
+      const userLabel = document.getElementById('currentUserLabel');
+      const roleLabel = document.getElementById('currentUserRole');
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
+
+      if (userLabel) userLabel.innerText = state.currentUser ? (state.currentUser.fullname || state.currentUser.username) : 'Người dùng';
+      if (roleLabel) roleLabel.innerText = isAdmin ? 'Quản trị viên (Admin)' : 'Người xem (Viewer)';
+
+      const navUsers = document.getElementById('nav-users');
+      if (navUsers) {
+        if (isAdmin) navUsers.classList.remove('hidden');
+        else navUsers.classList.add('hidden');
+      }
+
+      // Role permission lockdown
+      const btnSaveDealer = document.getElementById('btnSaveDealer');
+      const btnSaveRecord = document.getElementById('btnSaveRecord');
+      const btnSaveCourse = document.getElementById('btnSaveCourse');
+      const btnCreateUser = document.getElementById('btnCreateUser');
+      if (btnSaveDealer) btnSaveDealer.disabled = !isAdmin;
+      if (btnSaveRecord) btnSaveRecord.disabled = !isAdmin;
+      if (btnSaveCourse) btnSaveCourse.disabled = !isAdmin;
+      if (btnCreateUser) btnCreateUser.disabled = !isAdmin;
 
       renderDashboardStats();
-      renderDealerCards();
+      renderDashboardView();
       renderDealersManagerTable();
       populateDropdowns();
       renderCourseTable();
@@ -1490,31 +1601,53 @@
     function handleLogout() {
       sessionStorage.removeItem('geely_session_user');
       state.currentUser = null;
-      document.getElementById('appContainer').classList.replace('flex', 'hidden');
+      const appContainer = document.getElementById('appContainer');
       const loginScreen = document.getElementById('loginScreen');
-      loginScreen.style.display = 'flex';
-      document.getElementById('loginPass').value = '';
-      
-      const submitBtn = document.getElementById('loginSubmitBtn');
-      submitBtn.disabled = false;
-      document.getElementById('loginBtnText').innerText = 'Đăng nhập hệ thống';
-      document.getElementById('loginBtnIcon').className = 'fa-solid fa-arrow-right-to-bracket text-sm';
-      document.getElementById('loginSyncStatus').innerHTML = `<span>Hệ thống xác thực trực tuyến qua Google Sheets</span>`;
+      if (appContainer) {
+        appContainer.classList.remove('flex');
+        appContainer.classList.add('hidden');
+      }
+      if (loginScreen) {
+        loginScreen.style.display = 'flex';
+        document.getElementById('loginPass').value = '';
+        const submitBtn = document.getElementById('loginSubmitBtn');
+        const btnText = document.getElementById('loginBtnText');
+        const btnIcon = document.getElementById('loginBtnIcon');
+        const statusP = document.getElementById('loginSyncStatus');
+        if (submitBtn) submitBtn.disabled = false;
+        if (btnText) btnText.innerText = 'Đăng nhập hệ thống';
+        if (btnIcon) btnIcon.className = 'fa-solid fa-arrow-right-to-bracket text-sm';
+        if (statusP) statusP.innerHTML = `<span>Hệ thống xác thực trực tuyến qua Google Sheets</span>`;
+      }
       showToast('Đã đăng xuất an toàn khỏi hệ thống!', 'info');
     }
 
     function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.replace('block', 'hidden'));
-      document.getElementById(`tab-${tabId}`).classList.replace('hidden', 'block');
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(c => {
+        c.classList.remove('block');
+        c.classList.add('hidden');
+      });
 
-      document.querySelectorAll('.tab-btn').forEach(b => {
+      const selectedContent = document.getElementById(`tab-${tabId}`);
+      if (selectedContent) {
+        selectedContent.classList.remove('hidden');
+        selectedContent.classList.add('block');
+      }
+
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(b => {
         b.className = 'tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 whitespace-nowrap transition';
       });
-      document.getElementById(`nav-${tabId}`).className = 'tab-btn px-3.5 py-2 rounded-lg font-semibold text-white bg-white/10 flex items-center space-x-2 whitespace-nowrap transition';
+
+      const activeBtn = document.getElementById(`nav-${tabId}`);
+      if (activeBtn) {
+        activeBtn.className = 'tab-btn px-3.5 py-2 rounded-lg font-semibold text-white bg-white/10 flex items-center space-x-2 whitespace-nowrap transition';
+      }
 
       if (tabId === 'dashboard') {
         renderDashboardStats();
-        renderDealerCards();
+        renderDashboardView();
       } else if (tabId === 'dealers') {
         renderDealersManagerTable();
       } else if (tabId === 'entry') {
@@ -1533,6 +1666,9 @@
       }
     }
 
+    // ==============================================================
+    // DASHBOARD & MAP RENDERING
+    // ==============================================================
     function renderDashboardStats() {
       const uniqueDealers = new Set(state.records.map(r => r.dealer).filter(Boolean));
       state.dealers.forEach(d => uniqueDealers.add(d.name));
@@ -1540,7 +1676,8 @@
       
       let totalCertsCount = 0;
       state.records.forEach(r => {
-        totalCertsCount += extractCertCodes(r.certCode).length;
+        const cList = extractCertCodes(r.certCode);
+        totalCertsCount += cList.length;
       });
 
       document.getElementById('statTotalDealers').innerText = uniqueDealers.size;
@@ -1548,161 +1685,7 @@
       document.getElementById('statTotalCerts').innerText = totalCertsCount;
     }
 
-    // ==============================================================
-    // MAP RENDERING & INTERACTION FUNCTIONS
-    // ==============================================================
-    function renderMapPins(dealersList) {
-      const layer = document.getElementById('mapMarkersLayer');
-      const legendCount = document.getElementById('mapLegendCount');
-      if (!layer) return;
-      layer.innerHTML = '';
-
-      if (legendCount) {
-        legendCount.innerHTML = `<i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> ${dealersList.length} Điểm`;
-      }
-
-      dealersList.forEach(item => {
-        const dealerObj = state.dealers.find(d => d.name === item.name);
-        let coords = null;
-        if (dealerObj && dealerObj.mapPercentX && dealerObj.mapPercentY) {
-          coords = { x: dealerObj.mapPercentX, y: dealerObj.mapPercentY };
-        } else {
-          coords = getDealerPercentCoords(item.name);
-        }
-
-        const pin = document.createElement('div');
-        pin.id = `map-pin-${item.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
-        pin.className = "absolute w-3.5 h-3.5 rounded-full bg-slate-800 border-2 border-white shadow-md transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-200 hover:scale-150 hover:bg-rose-600";
-        pin.style.left = `${coords.x}%`;
-        pin.style.top = `${coords.y}%`;
-
-        pin.onmouseenter = (e) => showPinTooltip(e, item);
-        pin.onmouseleave = () => hidePinTooltip();
-        pin.onclick = () => openDealerModal(item.name);
-
-        layer.appendChild(pin);
-      });
-    }
-
-    function highlightPinOnMap(dealerName, highlight) {
-      const pinId = `map-pin-${dealerName.replace(/[^a-zA-Z0-9]/g, '_')}`;
-      const pin = document.getElementById(pinId);
-      if (!pin) return;
-
-      if (highlight) {
-        pin.classList.add('active-map-pin', 'bg-rose-600', 'scale-150');
-      } else {
-        pin.classList.remove('active-map-pin', 'bg-rose-600', 'scale-150');
-      }
-    }
-
-    function showPinTooltip(e, item) {
-      const tooltip = document.getElementById('mapTooltip');
-      if (!tooltip) return;
-
-      document.getElementById('mapTooltipName').innerText = item.name;
-      document.getElementById('mapTooltipRegion').innerText = item.region;
-      document.getElementById('mapTooltipTechs').innerText = `KTV: ${item.techs.size}`;
-      document.getElementById('mapTooltipCerts').innerText = `Chứng chỉ: ${item.certCount}`;
-
-      const box = document.getElementById('vietnamMapBox').getBoundingClientRect();
-      const rect = e.target.getBoundingClientRect();
-
-      const posX = rect.left - box.left + (rect.width / 2);
-      const posY = rect.top - box.top;
-
-      tooltip.style.left = `${posX}px`;
-      tooltip.style.top = `${posY - 8}px`;
-      tooltip.classList.remove('hidden');
-
-      highlightPinOnMap(item.name, true);
-    }
-
-    function hidePinTooltip() {
-      const tooltip = document.getElementById('mapTooltip');
-      if (tooltip) tooltip.classList.add('hidden');
-    }
-
-    function handleNewDealerMapClick(e) {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const xPercent = Math.round(((e.clientX - rect.left) / rect.width) * 100);
-      const yPercent = Math.round(((e.clientY - rect.top) / rect.height) * 100);
-
-      const dot = document.getElementById('newDealerPinDot');
-      if (dot) {
-        dot.style.left = `${xPercent}%`;
-        dot.style.top = `${yPercent}%`;
-        dot.classList.remove('hidden');
-      }
-
-      document.getElementById('entryMapX').value = xPercent;
-      document.getElementById('entryMapY').value = yPercent;
-
-      const badge = document.getElementById('entryCoordBadge');
-      if (badge) badge.innerText = `X: ${xPercent}%, Y: ${yPercent}%`;
-    }
-
-    function openDealerLocationModal(dealerId) {
-      const dealer = state.dealers.find(d => d.id === dealerId);
-      if (!dealer) return;
-
-      state.editingDealerLocId = dealerId;
-      document.getElementById('dealerLocModalName').innerText = dealer.name;
-
-      const coords = (dealer.mapPercentX && dealer.mapPercentY) 
-        ? { x: dealer.mapPercentX, y: dealer.mapPercentY } 
-        : getDealerPercentCoords(dealer.name);
-
-      const dot = document.getElementById('editDealerPinDot');
-      dot.style.left = `${coords.x}%`;
-      dot.style.top = `${coords.y}%`;
-      dot.dataset.x = coords.x;
-      dot.dataset.y = coords.y;
-
-      document.getElementById('editDealerCoordBadge').innerText = `X: ${coords.x}%, Y: ${coords.y}%`;
-
-      const modal = document.getElementById('dealerLocationModal');
-      modal.classList.replace('hidden', 'flex');
-    }
-
-    function closeDealerLocationModal() {
-      const modal = document.getElementById('dealerLocationModal');
-      modal.classList.replace('flex', 'hidden');
-      state.editingDealerLocId = null;
-    }
-
-    function handleEditDealerMapClick(e) {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const xPercent = Math.round(((e.clientX - rect.left) / rect.width) * 100);
-      const yPercent = Math.round(((e.clientY - rect.top) / rect.height) * 100);
-
-      const dot = document.getElementById('editDealerPinDot');
-      dot.style.left = `${xPercent}%`;
-      dot.style.top = `${yPercent}%`;
-      dot.dataset.x = xPercent;
-      dot.dataset.y = yPercent;
-
-      document.getElementById('editDealerCoordBadge').innerText = `X: ${xPercent}%, Y: ${yPercent}%`;
-    }
-
-    function saveDealerLocation() {
-      if (!state.editingDealerLocId) return;
-      const dealer = state.dealers.find(d => d.id === state.editingDealerLocId);
-      if (!dealer) return;
-
-      const dot = document.getElementById('editDealerPinDot');
-      const newX = parseInt(dot.dataset.x, 10);
-      const newY = parseInt(dot.dataset.y, 10);
-
-      if (!isNaN(newX) && !isNaN(newY)) {
-        dealer.mapPercentX = newX;
-        dealer.mapPercentY = newY;
-        saveDealersToLocal();
-        showToast(`Đã lưu vị trí bản đồ cho đại lý ${dealer.name}!`, 'success');
-      }
-
-      closeDealerLocationModal();
-      renderDealersManagerTable();
+    function renderDashboardView() {
       renderDealerCards();
     }
 
@@ -1742,6 +1725,7 @@
       });
 
       let list = Array.from(dealerDataMap.values());
+
       if (searchVal) {
         list = list.filter(d => {
           const matchDealer = d.name.includes(searchVal) || d.region.toUpperCase().includes(searchVal);
@@ -1756,6 +1740,7 @@
       else if (sortVal === 'name-asc') list.sort((a, b) => a.name.localeCompare(b.name));
 
       document.getElementById('filteredDealerCount').innerText = `Hiển thị ${list.length} đại lý`;
+
       renderMapPins(list);
 
       if (list.length === 0) {
@@ -1787,18 +1772,24 @@
         }
 
         const card = document.createElement('div');
-        card.className = "bg-white p-5 rounded-2xl border-2 border-slate-300 hover:border-emerald-500 shadow-md hover:shadow-xl hover:ring-2 hover:ring-emerald-400/20 transition-all duration-200 cursor-pointer flex flex-col justify-between group";
-        card.onclick = () => openDealerModal(item.name);
+        card.className = "bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-300 hover:border-emerald-500 shadow-md hover:shadow-xl hover:ring-2 hover:ring-emerald-400/20 transition-all duration-200 cursor-pointer flex flex-col justify-between group";
         card.onmouseenter = () => highlightPinOnMap(item.name, true);
         card.onmouseleave = () => highlightPinOnMap(item.name, false);
+        card.onclick = () => openDealerModal(item.name);
 
         card.innerHTML = `
           <div>
             <div class="flex items-start justify-between mb-2">
-              <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wider">${item.region}</span>
-              <span class="text-slate-400 group-hover:text-emerald-600 transition"><i class="fa-solid fa-arrow-up-right-from-square text-xs"></i></span>
+              <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wider">
+                ${item.region}
+              </span>
+              <span class="text-slate-400 group-hover:text-emerald-600 transition">
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+              </span>
             </div>
-            <h4 class="font-black text-slate-900 text-sm group-hover:text-emerald-700 transition line-clamp-1 uppercase tracking-tight">${item.name}</h4>
+            <h4 class="font-black text-slate-900 text-sm group-hover:text-emerald-700 transition line-clamp-1 uppercase tracking-tight">
+              ${item.name}
+            </h4>
           </div>
           <div>
             <div class="grid grid-cols-2 gap-2.5 mt-4 pt-3 border-t border-slate-200 text-center">
@@ -1819,126 +1810,203 @@
     }
 
     // ==============================================================
-    // 4. DEALER DETAIL MODAL & BATCH DELETE
+    // MAP RENDERING & TOOLTIPS
     // ==============================================================
-    function openDealerModal(dealerName) {
-      state.currentModalDealer = dealerName;
-      state.selectedModalRecords.clear();
+    function renderMapPins(dealersList) {
+      const layer = document.getElementById('mapMarkersLayer');
+      const legendCount = document.getElementById('mapLegendCount');
+      if (!layer) return;
+      layer.innerHTML = '';
 
-      document.body.classList.add('overflow-hidden');
-
-      const modal = document.getElementById('dealerModal');
-      const title = document.getElementById('modalDealerTitle');
-      const subtitle = document.getElementById('modalDealerSubtitle');
-
-      if (title) title.innerText = dealerName;
-      if (subtitle) subtitle.innerText = `Danh sách nhân sự & Chứng chỉ đào tạo GMTC`;
-
-      const courseSelect = document.getElementById('modalCourseFilter');
-      if (courseSelect) {
-        courseSelect.innerHTML = `<option value="ALL">Tất cả khóa học</option>`;
-        const dealerCourses = new Set();
-        state.records.filter(r => r.dealer === dealerName).forEach(r => dealerCourses.add(r.course));
-        dealerCourses.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c;
-          opt.innerText = c;
-          courseSelect.appendChild(opt);
-        });
+      if (legendCount) {
+        legendCount.innerHTML = `<i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> ${dealersList.length} Điểm`;
       }
 
-      renderModalTechnicians();
+      dealersList.forEach(item => {
+        const dealerObj = state.dealers.find(d => d.name === item.name);
+        let coords = null;
+        if (dealerObj && dealerObj.mapPercentX && dealerObj.mapPercentY) {
+          coords = { x: dealerObj.mapPercentX, y: dealerObj.mapPercentY };
+        } else {
+          coords = getDealerPercentCoords(item.name);
+        }
 
-      if (modal) {
-        modal.classList.replace('hidden', 'flex');
-      }
+        const pin = document.createElement('div');
+        pin.id = `map-pin-${item.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        pin.className = "absolute w-3.5 h-3.5 rounded-full bg-slate-800 border-2 border-white shadow-md transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-200 hover:scale-125 z-30 pointer-events-auto";
+        pin.style.left = `${coords.x}%`;
+        pin.style.top = `${coords.y}%`;
+
+        pin.addEventListener('mouseenter', (e) => showPinTooltip(e, item));
+        pin.addEventListener('mouseleave', () => hidePinTooltip());
+        pin.addEventListener('click', () => openDealerModal(item.name));
+
+        layer.appendChild(pin);
+      });
     }
 
-    function closeDealerModal() {
-      const modal = document.getElementById('dealerModal');
-      if (modal) {
-        modal.classList.replace('flex', 'hidden');
-      }
-      document.body.classList.remove('overflow-hidden');
-      state.currentModalDealer = null;
-      state.selectedModalRecords.clear();
+    function highlightPinOnMap(dealerName, highlight) {
+      const pinId = `map-pin-${dealerName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      const pin = document.getElementById(pinId);
+      if (!pin) return;
+      if (highlight) pin.classList.add('active-map-pin');
+      else pin.classList.remove('active-map-pin');
     }
 
-    function renderModalTechnicians() {
-      const tbody = document.getElementById('modalTechTableBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
+    function showPinTooltip(e, item) {
+      const tooltip = document.getElementById('mapTooltip');
+      const box = document.getElementById('vietnamMapBox');
+      if (!tooltip || !box) return;
 
-      const filterVal = document.getElementById('modalCourseFilter').value;
-      let records = state.records.filter(r => r.dealer === state.currentModalDealer);
-      if (filterVal !== 'ALL') {
-        records = records.filter(r => r.course === filterVal);
+      document.getElementById('mapTooltipName').innerText = item.name;
+      document.getElementById('mapTooltipRegion').innerText = item.region;
+      document.getElementById('mapTooltipTechs').innerText = `KTV: ${item.techs.size}`;
+      document.getElementById('mapTooltipCerts').innerText = `Chứng chỉ: ${item.certCount}`;
+
+      const boxRect = box.getBoundingClientRect();
+      const pinRect = e.currentTarget.getBoundingClientRect();
+
+      const posX = pinRect.left - boxRect.left + (pinRect.width / 2);
+      const posY = pinRect.top - boxRect.top;
+
+      tooltip.style.left = `${posX}px`;
+      tooltip.style.top = `${posY}px`;
+      tooltip.classList.remove('hidden');
+
+      highlightPinOnMap(item.name, true);
+    }
+
+    function hidePinTooltip() {
+      const tooltip = document.getElementById('mapTooltip');
+      if (tooltip) tooltip.classList.add('hidden');
+      document.querySelectorAll('#mapMarkersLayer > div').forEach(p => {
+        p.classList.remove('active-map-pin');
+      });
+    }
+
+    function handleNewDealerMapClick(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const xPercent = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+      const yPercent = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+
+      const dot = document.getElementById('newDealerPinDot');
+      dot.style.left = `${xPercent}%`;
+      dot.style.top = `${yPercent}%`;
+      dot.classList.remove('hidden');
+
+      document.getElementById('entryMapX').value = xPercent;
+      document.getElementById('entryMapY').value = yPercent;
+    }
+
+    function openDealerLocationModal(dealerId) {
+      const dealer = state.dealers.find(d => d.id === dealerId);
+      if (!dealer) return;
+      state.editingDealerLocId = dealerId;
+      document.getElementById('dealerLocModalName').innerText = dealer.name;
+
+      const coords = (dealer.mapPercentX && dealer.mapPercentY) ? 
+        { x: dealer.mapPercentX, y: dealer.mapPercentY } : getDealerPercentCoords(dealer.name);
+
+      const dot = document.getElementById('editDealerPinDot');
+      dot.style.left = `${coords.x}%`;
+      dot.style.top = `${coords.y}%`;
+      dot.dataset.x = coords.x;
+      dot.dataset.y = coords.y;
+      document.getElementById('editDealerCoordBadge').innerText = `X: ${coords.x}%, Y: ${coords.y}%`;
+
+      const modal = document.getElementById('dealerLocationModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeDealerLocationModal() {
+      const modal = document.getElementById('dealerLocationModal');
+      if (modal) {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
       }
+      state.editingDealerLocId = null;
+    }
 
-      updateBatchCounter();
+    function handleEditDealerMapClick(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const xPercent = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+      const yPercent = Math.round(((e.clientY - rect.top) / rect.height) * 100);
 
-      if (records.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="7" class="py-8 text-center text-slate-400">
-              Chưa có dữ liệu đào tạo cho đại lý này hoặc không khớp với khóa học đang lọc.
-            </td>
-          </tr>
-        `;
+      const dot = document.getElementById('editDealerPinDot');
+      dot.style.left = `${xPercent}%`;
+      dot.style.top = `${yPercent}%`;
+      dot.dataset.x = xPercent;
+      dot.dataset.y = yPercent;
+      document.getElementById('editDealerCoordBadge').innerText = `X: ${xPercent}%, Y: ${yPercent}%`;
+    }
+
+    function saveDealerLocation() {
+      if (!state.editingDealerLocId) return;
+      const dealer = state.dealers.find(d => d.id === state.editingDealerLocId);
+      if (!dealer) return;
+
+      const dot = document.getElementById('editDealerPinDot');
+      const newX = parseInt(dot.dataset.x, 10);
+      const newY = parseInt(dot.dataset.y, 10);
+
+      if (!isNaN(newX) && !isNaN(newY)) {
+        dealer.mapPercentX = newX;
+        dealer.mapPercentY = newY;
+        saveDealersToLocal();
+        showToast(`Đã lưu vị trí bản đồ cho đại lý ${dealer.name}!`, 'success');
+      }
+      closeDealerLocationModal();
+      renderDealersManagerTable();
+      renderDealerCards();
+    }
+
+    // ==============================================================
+    // DEALER MANAGEMENT & MODALS
+    // ==============================================================
+    function handleCreateDealer(e) {
+      e.preventDefault();
+      if (!state.currentUser || state.currentUser.role !== 'admin') {
+        showToast('Chỉ Quản trị viên mới có quyền thêm đại lý!', 'error');
         return;
       }
 
-      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
-      records.forEach(r => {
-        const isChecked = state.selectedModalRecords.has(r.id);
-        const formattedCert = formatCertCodeHTML(r.certCode);
+      let name = normalizeStr(document.getElementById('dealerNameInput').value).toUpperCase();
+      if (!name.startsWith('GEELY ')) name = 'GEELY ' + name;
 
-        const courseObj = state.courses.find(c => normalizeStr(c.name).toUpperCase() === normalizeStr(r.course).toUpperCase());
-        const isManual = courseObj ? courseObj.isManualCert : false;
+      const region = document.getElementById('dealerRegionInput').value;
+      const address = normalizeStr(document.getElementById('dealerAddressInput').value) || 'Đại lý ủy quyền Geely';
+      const hotline = normalizeStr(document.getElementById('dealerPhoneInput').value) || '1900 xxxx';
+      const manager = normalizeStr(document.getElementById('dealerContactInput').value) || 'Bộ phận Dịch vụ';
+      const mapX = parseInt(document.getElementById('entryMapX').value, 10) || null;
+      const mapY = parseInt(document.getElementById('entryMapY').value, 10) || null;
 
-        let certActionBtn = '';
-        if (isAdmin && (!r.certCode || r.certCode.trim() === '')) {
-          if (isManual) {
-            certActionBtn = `
-              <button onclick="openManualCertModal('${r.id}', '${r.trainee.replace(/'/g, "\\'")}', '${r.course.replace(/'/g, "\\'")}')" class="px-2 py-1 rounded bg-amber-500 hover:bg-amber-600 text-white font-bold text-[10px] shadow transition">
-                <i class="fa-solid fa-pen mr-1"></i> Điền mã CC
-              </button>
-            `;
-          } else {
-            certActionBtn = `
-              <button onclick="handleAutoAssignCert('${r.id}')" class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] shadow transition">
-                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Cấp số CC
-              </button>
-            `;
-          }
-        }
+      if (state.dealers.some(d => d.name === name)) {
+        showToast(`Đại lý "${name}" đã tồn tại!`, 'error');
+        return;
+      }
 
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-        tr.innerHTML = `
-          <td class="py-2.5 px-3 text-center">
-            ${isAdmin ? `<input type="checkbox" onchange="toggleSelectModalRecord('${r.id}', this)" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-geely-blue rounded">` : ''}
-          </td>
-          <td class="py-2.5 px-3 font-bold text-slate-800 uppercase">${r.trainee}</td>
-          <td class="py-2.5 px-3 font-semibold text-geely-blue">${r.course}</td>
-          <td class="py-2.5 px-3">
-            <div class="flex items-center space-x-2">
-              <div class="flex flex-wrap gap-1">${formattedCert || '<span class="text-rose-500 font-semibold text-[11px] italic">Chưa cấp</span>'}</div>
-              ${certActionBtn}
-            </div>
-          </td>
-          <td class="py-2.5 px-3 font-bold text-emerald-600">${r.score || '-'}</td>
-          <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">${r.time || '-'}</td>
-          <td class="py-2.5 px-3 text-right">
-            ${isAdmin ? `
-              <button onclick="deleteSingleRecord('${r.id}')" class="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50 transition" title="Xóa nhân sự">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            ` : `<span class="text-[10px] text-slate-400">Chỉ xem</span>`}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+      const newDealer = {
+        id: `DLR-${Date.now()}`,
+        name: name,
+        region: region,
+        address: address,
+        hotline: hotline,
+        manager: manager,
+        mapPercentX: mapX,
+        mapPercentY: mapY
+      };
+
+      state.dealers.push(newDealer);
+      saveDealersToLocal();
+      document.getElementById('createDealerForm').reset();
+      document.getElementById('newDealerPinDot').classList.add('hidden');
+      showToast(`Đã thêm thành công đại lý ${name}!`, 'success');
+
+      renderDealersManagerTable();
+      renderDashboardStats();
+      renderDealerCards();
+      populateDropdowns();
     }
 
     function renderDealersManagerTable() {
@@ -1952,8 +2020,7 @@
         list = list.filter(d => d.name.includes(searchVal) || d.region.toUpperCase().includes(searchVal));
       }
 
-      const countBadge = document.getElementById('dealerCountBadge');
-      if (countBadge) countBadge.innerText = `${list.length} Đại lý`;
+      document.getElementById('dealerCountBadge').innerText = `${list.length} Đại lý`;
       const isAdmin = state.currentUser && state.currentUser.role === 'admin';
 
       list.forEach((d, idx) => {
@@ -1962,11 +2029,6 @@
         state.records.filter(r => r.dealer === d.name).forEach(r => {
           certsCount += extractCertCodes(r.certCode).length;
         });
-
-        const hasMap = (d.mapPercentX && d.mapPercentY);
-        const coordBadge = hasMap 
-          ? `<span class="font-mono text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">X:${d.mapPercentX}%, Y:${d.mapPercentY}%</span>`
-          : `<span class="text-[10px] text-slate-400 italic">Mặc định</span>`;
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
@@ -1977,21 +2039,215 @@
           <td class="py-2.5 px-3 text-center font-bold text-slate-700">${techsCount}</td>
           <td class="py-2.5 px-3 text-center font-bold text-amber-600">${certsCount}</td>
           <td class="py-2.5 px-3 text-center">
-            <div class="inline-flex items-center space-x-1.5">
-              ${coordBadge}
-              ${isAdmin ? `<button onclick="openDealerLocationModal('${d.id}')" class="p-1 rounded bg-slate-100 hover:bg-geely-blue hover:text-white text-slate-600 transition" title="Điều chỉnh vị trí bản đồ"><i class="fa-solid fa-map-pin text-rose-500"></i></button>` : ''}
-            </div>
+            <button onclick="openDealerLocationModal('${d.id}')" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-mono text-[10px] font-bold transition" title="Điều chỉnh vị trí bản đồ">
+              ${d.mapPercentX && d.mapPercentY ? `X:${d.mapPercentX}, Y:${d.mapPercentY}` : `<i class="fa-solid fa-map-pin text-rose-500"></i> Ghim`}
+            </button>
           </td>
           <td class="py-2.5 px-3 text-right">
-            ${isAdmin ? `<button onclick="deleteDealer('${d.id}', '${d.name.replace(/'/g, "\\'")}')" class="text-rose-500 hover:text-rose-700 p-1.5 rounded hover:bg-rose-50 transition" title="Xóa đại lý"><i class="fa-solid fa-trash-can"></i></button>` : `<span class="text-[10px] text-slate-400">Chỉ xem</span>`}
+            ${isAdmin ? `
+              <button onclick="deleteDealer('${d.id}', '${d.name.replace(/'/g, "\\'")}')" class="text-rose-500 hover:text-rose-700 p-1.5 rounded hover:bg-rose-50 transition" title="Xóa đại lý">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            ` : `<span class="text-[10px] text-slate-400">Chỉ xem</span>`}
           </td>
         `;
         tbody.appendChild(tr);
       });
     }
 
+    function deleteDealer(dealerId, dealerName) {
+      if (!state.currentUser || state.currentUser.role !== 'admin') {
+        showToast('Chỉ Quản trị viên mới có quyền xóa đại lý!', 'error');
+        return;
+      }
+      if (state.records.some(r => r.dealer === dealerName)) {
+        showToast(`Không thể xóa đại lý "${dealerName}" vì đang có hồ sơ nhân sự!`, 'error');
+        return;
+      }
+      if (!window.confirm(`Xác nhận xóa đại lý "${dealerName}"?`)) return;
+
+      state.dealers = state.dealers.filter(d => d.id !== dealerId);
+      saveDealersToLocal();
+      showToast(`Đã xóa đại lý ${dealerName}!`, 'success');
+
+      renderDealersManagerTable();
+      renderDashboardStats();
+      renderDealerCards();
+      populateDropdowns();
+    }
+
     // ==============================================================
-    // 7. POPULATE DROPDOWNS & COURSE LOGIC
+    // DEALER DETAIL MODAL
+    // ==============================================================
+    function openDealerModal(dealerName) {
+      state.currentModalDealer = dealerName;
+      state.selectedModalRecords.clear();
+      document.body.classList.add('overflow-hidden');
+
+      document.getElementById('modalDealerTitle').innerText = dealerName;
+      document.getElementById('modalDealerSubtitle').innerText = `Danh sách nhân sự & Chứng chỉ đào tạo GMTC`;
+
+      const courseSelect = document.getElementById('modalCourseFilter');
+      courseSelect.innerHTML = `<option value="ALL">Tất cả khóa học</option>`;
+      const dealerCourses = new Set();
+      state.records.filter(r => r.dealer === dealerName).forEach(r => dealerCourses.add(r.course));
+      dealerCourses.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.innerText = c;
+        courseSelect.appendChild(opt);
+      });
+
+      renderModalTechnicians();
+      const modal = document.getElementById('dealerModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeDealerModal() {
+      const modal = document.getElementById('dealerModal');
+      if (modal) {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+      }
+      document.body.classList.remove('overflow-hidden');
+      state.currentModalDealer = null;
+      state.selectedModalRecords.clear();
+    }
+
+    function renderModalTechnicians() {
+      const tbody = document.getElementById('modalTechTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const filterVal = document.getElementById('modalCourseFilter').value;
+      let records = state.records.filter(r => r.dealer === state.currentModalDealer);
+      if (filterVal !== 'ALL') records = records.filter(r => r.course === filterVal);
+
+      updateBatchCounter();
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
+
+      if (records.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Chưa có dữ liệu đào tạo cho đại lý này.</td></tr>`;
+        return;
+      }
+
+      records.forEach(r => {
+        const isChecked = state.selectedModalRecords.has(r.id);
+        const formattedCert = formatCertCodeHTML(r.certCode);
+        const courseObj = state.courses.find(c => normalizeStr(c.name).toUpperCase() === normalizeStr(r.course).toUpperCase());
+        const isManual = courseObj ? courseObj.isManualCert : false;
+
+        let certActionBtn = '';
+        if (isAdmin && (!r.certCode || r.certCode.trim() === '')) {
+          if (isManual) {
+            certActionBtn = `<button onclick="openManualCertModal('${r.id}', '${r.trainee.replace(/'/g, "\\'")}', '${r.course.replace(/'/g, "\\'")}')" class="px-2 py-1 rounded bg-amber-500 text-white font-bold text-[10px]">Điền mã</button>`;
+          } else {
+            certActionBtn = `<button onclick="handleAutoAssignCert('${r.id}')" class="px-2 py-1 rounded bg-emerald-600 text-white font-bold text-[10px]">Cấp số</button>`;
+          }
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 text-center">
+            <input type="checkbox" onchange="toggleSelectModalRecord('${r.id}', this)" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-geely-blue rounded">
+          </td>
+          <td class="py-2.5 px-3 font-bold text-slate-800 uppercase">${r.trainee}</td>
+          <td class="py-2.5 px-3 font-semibold text-geely-blue">${r.course}</td>
+          <td class="py-2.5 px-3">
+            <div class="flex items-center space-x-2">
+              <div class="flex flex-wrap gap-1">${formattedCert || '<span class="text-rose-500 italic">Chưa cấp</span>'}</div>
+              ${certActionBtn}
+            </div>
+          </td>
+          <td class="py-2.5 px-3 font-bold text-emerald-600">${r.score || '-'}</td>
+          <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">${r.time || '-'}</td>
+          <td class="py-2.5 px-3 text-right">
+            ${isAdmin ? `<button onclick="deleteSingleRecord('${r.id}')" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash-can"></i></button>` : `<span class="text-[10px] text-slate-400">Chỉ xem</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function toggleSelectModalRecord(recId, cb) {
+      if (cb.checked) state.selectedModalRecords.add(recId);
+      else state.selectedModalRecords.delete(recId);
+      updateBatchCounter();
+    }
+
+    function toggleSelectAllModal(masterCb) {
+      const filterVal = document.getElementById('modalCourseFilter').value;
+      let records = state.records.filter(r => r.dealer === state.currentModalDealer);
+      if (filterVal !== 'ALL') records = records.filter(r => r.course === filterVal);
+
+      if (masterCb.checked) records.forEach(r => state.selectedModalRecords.add(r.id));
+      else records.forEach(r => state.selectedModalRecords.delete(r.id));
+      renderModalTechnicians();
+    }
+
+    function updateBatchCounter() {
+      const counter = document.getElementById('batchSelectedCounter');
+      const btn = document.getElementById('btnBatchDelete');
+      const count = state.selectedModalRecords.size;
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
+
+      if (counter) {
+        if (count > 0) {
+          counter.innerText = `Đã chọn: ${count}`;
+          counter.classList.remove('hidden');
+        } else {
+          counter.classList.add('hidden');
+        }
+      }
+      if (btn) btn.disabled = (count === 0 || !isAdmin);
+    }
+
+    function deleteSingleRecord(recId) {
+      if (!state.currentUser || state.currentUser.role !== 'admin') {
+        showToast('Chỉ Quản trị viên mới có quyền xóa bản ghi!', 'error');
+        return;
+      }
+      const rec = state.records.find(r => r.id === recId);
+      if (!rec) return;
+      if (!window.confirm(`Xác nhận xóa nhân sự ${rec.trainee} (${rec.dealer})?`)) return;
+
+      state.records = state.records.filter(r => r.id !== recId);
+      state.selectedModalRecords.delete(recId);
+      saveRecordsToLocal();
+      showToast('Đã xóa thành công nhân sự!', 'success');
+
+      if (state.currentModalDealer) renderModalTechnicians();
+      renderDashboardStats();
+      renderDashboardView();
+      renderGapQueueTable();
+      filterReportRecords();
+    }
+
+    function handleBatchDelete() {
+      if (!state.currentUser || state.currentUser.role !== 'admin') {
+        showToast('Chỉ Quản trị viên mới có quyền xóa hàng loạt!', 'error');
+        return;
+      }
+      const count = state.selectedModalRecords.size;
+      if (count === 0) return;
+      if (!window.confirm(`Xác nhận xóa ${count} nhân sự đã chọn?`)) return;
+
+      state.records = state.records.filter(r => !state.selectedModalRecords.has(r.id));
+      state.selectedModalRecords.clear();
+      saveRecordsToLocal();
+      showToast(`Đã xóa thành công ${count} nhân sự!`, 'success');
+
+      renderModalTechnicians();
+      renderDashboardStats();
+      renderDashboardView();
+      renderGapQueueTable();
+      filterReportRecords();
+    }
+
+    // ==============================================================
+    // DATA ENTRY & SEQUENCER
     // ==============================================================
     function populateDropdowns() {
       const dealerSelect = document.getElementById('entryDealer');
@@ -2001,8 +2257,7 @@
       dealerSelect.innerHTML = '';
       courseSelect.innerHTML = '';
 
-      const dealerNames = Array.from(new Set(state.dealers.map(d => d.name))).sort((a, b) => a.localeCompare(b));
-      dealerNames.forEach(name => {
+      Array.from(new Set(state.dealers.map(d => d.name))).sort().forEach(name => {
         const opt = document.createElement('option');
         opt.value = name;
         opt.innerText = name;
@@ -2045,36 +2300,29 @@
         if (certLabel) certLabel.innerText = "Mã số Chứng chỉ (Tự điền tay)";
         if (certInput) {
           certInput.readOnly = false;
-          certInput.classList.remove('bg-slate-50', 'text-amber-700');
-          certInput.classList.add('bg-white', 'text-slate-800');
-          certInput.placeholder = "Nhập mã CC hoặc để trống lưu sau...";
-          if (!certInput.dataset.manualEdited) certInput.value = "";
+          certInput.className = "w-full p-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-mono font-bold focus:ring-2 focus:ring-geely-accent focus:outline-none";
+          certInput.value = "";
         }
         if (gapsNotice) gapsNotice.classList.add('hidden');
         if (refreshBtn) refreshBtn.classList.add('hidden');
-        if (explanation) explanation.innerText = "Khóa học này sử dụng chứng chỉ tự điền. Có thể để trống và bổ sung sau.";
+        if (explanation) explanation.innerText = "Khóa học này sử dụng chứng chỉ tự điền tay.";
         return;
       }
 
       if (certLabel) certLabel.innerText = "Mã số Chứng chỉ (Tự động tính)";
       if (certInput) {
-        certInput.readOnly = false;
-        certInput.classList.add('bg-slate-50', 'text-amber-700');
-        certInput.classList.remove('bg-white', 'text-slate-800');
-        certInput.placeholder = "";
+        certInput.className = "w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-amber-700 font-mono font-bold focus:ring-2 focus:ring-geely-accent focus:outline-none";
       }
       if (refreshBtn) refreshBtn.classList.remove('hidden');
 
-      const prefix = courseObj ? courseObj.prefix : (courseName.includes('LEVEL II') ? 'GMTC-D-2-VN-' : 'GMTC-D-1-VN-');
+      const prefix = courseObj ? courseObj.prefix : 'GMTC-D-1-VN-';
       const digits = courseObj ? courseObj.digits : 4;
 
       const nums = [];
       state.records.forEach(r => {
-        const codes = extractCertCodes(r.certCode);
-        codes.forEach(c => {
+        extractCertCodes(r.certCode).forEach(c => {
           if (c.toUpperCase().startsWith(prefix.toUpperCase())) {
-            const numPart = c.substring(prefix.length).trim();
-            const val = parseInt(numPart, 10);
+            const val = parseInt(c.substring(prefix.length).trim(), 10);
             if (!isNaN(val) && val > 0) nums.push(val);
           }
         });
@@ -2082,7 +2330,6 @@
 
       let nextNum = 1;
       let isGap = false;
-
       if (nums.length > 0) {
         const maxNum = Math.max(...nums);
         for (let i = 1; i <= maxNum; i++) {
@@ -2100,120 +2347,66 @@
 
       if (isGap) {
         if (gapsNotice) {
-          gapsNotice.innerText = `Đang bù số thứ tự còn thiếu: #${nextNum}`;
+          gapsNotice.innerText = `Bù số thiếu: #${nextNum}`;
           gapsNotice.classList.remove('hidden');
         }
-        if (explanation) explanation.innerText = `Phát hiện số thứ tự #${nextNum} bị khuyết do xóa nhân sự trước đó. Hệ thống tự động ưu tiên cấp bù số này.`;
+        if (explanation) explanation.innerText = `Phát hiện số #${nextNum} bị khuyết, tự động cấp bù.`;
       } else {
         if (gapsNotice) gapsNotice.classList.add('hidden');
-        if (explanation) explanation.innerText = `Cấp số thứ tự tăng dần kế tiếp #${nextNum} theo tiền tố ${prefix}.`;
+        if (explanation) explanation.innerText = `Cấp số tiếp theo #${nextNum} theo tiền tố ${prefix}.`;
       }
     }
 
-    function renderCourseTable() {
-      const tbody = document.getElementById('courseTableBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-      const badge = document.getElementById('totalCoursesBadge');
-      if (badge) badge.innerText = `${state.courses.length} khóa học`;
-      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
-
-      state.courses.forEach((c) => {
-        const count = state.records.filter(r => normalizeStr(r.course).toUpperCase() === normalizeStr(c.name).toUpperCase() && r.certCode && r.certCode.trim() !== '').length;
-        const certTypeBadge = c.isManualCert
-          ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200"><i class="fa-solid fa-pen mr-1"></i> Tự điền tay</span>`
-          : `<span class="font-mono font-bold text-slate-700 whitespace-nowrap">${c.prefix} + ${c.digits} số</span>`;
-
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition";
-        tr.innerHTML = `
-          <td class="py-3 px-3 font-bold text-geely-blue">${c.name}</td>
-          <td class="py-3 px-3">${certTypeBadge}</td>
-          <td class="py-3 px-3 font-semibold text-emerald-600">${c.scorePass || '-'}</td>
-          <td class="py-3 px-3 text-slate-500 font-mono text-xs">${c.trainingDate || '-'}</td>
-          <td class="py-3 px-3 font-bold text-amber-600">${count} CC</td>
-          <td class="py-3 px-3 text-right">
-            ${isAdmin ? `
-              <div class="flex items-center justify-end space-x-1">
-                <button onclick="openEditCourseModal('${c.id}')" class="text-geely-accent hover:text-sky-700 p-1.5 rounded hover:bg-sky-50 transition" title="Điều chỉnh thông tin khóa học"><i class="fa-solid fa-pen-to-square"></i></button>
-                <button onclick="deleteCourse('${c.id}', '${c.name.replace(/'/g, "\\'")}')" class="text-rose-500 hover:text-rose-700 p-1.5 rounded hover:bg-rose-50 transition" title="Xóa khóa học"><i class="fa-solid fa-trash-can"></i></button>
-              </div>
-            ` : `<span class="text-[10px] text-slate-400">Chỉ xem</span>`}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function renderUsersTable() {
-      const tbody = document.getElementById('usersTableBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
-
-      state.users.forEach(u => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-        tr.innerHTML = `
-          <td class="py-3 px-3 font-bold text-slate-800">${u.username}</td>
-          <td class="py-3 px-3">${u.fullname || '-'}</td>
-          <td class="py-3 px-3"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${u.role === 'admin' ? 'bg-sky-100 text-sky-800' : 'bg-slate-100 text-slate-700'}">${u.role === 'admin' ? 'Quản trị viên' : 'Người xem'}</span></td>
-          <td class="py-3 px-3 font-mono text-[10px] text-slate-400 max-w-xs truncate" title="${u.hash}">${u.hash || 'Chưa mã hóa'}</td>
-          <td class="py-3 px-3 text-right">
-            ${isAdmin && state.currentUser.username !== u.username ? `<button onclick="deleteUser('${u.username}')" class="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50 transition" title="Xóa tài khoản"><i class="fa-solid fa-trash-can"></i></button>` : `<span class="text-[10px] text-slate-400">-</span>`}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function filterReportRecords() {
-      const timeFilter = document.getElementById('reportTimeFilter').value;
-      const courseFilter = document.getElementById('reportCourseFilter').value;
-      const dealerFilter = document.getElementById('reportDealerFilter').value;
-      const entryDateFrom = document.getElementById('reportEntryDateFrom')?.value || '';
-      const entryDateTo = document.getElementById('reportEntryDateTo')?.value || '';
-      const dateFrom = document.getElementById('reportDateFrom')?.value || '';
-      const dateTo = document.getElementById('reportDateTo')?.value || '';
-
-      let filtered = [...state.records];
-      if (timeFilter !== 'ALL') filtered = filtered.filter(r => r.time === timeFilter);
-      if (courseFilter !== 'ALL') filtered = filtered.filter(r => r.course === courseFilter);
-      if (dealerFilter !== 'ALL') filtered = filtered.filter(r => r.dealer === dealerFilter);
-      if (entryDateFrom) filtered = filtered.filter(r => r.entryDate && r.entryDate >= entryDateFrom);
-      if (entryDateTo) filtered = filtered.filter(r => r.entryDate && r.entryDate <= entryDateTo);
-      if (dateFrom) filtered = filtered.filter(r => r.issuedDate && r.issuedDate >= dateFrom);
-      if (dateTo) filtered = filtered.filter(r => r.issuedDate && r.issuedDate <= dateTo);
-
-      document.getElementById('reportCountLabel').innerText = `Hiển thị ${filtered.length} bản ghi`;
-      const tbody = document.getElementById('reportTableBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="12" class="py-8 text-center text-slate-400">Không có dữ liệu báo cáo nào phù hợp với bộ lọc.</td></tr>`;
+    function handleSaveRecord(e) {
+      e.preventDefault();
+      if (!state.currentUser || state.currentUser.role !== 'admin') {
+        showToast('Chỉ Quản trị viên mới có quyền nhập liệu đào tạo!', 'error');
         return;
       }
 
-      filtered.forEach((r, idx) => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-        tr.innerHTML = `
-          <td class="py-2.5 px-3 border-r border-slate-200 text-center font-bold text-slate-500">${idx + 1}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-mono text-[11px] text-emerald-700 bg-emerald-50/30">${r.entryDate || '-'}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-semibold">${r.country || 'VIET NAM'}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-slate-800">${r.dealer}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-geely-blue">${r.trainee}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200">${r.position || 'TECHNICIAN'}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-mono text-[11px]">${r.time}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-semibold">${r.course}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-bold text-emerald-600">${r.score}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200">${r.trainer}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-bold text-emerald-600">${r.eval}</td>
-          <td class="py-2.5 px-3 text-right"><div class="flex flex-wrap justify-end gap-1">${formatCertCodeHTML(r.certCode || '') || '-'}</div></td>
-        `;
-        tbody.appendChild(tr);
-      });
+      const dealer = document.getElementById('entryDealer').value;
+      const trainee = normalizeStr(document.getElementById('entryTrainee').value).toUpperCase();
+      const course = document.getElementById('entryCourse').value;
+      const certCode = normalizeStr(document.getElementById('entryCertCode').value);
+      const type = document.getElementById('entryType').value;
+      const time = normalizeStr(document.getElementById('entryTime').value);
+      const entryDate = document.getElementById('entryInputDate').value || new Date().toISOString().slice(0, 10);
+      const issuedDate = document.getElementById('entryIssuedDate').value;
+      const scoreVal = normalizeStr(document.getElementById('entryScore').value);
+      const trainer = normalizeStr(document.getElementById('entryTrainer').value).toUpperCase() || 'LE KHANH VAN';
+      const isPassed = document.getElementById('entryPassed').checked;
+
+      const newRecord = {
+        id: `REC-${Date.now()}`,
+        country: 'VIET NAM',
+        dealer: dealer,
+        trainee: trainee,
+        position: 'TECHNICIAN',
+        place: type === 'Online' ? 'ONLINE UMU' : 'HO CHI MINH',
+        type: type,
+        time: time,
+        course: course,
+        score: scoreVal,
+        trainer: trainer,
+        eval: isPassed ? 'PASSED' : 'FAILED',
+        certCode: certCode,
+        entryDate: entryDate,
+        issuedDate: issuedDate
+      };
+
+      state.records.push(newRecord);
+      saveRecordsToLocal();
+      state.recentCandidates.unshift(newRecord);
+      showToast(`Đã lưu thành công hồ sơ của ${trainee}!`, 'success');
+
+      document.getElementById('entryTrainee').value = '';
+      calculateNextCertCode();
+
+      renderDashboardStats();
+      renderDashboardView();
+      renderGapQueueTable();
+      filterReportRecords();
+      renderRecentCandidatesTable();
     }
 
     function renderRecentCandidatesTable() {
@@ -2221,17 +2414,10 @@
       const badge = document.getElementById('recentCandidatesBadge');
       if (!tbody) return;
       tbody.innerHTML = '';
-
       if (badge) badge.innerText = `${state.recentCandidates.length} ứng viên`;
 
       if (state.recentCandidates.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="8" class="py-6 text-center text-slate-400">
-              Chưa có ứng viên nào được tạo trong phiên làm việc này.
-            </td>
-          </tr>
-        `;
+        tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400">Chưa có ứng viên nào được tạo trong phiên này.</td></tr>`;
         return;
       }
 
@@ -2246,80 +2432,59 @@
           <td class="py-2.5 px-3"><div class="flex flex-wrap gap-1">${formatCertCodeHTML(r.certCode) || '<span class="text-rose-500 italic">Chưa cấp</span>'}</div></td>
           <td class="py-2.5 px-3 font-mono text-[11px] text-slate-600">${r.issuedDate || '-'}</td>
           <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">${r.time || '-'}</td>
-          <td class="py-2.5 px-3 text-right">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-              <i class="fa-solid fa-check mr-1"></i> Đã lưu
-            </span>
-          </td>
+          <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Đã lưu</span></td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    function populateReportFilters() {
-      const timeFilter = document.getElementById('reportTimeFilter');
-      const courseFilter = document.getElementById('reportCourseFilter');
-      const dealerFilter = document.getElementById('reportDealerFilter');
-      if (!timeFilter || !courseFilter || !dealerFilter) return;
+    function resetEntryForm() {
+      document.getElementById('recordEntryForm').reset();
+      const today = new Date().toISOString().slice(0, 10);
+      document.getElementById('entryInputDate').value = today;
+      document.getElementById('entryIssuedDate').value = today;
+      document.getElementById('entryPassed').checked = true;
+      calculateNextCertCode();
+    }
 
-      const curTime = timeFilter.value;
-      const curCourse = courseFilter.value;
-      const curDealer = dealerFilter.value;
+    // ==============================================================
+    // GAP QUEUE & DUPLICATES
+    // ==============================================================
+    let currentQueueSubTab = 'gaps';
 
-      timeFilter.innerHTML = `<option value="ALL">Tất cả các đợt đào tạo</option>`;
-      courseFilter.innerHTML = `<option value="ALL">Tất cả khóa học</option>`;
-      dealerFilter.innerHTML = `<option value="ALL">Tất cả Đại lý</option>`;
+    function switchQueueSubTab(subTab) {
+      currentQueueSubTab = subTab;
+      const btnGaps = document.getElementById('subtab-btn-gaps');
+      const btnDups = document.getElementById('subtab-btn-duplicates');
+      const contentGaps = document.getElementById('subtab-content-gaps');
+      const contentDups = document.getElementById('subtab-content-duplicates');
 
-      const times = new Set();
-      const courses = new Set();
-      const dealers = new Set();
-
-      state.records.forEach(r => {
-        if (r.time) times.add(r.time);
-        if (r.course) courses.add(r.course);
-        if (r.dealer) dealers.add(r.dealer);
-      });
-
-      times.forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t;
-        opt.innerText = t;
-        timeFilter.appendChild(opt);
-      });
-
-      courses.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c;
-        opt.innerText = c;
-        courseFilter.appendChild(opt);
-      });
-
-      Array.from(dealers).sort().forEach(d => {
-        const opt = document.createElement('option');
-        opt.value = d;
-        opt.innerText = d;
-        dealerFilter.appendChild(opt);
-      });
-
-      if (curTime) timeFilter.value = curTime;
-      if (curCourse) courseFilter.value = curCourse;
-      if (curDealer) dealerFilter.value = curDealer;
+      if (subTab === 'gaps') {
+        btnGaps.className = 'px-4 py-2 font-bold border-b-2 border-geely-blue text-geely-blue flex items-center space-x-2 transition';
+        btnDups.className = 'px-4 py-2 font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center space-x-2 transition';
+        contentGaps.classList.remove('hidden');
+        contentDups.classList.add('hidden');
+      } else {
+        btnDups.className = 'px-4 py-2 font-bold border-b-2 border-rose-600 text-rose-600 flex items-center space-x-2 transition';
+        btnGaps.className = 'px-4 py-2 font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center space-x-2 transition';
+        contentDups.classList.remove('hidden');
+        contentGaps.classList.add('hidden');
+      }
     }
 
     function renderGapQueueTable() {
       const tbody = document.getElementById('gapQueueTableBody');
       const badgeCount = document.getElementById('queueBadgeCount');
       const subtabGapsCount = document.getElementById('subtabGapsCount');
-      if (tbody) tbody.innerHTML = '';
+      if (!tbody) return;
+      tbody.innerHTML = '';
 
       const prefixSet = new Set();
       state.courses.forEach(c => {
         if (!c.isManualCert && c.prefix) prefixSet.add(c.prefix.trim().toUpperCase());
       });
-
       state.records.forEach(r => {
-        const codes = extractCertCodes(r.certCode);
-        codes.forEach(code => {
+        extractCertCodes(r.certCode).forEach(code => {
           const match = code.match(/^([A-Z0-9]+-[A-Z0-9]+-[A-Z0-9]+-[A-Z0-9]+-)/i);
           if (match) prefixSet.add(match[1].toUpperCase());
         });
@@ -2327,8 +2492,8 @@
 
       let allGaps = [];
       prefixSet.forEach(prefix => {
-        const courseWithPrefix = state.courses.find(c => (c.prefix || '').trim().toUpperCase() === prefix);
-        const digits = courseWithPrefix ? courseWithPrefix.digits : 4;
+        const courseObj = state.courses.find(c => (c.prefix || '').trim().toUpperCase() === prefix);
+        const digits = courseObj ? courseObj.digits : 4;
         const nums = [];
         state.records.forEach(r => {
           extractCertCodes(r.certCode).forEach(c => {
@@ -2352,23 +2517,21 @@
       if (badgeCount) badgeCount.innerText = allGaps.length;
       if (subtabGapsCount) subtabGapsCount.innerText = allGaps.length;
 
-      if (tbody) {
-        if (allGaps.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400"><i class="fa-solid fa-circle-check text-emerald-500 text-2xl mb-2 block"></i> Không có mã số chứng chỉ nào bị khuyết.</td></tr>`;
-        } else {
-          allGaps.forEach((g, idx) => {
-            const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-            tr.innerHTML = `
-              <td class="py-2.5 px-3 font-bold text-slate-400">${idx + 1}</td>
-              <td class="py-2.5 px-3 font-mono font-semibold text-geely-blue">${g.prefix}</td>
-              <td class="py-2.5 px-3 font-mono font-bold text-amber-700 bg-amber-50/70 px-2 py-0.5 rounded border border-amber-200 w-fit">${g.code}</td>
-              <td class="py-2.5 px-3 font-mono font-bold text-slate-700">#${g.gapNum}</td>
-              <td class="py-2.5 px-3"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Chờ cấp bù</span></td>
-            `;
-            tbody.appendChild(tr);
-          });
-        }
+      if (allGaps.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400"><i class="fa-solid fa-circle-check text-emerald-500 text-2xl mb-2 block"></i>Không có mã chứng chỉ nào bị khuyết.</td></tr>`;
+      } else {
+        allGaps.forEach((g, idx) => {
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+          tr.innerHTML = `
+            <td class="py-2.5 px-3 font-bold text-slate-400">${idx + 1}</td>
+            <td class="py-2.5 px-3 font-mono font-semibold text-geely-blue">${g.prefix}</td>
+            <td class="py-2.5 px-3 font-mono font-bold text-amber-700 bg-amber-50/70 px-2 py-0.5 rounded border border-amber-200 w-fit">${g.code}</td>
+            <td class="py-2.5 px-3 font-mono font-bold text-slate-700">#${g.gapNum}</td>
+            <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Chờ cấp bù</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
       }
 
       renderDuplicatesTable();
@@ -2395,32 +2558,34 @@
 
       const duplicateEntries = [];
       certMap.forEach((recordsList, code) => {
-        if (recordsList.length > 1) duplicateEntries.push({ certCode: code, count: recordsList.length, records: recordsList });
+        if (recordsList.length > 1) {
+          duplicateEntries.push({ certCode: code, count: recordsList.length, records: recordsList });
+        }
       });
 
-      if (subtabDupCount) subtabDupCount.innerText = duplicateEntries.length;
+      const totalDupCodes = duplicateEntries.length;
+      if (subtabDupCount) subtabDupCount.innerText = totalDupCodes;
       if (dupBadgeMenu) {
-        if (duplicateEntries.length > 0) {
-          dupBadgeMenu.innerText = `${duplicateEntries.length} trùng`;
+        if (totalDupCodes > 0) {
+          dupBadgeMenu.innerText = `${totalDupCodes} trùng`;
           dupBadgeMenu.classList.remove('hidden');
         } else {
           dupBadgeMenu.classList.add('hidden');
         }
       }
       if (alertBox) {
-        if (duplicateEntries.length > 0) alertBox.classList.remove('hidden');
+        if (totalDupCodes > 0) alertBox.classList.remove('hidden');
         else alertBox.classList.add('hidden');
       }
 
-      if (duplicateEntries.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400"><i class="fa-solid fa-circle-check text-emerald-500 text-2xl mb-2 block"></i> Tuyệt vời! Không phát hiện mã chứng chỉ bị trùng.</td></tr>`;
+      if (totalDupCodes === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400"><i class="fa-solid fa-circle-check text-emerald-500 text-2xl mb-2 block"></i>Không phát hiện mã trùng lặp.</td></tr>`;
         return;
       }
 
-      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
       duplicateEntries.forEach((item, idx) => {
         const candidatesHTML = item.records.map(rec => `
-          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 mb-1 last:mb-0">
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 mb-1 last:mb-0 text-xs">
             <div class="flex items-center space-x-2">
               <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
               <span class="font-bold text-slate-800 uppercase">${rec.trainee}</span>
@@ -2429,7 +2594,7 @@
               <span class="text-slate-400">|</span>
               <span class="text-geely-blue font-semibold">${rec.course}</span>
             </div>
-            ${isAdmin ? `<button onclick="deleteSingleRecord('${rec.id}')" class="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-100 transition text-[11px] font-bold flex items-center space-x-1"><i class="fa-solid fa-trash-can"></i><span>Xóa bản ghi</span></button>` : ''}
+            ${state.currentUser && state.currentUser.role === 'admin' ? `<button onclick="deleteSingleRecord('${rec.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-[11px]">Xóa bản ghi</button>` : ''}
           </div>
         `).join('');
 
@@ -2438,79 +2603,305 @@
         tr.innerHTML = `
           <td class="py-3 px-3 font-bold text-slate-400 text-center">${idx + 1}</td>
           <td class="py-3 px-3 font-mono font-bold text-rose-600 bg-rose-50/80 px-2.5 py-1 rounded-md border border-rose-300 w-fit text-xs">${item.certCode}</td>
-          <td class="py-3 px-3 text-center"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-600 text-white">${item.count} lần</span></td>
+          <td class="py-3 px-3 text-center"><span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-600 text-white">${item.count} lần</span></td>
           <td class="py-3 px-3"><div class="space-y-1 max-w-2xl">${candidatesHTML}</div></td>
-          <td class="py-3 px-3 text-right"><span class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200"><i class="fa-solid fa-triangle-exclamation mr-1 text-amber-600"></i> Cần xử lý</span></td>
+          <td class="py-3 px-3 text-right"><span class="px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-100 text-amber-800">Cần điều chỉnh</span></td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    function toggleSelectModalRecord(recId, cb) {
-      if (cb.checked) state.selectedModalRecords.add(recId);
-      else state.selectedModalRecords.delete(recId);
-      updateBatchCounter();
-    }
-
-    function toggleSelectAllModal(masterCb) {
-      if (state.currentUser.role !== 'admin') return;
-      const filterVal = document.getElementById('modalCourseFilter').value;
-      let records = state.records.filter(r => r.dealer === state.currentModalDealer);
-      if (filterVal !== 'ALL') records = records.filter(r => r.course === filterVal);
-      records.forEach(r => {
-        if (masterCb.checked) state.selectedModalRecords.add(r.id);
-        else state.selectedModalRecords.delete(r.id);
-      });
-      renderModalTechnicians();
-    }
-
-    function updateBatchCounter() {
-      const count = state.selectedModalRecords.size;
-      const counter = document.getElementById('batchSelectedCounter');
-      const btn = document.getElementById('btnBatchDelete');
-      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
-      if (count > 0 && isAdmin) {
-        counter.innerText = `Đã chọn: ${count}`;
-        counter.classList.remove('hidden');
-      } else {
-        counter.classList.add('hidden');
-      }
-      btn.disabled = (count === 0 || !isAdmin);
-    }
-
-    function deleteSingleRecord(recId) {
+    // ==============================================================
+    // COURSES MANAGEMENT
+    // ==============================================================
+    function handleCreateCourse(e) {
+      e.preventDefault();
       if (!state.currentUser || state.currentUser.role !== 'admin') {
-        showToast('Tài khoản người xem không có quyền xóa dữ liệu!', 'error');
+        showToast('Chỉ Quản trị viên mới có quyền thêm khóa học!', 'error');
         return;
       }
-      const rec = state.records.find(r => r.id === recId);
-      if (!rec || !window.confirm(`Xác nhận xóa nhân sự ${rec.trainee} (${rec.dealer})?`)) return;
+      const name = normalizeStr(document.getElementById('courseNameInput').value).toUpperCase();
+      const isManualCert = document.getElementById('courseIsManualCert').checked;
+      const prefix = normalizeStr(document.getElementById('coursePrefixInput').value).toUpperCase() || 'CUSTOM-';
+      const digits = parseInt(document.getElementById('courseDigitsInput').value, 10) || 4;
+      const scorePass = normalizeStr(document.getElementById('courseScoreInput').value) || '80/100';
+      const trainingDate = normalizeStr(document.getElementById('courseDateInput').value);
+      const trainer = normalizeStr(document.getElementById('courseTrainerInput').value).toUpperCase() || 'LE KHANH VAN';
 
-      state.records = state.records.filter(r => r.id !== recId);
-      state.selectedModalRecords.delete(recId);
-      saveRecordsToLocal();
-      showToast('Đã xóa thành công nhân sự!', 'success');
-      if (state.currentModalDealer) renderModalTechnicians();
-      renderDashboardStats();
-      renderDealerCards();
+      if (state.courses.some(c => normalizeStr(c.name).toUpperCase() === name)) {
+        showToast(`Khóa học "${name}" đã tồn tại!`, 'error');
+        return;
+      }
+
+      state.courses.push({
+        id: `CRS-${Date.now()}`,
+        name,
+        prefix,
+        digits,
+        scorePass,
+        trainingDate,
+        defaultTrainer: trainer,
+        type: 'Online',
+        isManualCert
+      });
+      saveCoursesToLocal();
+      document.getElementById('createCourseForm').reset();
+      toggleManualCourseFields();
+      showToast(`Đã tạo khóa học mới: ${name}!`, 'success');
+
+      renderCourseTable();
+      populateDropdowns();
       renderGapQueueTable();
-      filterReportRecords();
     }
 
-    function handleBatchDelete() {
-      if (!state.currentUser || state.currentUser.role !== 'admin' || state.selectedModalRecords.size === 0) return;
-      if (!window.confirm(`Xác nhận xóa ${state.selectedModalRecords.size} nhân sự đã chọn?`)) return;
+    function renderCourseTable() {
+      const tbody = document.getElementById('courseTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      document.getElementById('totalCoursesBadge').innerText = `${state.courses.length} khóa học`;
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
 
-      state.records = state.records.filter(r => !state.selectedModalRecords.has(r.id));
-      state.selectedModalRecords.clear();
-      saveRecordsToLocal();
-      showToast('Đã xóa thành công các nhân sự đã chọn!', 'success');
-      
-      renderModalTechnicians();
-      renderDashboardStats();
-      renderDealerCards();
-      renderGapQueueTable();
-      filterReportRecords();
+      state.courses.forEach(c => {
+        const count = state.records.filter(r => normalizeStr(r.course).toUpperCase() === normalizeStr(c.name).toUpperCase() && r.certCode && r.certCode.trim() !== '').length;
+        const certTypeBadge = c.isManualCert ? 
+          `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800">Tự điền tay</span>` : 
+          `<span class="font-mono font-bold text-slate-700">${c.prefix} + ${c.digits} số</span>`;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-3 font-bold text-geely-blue">${c.name}</td>
+          <td class="py-3 px-3">${certTypeBadge}</td>
+          <td class="py-3 px-3 font-semibold text-emerald-600">${c.scorePass || '-'}</td>
+          <td class="py-3 px-3 text-slate-500 font-mono text-xs">${c.trainingDate || '-'}</td>
+          <td class="py-3 px-3 font-bold text-amber-600">${count} CC</td>
+          <td class="py-3 px-3 text-right">
+            ${isAdmin ? `<button onclick="deleteCourse('${c.id}', '${c.name.replace(/'/g, "\\'")}')" class="text-rose-500 hover:text-rose-700 p-1.5"><i class="fa-solid fa-trash-can"></i></button>` : `<span class="text-[10px] text-slate-400">Chỉ xem</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteCourse(courseId, courseName) {
+      if (!state.currentUser || state.currentUser.role !== 'admin') {
+        showToast('Chỉ Quản trị viên mới có quyền xóa khóa học!', 'error');
+        return;
+      }
+      if (!window.confirm(`Xác nhận xóa khóa học "${courseName}"?`)) return;
+
+      state.courses = state.courses.filter(c => c.id !== courseId);
+      saveCoursesToLocal();
+      showToast(`Đã xóa khóa học ${courseName}!`, 'success');
+      renderCourseTable();
+      populateDropdowns();
+    }
+
+    // ==============================================================
+    // REPORT & EXCEL EXPORT
+    // ==============================================================
+    function populateReportFilters() {
+      const timeFilter = document.getElementById('reportTimeFilter');
+      const courseFilter = document.getElementById('reportCourseFilter');
+      const dealerFilter = document.getElementById('reportDealerFilter');
+      if (!timeFilter || !courseFilter || !dealerFilter) return;
+
+      const curTime = timeFilter.value;
+      const curCourse = courseFilter.value;
+      const curDealer = dealerFilter.value;
+
+      timeFilter.innerHTML = `<option value="ALL">Tất cả các đợt đào tạo</option>`;
+      courseFilter.innerHTML = `<option value="ALL">Tất cả khóa học</option>`;
+      dealerFilter.innerHTML = `<option value="ALL">Tất cả Đại lý</option>`;
+
+      const times = new Set(), courses = new Set(), dealers = new Set();
+      state.records.forEach(r => {
+        if (r.time) times.add(r.time);
+        if (r.course) courses.add(r.course);
+        if (r.dealer) dealers.add(r.dealer);
+      });
+
+      times.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t; opt.innerText = t; timeFilter.appendChild(opt);
+      });
+      courses.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c; opt.innerText = c; courseFilter.appendChild(opt);
+      });
+      Array.from(dealers).sort().forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d; opt.innerText = d; dealerFilter.appendChild(opt);
+      });
+
+      if (curTime) timeFilter.value = curTime;
+      if (curCourse) courseFilter.value = curCourse;
+      if (curDealer) dealerFilter.value = curDealer;
+    }
+
+    function filterReportRecords() {
+      const timeFilter = document.getElementById('reportTimeFilter').value;
+      const courseFilter = document.getElementById('reportCourseFilter').value;
+      const dealerFilter = document.getElementById('reportDealerFilter').value;
+      const entryFrom = document.getElementById('reportEntryDateFrom').value;
+      const entryTo = document.getElementById('reportEntryDateTo').value;
+      const dateFrom = document.getElementById('reportDateFrom').value;
+      const dateTo = document.getElementById('reportDateTo').value;
+
+      let filtered = [...state.records];
+      if (timeFilter !== 'ALL') filtered = filtered.filter(r => r.time === timeFilter);
+      if (courseFilter !== 'ALL') filtered = filtered.filter(r => r.course === courseFilter);
+      if (dealerFilter !== 'ALL') filtered = filtered.filter(r => r.dealer === dealerFilter);
+      if (entryFrom) filtered = filtered.filter(r => r.entryDate && r.entryDate >= entryFrom);
+      if (entryTo) filtered = filtered.filter(r => r.entryDate && r.entryDate <= entryTo);
+      if (dateFrom) filtered = filtered.filter(r => r.issuedDate && r.issuedDate >= dateFrom);
+      if (dateTo) filtered = filtered.filter(r => r.issuedDate && r.issuedDate <= dateTo);
+
+      document.getElementById('reportCountLabel').innerText = `Hiển thị ${filtered.length} bản ghi`;
+      const tbody = document.getElementById('reportTableBody');
+      tbody.innerHTML = '';
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" class="py-8 text-center text-slate-400">Không có dữ liệu báo cáo nào phù hợp.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 border-r border-slate-200 text-center font-bold text-slate-500">${idx + 1}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-mono text-[11px] text-emerald-700 bg-emerald-50/30">${r.entryDate || '-'}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-semibold">${r.country || 'VIET NAM'}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-slate-800">${r.dealer}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-geely-blue">${r.trainee}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200">${r.position || 'TECHNICIAN'}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-mono text-[11px]">${r.time}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-semibold">${r.course}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-bold text-emerald-600">${r.score}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200">${r.trainer}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-bold text-emerald-600">${r.eval}</td>
+          <td class="py-2.5 px-3 text-right"><div class="flex flex-wrap justify-end gap-1">${formatCertCodeHTML(r.certCode || '')}</div></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function exportToExcel() {
+      const timeFilter = document.getElementById('reportTimeFilter').value;
+      const courseFilter = document.getElementById('reportCourseFilter').value;
+      const dealerFilter = document.getElementById('reportDealerFilter').value;
+      const entryFrom = document.getElementById('reportEntryDateFrom').value;
+      const entryTo = document.getElementById('reportEntryDateTo').value;
+      const dateFrom = document.getElementById('reportDateFrom').value;
+      const dateTo = document.getElementById('reportDateTo').value;
+
+      let filtered = [...state.records];
+      if (timeFilter !== 'ALL') filtered = filtered.filter(r => r.time === timeFilter);
+      if (courseFilter !== 'ALL') filtered = filtered.filter(r => r.course === courseFilter);
+      if (dealerFilter !== 'ALL') filtered = filtered.filter(r => r.dealer === dealerFilter);
+      if (entryFrom) filtered = filtered.filter(r => r.entryDate && r.entryDate >= entryFrom);
+      if (entryTo) filtered = filtered.filter(r => r.entryDate && r.entryDate <= entryTo);
+      if (dateFrom) filtered = filtered.filter(r => r.issuedDate && r.issuedDate >= dateFrom);
+      if (dateTo) filtered = filtered.filter(r => r.issuedDate && r.issuedDate <= dateTo);
+
+      const headers = ["No.", "Entry Date", "Country", "Dealer Name", "Trainee Name", "Position", "Training Time", "Training Course", "Exam Score", "Trainer", "Evaluation", "Certificate code", "Issued Date"];
+      const dataRows = filtered.map((r, idx) => [
+        idx + 1, r.entryDate || '', r.country || 'VIET NAM', r.dealer, r.trainee, r.position || 'TECHNICIAN', String(r.time || ''), r.course, r.score, r.trainer, r.eval, r.certCode || '', r.issuedDate || ''
+      ]);
+
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...dataRows]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Training Record");
+      XLSX.writeFile(wb, `GEELY_GMTC_REPORT_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      showToast('Đã xuất thành công file Excel!', 'success');
+    }
+
+    // ==============================================================
+    // USERS MANAGEMENT
+    // ==============================================================
+    function renderUsersTable() {
+      const tbody = document.getElementById('usersTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
+
+      if (state.users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Chưa có tài khoản nào.</td></tr>`;
+        return;
+      }
+
+      state.users.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-3 px-3 font-bold text-slate-800">${u.username}</td>
+          <td class="py-3 px-3">${u.fullname || '-'}</td>
+          <td class="py-3 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role === 'admin' ? 'bg-sky-100 text-sky-800' : 'bg-slate-100 text-slate-700'}">${u.role === 'admin' ? 'Quản trị viên' : 'Người xem'}</span></td>
+          <td class="py-3 px-3 font-mono text-[10px] text-slate-400 truncate max-w-xs">${u.hash || 'Chưa mã hóa'}</td>
+          <td class="py-3 px-3 text-right">
+            ${isAdmin && state.currentUser.username !== u.username ? `<button onclick="deleteUser('${u.username}')" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash-can"></i></button>` : `<span class="text-[10px] text-slate-400">-</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function handleCreateUser(e) {
+      e.preventDefault();
+      if (!state.currentUser || state.currentUser.role !== 'admin') {
+        showToast('Chỉ Quản trị viên mới có quyền tạo tài khoản!', 'error');
+        return;
+      }
+      const username = normalizeStr(document.getElementById('newUsername').value).toLowerCase();
+      const fullname = normalizeStr(document.getElementById('newFullName').value);
+      const password = document.getElementById('newPassword').value;
+      const role = document.getElementById('newRole').value;
+
+      if (state.users.some(u => u.username.toLowerCase() === username)) {
+        showToast(`Tài khoản "${username}" đã tồn tại!`, 'error');
+        return;
+      }
+
+      state.users.push({ username, fullname, role, hash: await sha256(password) });
+      saveUsersToLocal();
+      document.getElementById('createUserForm').reset();
+      showToast(`Đã tạo tài khoản ${username} thành công!`, 'success');
+      renderUsersTable();
+    }
+
+    function deleteUser(username) {
+      if (!state.currentUser || state.currentUser.role !== 'admin') {
+        showToast('Chỉ Quản trị viên mới có quyền xóa tài khoản!', 'error');
+        return;
+      }
+      if (state.currentUser.username === username) {
+        showToast('Không thể tự xóa tài khoản đang đăng nhập!', 'error');
+        return;
+      }
+      if (!window.confirm(`Xác nhận xóa tài khoản "${username}"?`)) return;
+
+      state.users = state.users.filter(u => u.username !== username);
+      saveUsersToLocal();
+      showToast(`Đã xóa tài khoản ${username}!`, 'success');
+      renderUsersTable();
+    }
+
+    function openChangePasswordModal() {
+      if (!state.currentUser) return;
+      document.getElementById('changePasswordUserLabel').innerText = `Đổi mật khẩu cho: ${state.currentUser.username}`;
+      document.getElementById('changePasswordForm').reset();
+      const modal = document.getElementById('changePasswordModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeChangePasswordModal() {
+      const modal = document.getElementById('changePasswordModal');
+      if (modal) {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+      }
     }
 
     async function handleChangePassword(e) {
@@ -2520,22 +2911,13 @@
       const confirmPass = document.getElementById('confirmNewPasswordInput').value;
 
       if (newPass !== confirmPass) {
-        showToast('Mật khẩu mới và xác nhận mật khẩu không khớp!', 'error');
+        showToast('Mật khẩu mới không khớp!', 'error');
         return;
       }
 
-      let curHash = '';
-      try {
-        curHash = (await sha256(curPass)).toLowerCase();
-      } catch (err) {
-        curHash = curPass;
-      }
-
+      const curHash = (await sha256(curPass)).toLowerCase();
       const userIdx = state.users.findIndex(u => u.username.toLowerCase() === state.currentUser.username.toLowerCase());
-      if (userIdx === -1) {
-        showToast('Không tìm thấy tài khoản người dùng!', 'error');
-        return;
-      }
+      if (userIdx === -1) return;
 
       const existingUser = state.users[userIdx];
       const isMatch = (existingUser.hash && existingUser.hash.toLowerCase() === curHash) || 
@@ -2553,12 +2935,279 @@
 
       saveUsersToLocal();
       closeChangePasswordModal();
-      showToast('Đổi mật khẩu thành công! Mật khẩu mới đã được cập nhật.', 'success');
+      showToast('Đổi mật khẩu thành công!', 'success');
     }
 
     // ==============================================================
-    // 9. APP INITIALIZATION (INIT APP STATE)
+    // GOOGLE SHEETS 2-WAY SYNC
     // ==============================================================
+    function generateAppsScriptCode() {
+      const code = `/**
+ * GEELY VIETNAM - GMTC DATABASE BACKEND (GOOGLE APPS SCRIPT)
+ */
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    if (data.records) {
+      var sheetRec = ss.getSheetByName("TrainingRecords") || ss.insertSheet("TrainingRecords");
+      sheetRec.clearContents();
+      var headers = ["No.", "Country", "Dealer Name", "Trainee Name", "Position", "Training Time", "Training Course", "Exam Score", "Trainer", "Evaluation", "Certificate Code", "Entry Date"];
+      sheetRec.appendRow(headers);
+      var rows = data.records.map(function(r, idx) {
+        return [idx + 1, r.country || "VIET NAM", r.dealer, r.trainee, r.position || "TECHNICIAN", "'" + String(r.time || ""), r.course, r.score, r.trainer, r.eval, r.certCode, String(r.entryDate || "")];
+      });
+      if (rows.length > 0) sheetRec.getRange(2, 1, rows.length, headers.length).setNumberFormat("@").setValues(rows);
+    }
+
+    if (data.courses) {
+      var sheetCourse = ss.getSheetByName("Courses") || ss.insertSheet("Courses");
+      sheetCourse.clearContents();
+      sheetCourse.appendRow(["ID", "Course Name", "Prefix", "Digits", "Score Pass", "Training Date", "Trainer", "Type", "IsManualCert"]);
+      var cRows = data.courses.map(function(c) {
+        return [c.id, c.name, c.prefix, c.digits, c.scorePass, "'" + String(c.trainingDate || ""), c.defaultTrainer, c.type, c.isManualCert ? "YES" : "NO"];
+      });
+      if (cRows.length > 0) sheetCourse.getRange(2, 1, cRows.length, 9).setNumberFormat("@").setValues(cRows);
+    }
+
+    if (data.dealers) {
+      var sheetDealers = ss.getSheetByName("Dealers") || ss.insertSheet("Dealers");
+      sheetDealers.clearContents();
+      sheetDealers.appendRow(["ID", "Dealer Name", "Region", "Address", "Hotline", "Manager", "MapX", "MapY"]);
+      var dRows = data.dealers.map(function(d) {
+        return [d.id, d.name, d.region, d.address, d.hotline, d.manager, d.mapPercentX || "", d.mapPercentY || ""];
+      });
+      if (dRows.length > 0) sheetDealers.getRange(2, 1, dRows.length, 8).setValues(dRows);
+    }
+
+    if (data.users) {
+      var sheetUsers = ss.getSheetByName("Users") || ss.insertSheet("Users");
+      sheetUsers.clearContents();
+      sheetUsers.appendRow(["Username", "FullName", "Role", "PasswordHashSHA256"]);
+      var uRows = data.users.map(function(u) {
+        return [u.username, u.fullname, u.role, u.hash];
+      });
+      if (uRows.length > 0) sheetUsers.getRange(2, 1, uRows.length, 4).setValues(uRows);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ status: "SUCCESS" })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "ERROR", error: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var result = { records: [], dealers: [], courses: [], users: [] };
+
+    var sheetRec = ss.getSheetByName("TrainingRecords");
+    if (sheetRec && sheetRec.getLastRow() > 1) {
+      var recData = sheetRec.getRange(2, 1, sheetRec.getLastRow() - 1, 12).getDisplayValues();
+      result.records = recData.map(function(row, idx) {
+        return {
+          id: "REC-GS-" + idx,
+          country: String(row[1] || "VIET NAM"),
+          dealer: String(row[2] || "").trim().toUpperCase(),
+          trainee: String(row[3] || "").trim().toUpperCase(),
+          position: String(row[4] || "TECHNICIAN"),
+          time: String(row[5] || ""),
+          course: String(row[6] || ""),
+          score: String(row[7] || ""),
+          trainer: String(row[8] || ""),
+          eval: String(row[9] || "PASSED"),
+          certCode: String(row[10] || "").trim(),
+          entryDate: String(row[11] || new Date().toISOString().slice(0, 10))
+        };
+      });
+    }
+
+    var sheetDealers = ss.getSheetByName("Dealers");
+    if (sheetDealers && sheetDealers.getLastRow() > 1) {
+      var dData = sheetDealers.getRange(2, 1, sheetDealers.getLastRow() - 1, 8).getDisplayValues();
+      result.dealers = dData.map(function(row, idx) {
+        return {
+          id: String(row[0] || ("DLR-GS-" + (idx + 1))),
+          name: String(row[1] || "").trim().toUpperCase(),
+          region: String(row[2] || "Miền Nam"),
+          address: String(row[3] || ""),
+          hotline: String(row[4] || "1900 xxxx"),
+          manager: String(row[5] || "Bộ phận Dịch vụ"),
+          mapPercentX: parseInt(row[6], 10) || null,
+          mapPercentY: parseInt(row[7], 10) || null
+        };
+      }).filter(function(d) { return d.name !== ""; });
+    }
+
+    var sheetCourse = ss.getSheetByName("Courses");
+    if (sheetCourse && sheetCourse.getLastRow() > 1) {
+      var cData = sheetCourse.getRange(2, 1, sheetCourse.getLastRow() - 1, 9).getDisplayValues();
+      result.courses = cData.map(function(row, idx) {
+        return {
+          id: String(row[0] || ("CRS-GS-" + (idx + 1))),
+          name: String(row[1] || "").trim().toUpperCase(),
+          prefix: String(row[2] || "").trim().toUpperCase(),
+          digits: parseInt(row[3], 10) || 4,
+          scorePass: String(row[4] || "80/100"),
+          trainingDate: String(row[5] || ""),
+          defaultTrainer: String(row[6] || "LE KHANH VAN"),
+          type: String(row[7] || "Online"),
+          isManualCert: String(row[8] || "").toUpperCase() === "YES"
+        };
+      }).filter(function(c) { return c.name !== ""; });
+    }
+
+    var sheetUsers = ss.getSheetByName("Users");
+    if (sheetUsers && sheetUsers.getLastRow() > 1) {
+      var uData = sheetUsers.getRange(2, 1, sheetUsers.getLastRow() - 1, 4).getDisplayValues();
+      result.users = uData.map(function(row) {
+        return {
+          username: String(row[0] || "").trim().toLowerCase(),
+          fullname: String(row[1] || ""),
+          role: String(row[2] || "viewer").trim().toLowerCase(),
+          hash: String(row[3] || ""),
+          plainPassword: ""
+        };
+      }).filter(function(u) { return u.username !== ""; });
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ status: "SUCCESS", data: result })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "ERROR", error: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+      document.getElementById('appsScriptCodeBlock').value = code;
+    }
+
+    async function pushToGoogleSheets() {
+      const targetUrl = state.syncUrl || PRIMARY_GOOGLE_SHEET_URL;
+      if (!targetUrl) return;
+
+      const payload = {
+        records: state.records,
+        dealers: state.dealers,
+        courses: state.courses,
+        users: state.users
+      };
+
+      try {
+        await fetch(targetUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        updateSyncBadge(true);
+      } catch (err) {
+        console.warn('Sync notice:', err);
+      }
+    }
+
+    async function pullFromGoogleSheets(silent = false) {
+      const targetUrl = state.syncUrl || PRIMARY_GOOGLE_SHEET_URL;
+      if (!targetUrl) return;
+
+      const syncIcon = document.getElementById('headerSyncIcon');
+      if (syncIcon) syncIcon.classList.add('fa-spin');
+      if (!silent) showToast('Đang đồng bộ dữ liệu trực tuyến...', 'info');
+
+      try {
+        const response = await fetch(`${targetUrl}?t=${Date.now()}`);
+        const res = await response.json();
+        if (res && res.status === 'SUCCESS' && res.data) {
+          if (res.data.records && res.data.records.length > 0) {
+            state.records = res.data.records.map(r => ({
+              ...r,
+              dealer: normalizeStr(r.dealer).toUpperCase(),
+              trainee: normalizeStr(r.trainee).toUpperCase(),
+              course: normalizeStr(r.course)
+            }));
+            localStorage.setItem('geely_records', JSON.stringify(state.records));
+          }
+
+          if (res.data.dealers && res.data.dealers.length > 0) {
+            const dealerMap = new Map();
+            res.data.dealers.forEach(d => dealerMap.set(d.name, d));
+            state.records.forEach(r => {
+              if (r.dealer && !dealerMap.has(r.dealer)) {
+                dealerMap.set(r.dealer, {
+                  id: `DLR-EXT-${dealerMap.size + 1}`,
+                  name: r.dealer,
+                  region: guessRegion(r.dealer),
+                  address: 'Hệ thống đại lý ủy quyền Geely',
+                  hotline: '1900 xxxx',
+                  manager: 'Bộ phận Dịch vụ'
+                });
+              }
+            });
+            state.dealers = Array.from(dealerMap.values());
+            localStorage.setItem('geely_custom_dealers', JSON.stringify(state.dealers));
+          }
+
+          if (res.data.courses && res.data.courses.length > 0) {
+            state.courses = res.data.courses;
+            localStorage.setItem('geely_courses', JSON.stringify(state.courses));
+          }
+
+          if (res.data.users && res.data.users.length > 0) {
+            state.users = res.data.users;
+            localStorage.setItem('geely_users', JSON.stringify(state.users));
+          }
+
+          renderDashboardStats();
+          renderDashboardView();
+          renderDealersManagerTable();
+          populateDropdowns();
+          renderCourseTable();
+          renderUsersTable();
+          filterReportRecords();
+
+          updateSyncBadge(true);
+          if (!silent) showToast('Đồng bộ dữ liệu thành công!', 'success');
+        }
+      } catch (err) {
+        console.warn('Pull notice:', err);
+      } finally {
+        if (syncIcon) syncIcon.classList.remove('fa-spin');
+      }
+    }
+
+    // ==============================================================
+    // TOAST & INIT
+    // ==============================================================
+    let toastTimeout;
+    function hideToast() {
+      const toast = document.getElementById('toast');
+      if (toast) {
+        toast.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+        toast.classList.add('translate-y-[-120%]', 'opacity-0', 'pointer-events-none');
+      }
+      clearTimeout(toastTimeout);
+    }
+
+    function showToast(message, type = 'info', duration = 2500) {
+      const toast = document.getElementById('toast');
+      const msgElem = document.getElementById('toastMsg');
+      const iconElem = document.getElementById('toastIcon');
+      clearTimeout(toastTimeout);
+      msgElem.innerText = message;
+
+      let colorClass = 'bg-geely-blue';
+      if (type === 'success') {
+        colorClass = 'bg-emerald-600';
+        iconElem.className = 'fa-solid fa-circle-check mr-3 text-xl text-emerald-200';
+      } else if (type === 'error') {
+        colorClass = 'bg-rose-600';
+        iconElem.className = 'fa-solid fa-triangle-exclamation mr-3 text-xl text-rose-200';
+      } else {
+        iconElem.className = 'fa-solid fa-circle-info mr-3 text-xl text-geely-accent';
+      }
+
+      toast.className = `fixed top-5 right-5 z-50 transition-all duration-300 translate-y-0 opacity-100 pointer-events-auto flex items-center justify-between p-4 rounded-2xl shadow-2xl ${colorClass} text-white font-medium max-w-md`;
+      toastTimeout = setTimeout(() => hideToast(), duration);
+    }
+
     function initAppState() {
       const today = new Date().toISOString().slice(0, 10);
       const entryInp = document.getElementById('entryInputDate');
@@ -2571,13 +3220,8 @@
 
       const localRecords = localStorage.getItem('geely_records');
       if (localRecords) {
-        try {
-          state.records = JSON.parse(localRecords);
-        } catch (e) {
-          state.records = [];
-        }
+        try { state.records = JSON.parse(localRecords); } catch (e) { state.records = []; }
       }
-
       if (state.records.length === 0) {
         state.records = INITIAL_RAW_RECORDS.map((r, idx) => ({
           id: `REC-${idx + 1}`,
@@ -2601,50 +3245,20 @@
 
       const localCourses = localStorage.getItem('geely_courses');
       if (localCourses) {
-        try {
-          state.courses = JSON.parse(localCourses);
-        } catch (e) {
-          state.courses = [];
-        }
+        try { state.courses = JSON.parse(localCourses); } catch (e) { state.courses = []; }
       }
-
       if (state.courses.length === 0) {
         state.courses = [
-          {
-            id: 'CRS-1',
-            name: 'GMTC LEVEL 1 (NEW)',
-            prefix: 'GMTC-D-1-VN-',
-            digits: 4,
-            scorePass: '80/100',
-            trainingDate: '1-31/10/2026',
-            defaultTrainer: 'LE KHANH VAN',
-            type: 'Online',
-            isManualCert: false
-          },
-          {
-            id: 'CRS-2',
-            name: 'GMTC LEVEL II',
-            prefix: 'GMTC-D-2-VN-',
-            digits: 4,
-            scorePass: '80/100',
-            trainingDate: '21-22/5/2026',
-            defaultTrainer: 'LE KHANH VAN',
-            type: 'Offline',
-            isManualCert: false
-          }
+          { id: 'CRS-1', name: 'GMTC LEVEL 1 (NEW)', prefix: 'GMTC-D-1-VN-', digits: 4, scorePass: '80/100', trainingDate: '1-31/10/2026', defaultTrainer: 'LE KHANH VAN', type: 'Online', isManualCert: false },
+          { id: 'CRS-2', name: 'GMTC LEVEL II', prefix: 'GMTC-D-2-VN-', digits: 4, scorePass: '80/100', trainingDate: '21-22/5/2026', defaultTrainer: 'LE KHANH VAN', type: 'Offline', isManualCert: false }
         ];
         localStorage.setItem('geely_courses', JSON.stringify(state.courses));
       }
 
       const localDealers = localStorage.getItem('geely_custom_dealers');
       if (localDealers) {
-        try {
-          state.dealers = JSON.parse(localDealers);
-        } catch (e) {
-          state.dealers = [];
-        }
+        try { state.dealers = JSON.parse(localDealers); } catch (e) { state.dealers = []; }
       }
-
       if (state.dealers.length === 0) {
         const dealerSet = new Set(state.records.map(r => r.dealer).filter(Boolean));
         state.dealers = Array.from(dealerSet).map((name, idx) => ({
@@ -2653,20 +3267,14 @@
           region: guessRegion(name),
           address: 'Hệ thống đại lý ủy quyền Geely Auto',
           hotline: '1900 xxxx',
-          manager: 'Bộ phận Dịch vụ & Đào tạo',
-          mapPercentX: null,
-          mapPercentY: null
+          manager: 'Bộ phận Dịch vụ & Đào tạo'
         }));
         localStorage.setItem('geely_custom_dealers', JSON.stringify(state.dealers));
       }
 
       const localUsers = localStorage.getItem('geely_users');
       if (localUsers) {
-        try {
-          state.users = JSON.parse(localUsers);
-        } catch (e) {
-          state.users = [];
-        }
+        try { state.users = JSON.parse(localUsers); } catch (e) { state.users = []; }
       }
 
       const savedUser = sessionStorage.getItem('geely_session_user');
@@ -2676,299 +3284,6 @@
           enterApplication();
         } catch (e) {}
       }
-    }
-
-    // ==============================================================
-    // 9C. GAP QUEUE & DUPLICATE CERTIFICATES AUDIT
-    // ==============================================================
-    // 13. GOOGLE SHEETS 2-WAY SYNC
-    // ==============================================================
-    function generateAppsScriptCode() {
-      const code = `/**
- * GEELY VIETNAM - GMTC DATABASE BACKEND (GOOGLE APPS SCRIPT)
- * Hỗ trợ lưu trữ: Bảng TrainingRecords (có cột L: Entry Date), 
- * Bảng Dealers (có cột G: MapX, cột H: MapY), Courses và Users.
- */
-function doPost(e) {
-  try {
-    var data = JSON.parse(e.postData.contents);
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-
-    // 1. Sync TrainingRecords (Thêm cột Entry Date ở vị trí cột L / thứ 12)
-    if (data.records) {
-      var sheetRec = ss.getSheetByName("TrainingRecords") || ss.insertSheet("TrainingRecords");
-      sheetRec.clearContents();
-      var headers = ["No.", "Country", "Dealer Name", "Trainee Name", "Position", "Training Time", "Training Course", "Exam Score", "Trainer", "Evaluation", "Certificate Code", "Entry Date"];
-      sheetRec.appendRow(headers);
-      var rows = data.records.map(function(r, idx) {
-        var textTime = "'" + String(r.time || "");
-        var entryDateVal = String(r.entryDate || "");
-        return [idx + 1, r.country || "VIET NAM", r.dealer, r.trainee, r.position || "TECHNICIAN", textTime, r.course, r.score, r.trainer, r.eval, r.certCode, entryDateVal];
-      });
-      if (rows.length > 0) {
-        sheetRec.getRange(2, 1, rows.length, headers.length).setNumberFormat("@").setValues(rows);
-      }
-    }
-
-    // 2. Sync Courses
-    if (data.courses) {
-      var sheetCourse = ss.getSheetByName("Courses") || ss.insertSheet("Courses");
-      sheetCourse.clearContents();
-      sheetCourse.appendRow(["ID", "Course Name", "Prefix", "Digits", "Score Pass", "Training Date", "Trainer", "Type", "IsManualCert"]);
-      var cRows = data.courses.map(function(c) {
-        return [c.id, c.name, c.prefix, c.digits, c.scorePass, "'" + String(c.trainingDate || ""), c.defaultTrainer, c.type, c.isManualCert ? "YES" : "NO"];
-      });
-      if (cRows.length > 0) {
-        sheetCourse.getRange(2, 1, cRows.length, 9).setNumberFormat("@").setValues(cRows);
-      }
-    }
-
-    // 3. Sync Dealers (Lưu thêm tọa độ MapX và MapY ở cột G và H)
-    if (data.dealers) {
-      var sheetDealers = ss.getSheetByName("Dealers") || ss.insertSheet("Dealers");
-      sheetDealers.clearContents();
-      sheetDealers.appendRow(["ID", "Dealer Name", "Region", "Address", "Hotline", "Manager", "MapX", "MapY"]);
-      var dRows = data.dealers.map(function(d) {
-        return [d.id, d.name, d.region, d.address, d.hotline, d.manager, d.mapPercentX || "", d.mapPercentY || ""];
-      });
-      if (dRows.length > 0) {
-        sheetDealers.getRange(2, 1, dRows.length, 8).setValues(dRows);
-      }
-    }
-
-    // 4. Sync Encrypted Users
-    if (data.users) {
-      var sheetUsers = ss.getSheetByName("Users") || ss.insertSheet("Users");
-      sheetUsers.clearContents();
-      sheetUsers.appendRow(["Username", "FullName", "Role", "PasswordHashSHA256"]);
-      var uRows = data.users.map(function(u) {
-        return [u.username, u.fullname, u.role, u.hash];
-      });
-      if (uRows.length > 0) {
-        sheetUsers.getRange(2, 1, uRows.length, 4).setValues(uRows);
-      }
-    }
-
-    return ContentService.createTextOutput(JSON.stringify({ status: "SUCCESS", message: "Đồng bộ thành công!" }))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ status: "ERROR", error: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function doGet(e) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var result = {
-      records: [],
-      dealers: [],
-      courses: [],
-      users: []
-    };
-
-    // 1. Read TrainingRecords (Đọc đến cột thứ 12 lấy Entry Date)
-    var sheetRec = ss.getSheetByName("TrainingRecords");
-    if (sheetRec && sheetRec.getLastRow() > 1) {
-      var recData = sheetRec.getRange(2, 1, sheetRec.getLastRow() - 1, 12).getDisplayValues();
-      result.records = recData.map(function(row, idx) {
-        return {
-          id: "REC-GS-" + idx,
-          country: String(row[1] || "VIET NAM"),
-          dealer: String(row[2] || "").trim().toUpperCase(),
-          trainee: String(row[3] || "").trim().toUpperCase(),
-          position: String(row[4] || "TECHNICIAN"),
-          time: String(row[5] || ""),
-          course: String(row[6] || ""),
-          score: String(row[7] || ""),
-          trainer: String(row[8] || ""),
-          eval: String(row[9] || "PASSED"),
-          certCode: String(row[10] || "").trim(),
-          entryDate: String(row[11] || new Date().toISOString().slice(0, 10))
-        };
-      });
-    }
-
-    // 2. Read Dealers (Đọc MapX và MapY từ cột 7 và 8)
-    var sheetDealers = ss.getSheetByName("Dealers");
-    if (sheetDealers && sheetDealers.getLastRow() > 1) {
-      var dData = sheetDealers.getRange(2, 1, sheetDealers.getLastRow() - 1, 8).getDisplayValues();
-      result.dealers = dData.map(function(row, idx) {
-        return {
-          id: String(row[0] || ("DLR-GS-" + (idx + 1))),
-          name: String(row[1] || "").trim().toUpperCase(),
-          region: String(row[2] || "Miền Nam"),
-          address: String(row[3] || ""),
-          hotline: String(row[4] || "1900 xxxx"),
-          manager: String(row[5] || "Bộ phận Dịch vụ"),
-          mapPercentX: parseInt(row[6], 10) || null,
-          mapPercentY: parseInt(row[7], 10) || null
-        };
-      }).filter(function(d) { return d.name !== ""; });
-    }
-
-    // 3. Read Courses
-    var sheetCourse = ss.getSheetByName("Courses");
-    if (sheetCourse && sheetCourse.getLastRow() > 1) {
-      var cData = sheetCourse.getRange(2, 1, sheetCourse.getLastRow() - 1, 9).getDisplayValues();
-      result.courses = cData.map(function(row, idx) {
-        var isManual = String(row[8] || "").toUpperCase() === "YES" || String(row[8] || "") === "TRUE";
-        return {
-          id: String(row[0] || ("CRS-GS-" + (idx + 1))),
-          name: String(row[1] || "").trim().toUpperCase(),
-          prefix: String(row[2] || "").trim().toUpperCase(),
-          digits: parseInt(row[3], 10) || 4,
-          scorePass: String(row[4] || "80/100"),
-          trainingDate: String(row[5] || ""),
-          defaultTrainer: String(row[6] || "LE KHANH VAN"),
-          type: String(row[7] || "Online"),
-          isManualCert: isManual
-        };
-      }).filter(function(c) { return c.name !== ""; });
-    }
-
-    // 4. Read Users
-    var sheetUsers = ss.getSheetByName("Users");
-    if (sheetUsers && sheetUsers.getLastRow() > 1) {
-      var uData = sheetUsers.getRange(2, 1, sheetUsers.getLastRow() - 1, 4).getDisplayValues();
-      result.users = uData.map(function(row) {
-        return {
-          username: String(row[0] || "").trim().toLowerCase(),
-          fullname: String(row[1] || ""),
-          role: String(row[2] || "viewer").trim().toLowerCase(),
-          hash: String(row[3] || ""),
-          plainPassword: ""
-        };
-      }).filter(function(u) { return u.username !== ""; });
-    }
-
-    return ContentService.createTextOutput(JSON.stringify({ status: "SUCCESS", data: result }))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ status: "ERROR", error: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}`;
-      document.getElementById('appsScriptCodeBlock').value = code;
-    }
-
-    async function pushToGoogleSheets(showNotification = false) {
-      const targetUrl = state.syncUrl || PRIMARY_GOOGLE_SHEET_URL;
-      if (!targetUrl) return;
-
-      const payload = {
-        records: state.records.map(r => ({
-          ...r,
-          time: "'" + String(r.time || ''),
-          entryDate: String(r.entryDate || new Date().toISOString().slice(0, 10))
-        })),
-        dealers: state.dealers.map(d => ({
-          ...d,
-          mapPercentX: d.mapPercentX || '',
-          mapPercentY: d.mapPercentY || ''
-        })),
-        courses: state.courses.map(c => ({
-          ...c,
-          trainingDate: "'" + String(c.trainingDate || '')
-        })),
-        users: state.users
-      };
-
-      try {
-        await fetch(targetUrl, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-        updateSyncBadge(true);
-        if (showNotification) {
-          showToast('Dữ liệu đã tự động đồng bộ lên Google Sheets thành công!', 'success');
-        }
-      } catch (err) {
-        console.warn('Sync notice:', err);
-      }
-    }
-
-    async function pullFromGoogleSheets(silent = false) {
-      const targetUrl = state.syncUrl || PRIMARY_GOOGLE_SHEET_URL;
-      if (!targetUrl) return;
-
-      const syncIcon = document.getElementById('headerSyncIcon');
-      if (syncIcon) syncIcon.classList.add('fa-spin');
-      if (!silent) showToast('Đang đồng bộ dữ liệu trực tuyến từ Google Sheets...', 'info');
-
-      try {
-        const response = await fetch(targetUrl + '?t=' + Date.now());
-        const res = await response.json();
-        if (res && res.status === 'SUCCESS' && res.data) {
-          if (res.data.records && Array.isArray(res.data.records)) {
-            state.records = res.data.records.map(r => ({
-              ...r,
-              dealer: normalizeStr(r.dealer).toUpperCase(),
-              trainee: normalizeStr(r.trainee).toUpperCase(),
-              course: normalizeStr(r.course),
-              entryDate: r.entryDate || '2026-11-05'
-            }));
-            localStorage.setItem('geely_records', JSON.stringify(state.records));
-          }
-
-          if (res.data.dealers && Array.isArray(res.data.dealers)) {
-            state.dealers = res.data.dealers.map(d => ({
-              ...d,
-              name: normalizeStr(d.name).toUpperCase()
-            }));
-            localStorage.setItem('geely_custom_dealers', JSON.stringify(state.dealers));
-          }
-
-          if (res.data.courses && Array.isArray(res.data.courses)) {
-            state.courses = res.data.courses;
-            localStorage.setItem('geely_courses', JSON.stringify(state.courses));
-          }
-
-          if (res.data.users && Array.isArray(res.data.users)) {
-            state.users = res.data.users;
-            localStorage.setItem('geely_users', JSON.stringify(state.users));
-          }
-
-          renderDashboardStats();
-          renderDealerCards();
-          renderDealersManagerTable();
-          populateDropdowns();
-          renderCourseTable();
-          renderUsersTable();
-          filterReportRecords();
-          updateSyncBadge(true);
-
-          if (!silent) showToast('Đồng bộ thành công từ Google Sheets!', 'success');
-        }
-      } catch (err) {
-        console.warn('Pull notice:', err);
-      } finally {
-        if (syncIcon) syncIcon.classList.remove('fa-spin');
-      }
-    }
-
-    let toastTimeout;
-    function hideToast() {
-      const toast = document.getElementById('toast');
-      toast.classList.replace('translate-y-0', 'translate-y-[-120%]');
-      toast.classList.replace('opacity-100', 'opacity-0');
-      clearTimeout(toastTimeout);
-    }
-
-    function showToast(message, type = 'info', duration = 2500) {
-      const toast = document.getElementById('toast');
-      document.getElementById('toastMsg').innerText = message;
-      let colorClass = 'bg-geely-blue';
-      if (type === 'success') colorClass = 'bg-emerald-600';
-      else if (type === 'error') colorClass = 'bg-rose-600';
-
-      toast.className = `fixed top-5 right-5 z-50 transition-all duration-300 translate-y-0 opacity-100 pointer-events-auto flex items-center justify-between p-4 rounded-2xl shadow-2xl ${colorClass} text-white font-medium max-w-md`;
-      clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(hideToast, duration);
     }
 
     window.onload = function () {
