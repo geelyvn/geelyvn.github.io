@@ -166,6 +166,11 @@
 
           <!-- Current User Profile & Actions -->
           <div class="flex items-center space-x-2 sm:space-x-3">
+            <!-- NÚT ĐỒNG BỘ NHANH TỪ GOOGLE SHEET VỀ WEB TRÊN HEADER -->
+            <button onclick="pullFromGoogleSheets(false)" id="headerSyncBtn" title="Đồng bộ cập nhật dữ liệu mới nhất từ Google Sheet về Dashboard" class="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 hover:text-white border border-emerald-400/30 transition flex items-center space-x-1.5 text-xs font-bold">
+              <i class="fa-solid fa-arrows-rotate" id="headerSyncIcon"></i>
+              <span class="hidden sm:inline">Lấy dữ liệu từ Sheet</span>
+            </button>
             <div class="text-right hidden sm:block">
               <div id="currentUserLabel" class="text-sm font-bold text-white capitalize">Admin</div>
               <div id="currentUserRole" class="text-[10px] uppercase font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full inline-block">Quản trị viên</div>
@@ -265,6 +270,9 @@
               <option value="name-asc">Tên đại lý (A-Z)</option>
               <option value="cert-desc">Số chứng chỉ nhiều nhất</option>
             </select>
+            <button onclick="pullFromGoogleSheets(false)" title="Kéo và cập nhật dữ liệu mới nhất từ Google Sheets" class="text-xs px-3 py-2 text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl font-bold flex items-center">
+              <i class="fa-solid fa-cloud-arrow-down mr-1"></i> Đồng bộ Sheet
+            </button>
             <button onclick="resetDealerFilters()" class="text-xs px-3 py-2 text-slate-600 hover:text-slate-800 bg-slate-100 rounded-xl">
               <i class="fa-solid fa-arrows-rotate mr-1"></i> Làm mới
             </button>
@@ -2739,29 +2747,68 @@ function doGet(e) {
     // PULL: Google Sheets -> Web App
     async function pullFromGoogleSheets(silent = false) {
       if (!state.syncUrl) {
-        if (!silent) showToast('Chưa nhập đường link Google Apps Script!', 'error');
+        if (!silent) {
+          showToast('Chưa cấu hình link Google Apps Script! Vui lòng vào Tab "Google Sync" để dán link.', 'error');
+          switchTab('sync');
+        }
         return;
       }
 
-      if (!silent) showToast('Đang tải dữ liệu từ Google Sheets về...', 'info');
+      const syncIcon = document.getElementById('headerSyncIcon');
+      if (syncIcon) syncIcon.classList.add('fa-spin');
+
+      if (!silent) showToast('Đang kết nối & tải dữ liệu mới nhất từ Google Sheets...', 'info');
 
       try {
         const response = await fetch(state.syncUrl);
         const res = await response.json();
-        if (res && res.status === 'SUCCESS' && res.data && res.data.records && res.data.records.length > 0) {
-          state.records = res.data.records;
-          localStorage.setItem('geely_records', JSON.stringify(state.records));
+        if (res && res.status === 'SUCCESS' && res.data) {
+          let updatedCount = 0;
+
+          // 1. Cập nhật Records
+          if (res.data.records && Array.isArray(res.data.records) && res.data.records.length > 0) {
+            state.records = res.data.records;
+            localStorage.setItem('geely_records', JSON.stringify(state.records));
+            updatedCount = state.records.length;
+          }
+
+          // 2. Cập nhật Dealers (nếu có trên sheet)
+          if (res.data.dealers && Array.isArray(res.data.dealers) && res.data.dealers.length > 0) {
+            state.dealers = res.data.dealers;
+            localStorage.setItem('geely_custom_dealers', JSON.stringify(state.dealers));
+          }
+
+          // 3. Cập nhật Courses (nếu có trên sheet)
+          if (res.data.courses && Array.isArray(res.data.courses) && res.data.courses.length > 0) {
+            state.courses = res.data.courses;
+            localStorage.setItem('geely_courses', JSON.stringify(state.courses));
+          }
+
+          // 4. Cập nhật Users (nếu có trên sheet)
+          if (res.data.users && Array.isArray(res.data.users) && res.data.users.length > 0) {
+            state.users = res.data.users;
+            localStorage.setItem('geely_users', JSON.stringify(state.users));
+          }
+
+          // Render lại toàn bộ giao diện
           renderDashboardStats();
           renderDealerCards();
           renderDealersManagerTable();
+          populateDropdowns();
+          renderCourseTable();
+          renderUsersTable();
           filterReportRecords();
-          if (!silent) showToast(`Đã đồng bộ thành công ${state.records.length} bản ghi từ Google Sheets!`, 'success');
+
+          updateSyncBadge(true);
+          if (!silent) showToast(`Đồng bộ thành công! Đã cập nhật ${updatedCount} bản ghi từ Google Sheets.`, 'success');
         } else {
-          if (!silent) showToast('Google Sheets đã kết nối nhưng chưa có dữ liệu mới.', 'info');
+          if (!silent) showToast('Google Sheets đã kết nối nhưng chưa có dữ liệu.', 'info');
         }
       } catch (err) {
         console.warn('Pull error:', err);
-        if (!silent) showToast('Không thể kết nối lấy dữ liệu từ Google Sheet. Vui lòng kiểm tra lại quyền truy cập Anyone!', 'error');
+        if (!silent) showToast('Không thể kết nối tới Google Sheets! Kiểm tra lại link Web App và quyền Anyone.', 'error');
+      } finally {
+        if (syncIcon) syncIcon.classList.remove('fa-spin');
       }
     }
 
