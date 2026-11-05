@@ -1548,6 +1548,164 @@
       document.getElementById('statTotalCerts').innerText = totalCertsCount;
     }
 
+    // ==============================================================
+    // MAP RENDERING & INTERACTION FUNCTIONS
+    // ==============================================================
+    function renderMapPins(dealersList) {
+      const layer = document.getElementById('mapMarkersLayer');
+      const legendCount = document.getElementById('mapLegendCount');
+      if (!layer) return;
+      layer.innerHTML = '';
+
+      if (legendCount) {
+        legendCount.innerHTML = `<i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> ${dealersList.length} Điểm`;
+      }
+
+      dealersList.forEach(item => {
+        const dealerObj = state.dealers.find(d => d.name === item.name);
+        let coords = null;
+        if (dealerObj && dealerObj.mapPercentX && dealerObj.mapPercentY) {
+          coords = { x: dealerObj.mapPercentX, y: dealerObj.mapPercentY };
+        } else {
+          coords = getDealerPercentCoords(item.name);
+        }
+
+        const pin = document.createElement('div');
+        pin.id = `map-pin-${item.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        pin.className = "absolute w-3.5 h-3.5 rounded-full bg-slate-800 border-2 border-white shadow-md transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-200 hover:scale-150 hover:bg-rose-600";
+        pin.style.left = `${coords.x}%`;
+        pin.style.top = `${coords.y}%`;
+
+        pin.onmouseenter = (e) => showPinTooltip(e, item);
+        pin.onmouseleave = () => hidePinTooltip();
+        pin.onclick = () => openDealerModal(item.name);
+
+        layer.appendChild(pin);
+      });
+    }
+
+    function highlightPinOnMap(dealerName, highlight) {
+      const pinId = `map-pin-${dealerName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      const pin = document.getElementById(pinId);
+      if (!pin) return;
+
+      if (highlight) {
+        pin.classList.add('active-map-pin', 'bg-rose-600', 'scale-150');
+      } else {
+        pin.classList.remove('active-map-pin', 'bg-rose-600', 'scale-150');
+      }
+    }
+
+    function showPinTooltip(e, item) {
+      const tooltip = document.getElementById('mapTooltip');
+      if (!tooltip) return;
+
+      document.getElementById('mapTooltipName').innerText = item.name;
+      document.getElementById('mapTooltipRegion').innerText = item.region;
+      document.getElementById('mapTooltipTechs').innerText = `KTV: ${item.techs.size}`;
+      document.getElementById('mapTooltipCerts').innerText = `Chứng chỉ: ${item.certCount}`;
+
+      const box = document.getElementById('vietnamMapBox').getBoundingClientRect();
+      const rect = e.target.getBoundingClientRect();
+
+      const posX = rect.left - box.left + (rect.width / 2);
+      const posY = rect.top - box.top;
+
+      tooltip.style.left = `${posX}px`;
+      tooltip.style.top = `${posY - 8}px`;
+      tooltip.classList.remove('hidden');
+
+      highlightPinOnMap(item.name, true);
+    }
+
+    function hidePinTooltip() {
+      const tooltip = document.getElementById('mapTooltip');
+      if (tooltip) tooltip.classList.add('hidden');
+    }
+
+    function handleNewDealerMapClick(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const xPercent = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+      const yPercent = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+
+      const dot = document.getElementById('newDealerPinDot');
+      if (dot) {
+        dot.style.left = `${xPercent}%`;
+        dot.style.top = `${yPercent}%`;
+        dot.classList.remove('hidden');
+      }
+
+      document.getElementById('entryMapX').value = xPercent;
+      document.getElementById('entryMapY').value = yPercent;
+
+      const badge = document.getElementById('entryCoordBadge');
+      if (badge) badge.innerText = `X: ${xPercent}%, Y: ${yPercent}%`;
+    }
+
+    function openDealerLocationModal(dealerId) {
+      const dealer = state.dealers.find(d => d.id === dealerId);
+      if (!dealer) return;
+
+      state.editingDealerLocId = dealerId;
+      document.getElementById('dealerLocModalName').innerText = dealer.name;
+
+      const coords = (dealer.mapPercentX && dealer.mapPercentY) 
+        ? { x: dealer.mapPercentX, y: dealer.mapPercentY } 
+        : getDealerPercentCoords(dealer.name);
+
+      const dot = document.getElementById('editDealerPinDot');
+      dot.style.left = `${coords.x}%`;
+      dot.style.top = `${coords.y}%`;
+      dot.dataset.x = coords.x;
+      dot.dataset.y = coords.y;
+
+      document.getElementById('editDealerCoordBadge').innerText = `X: ${coords.x}%, Y: ${coords.y}%`;
+
+      const modal = document.getElementById('dealerLocationModal');
+      modal.classList.replace('hidden', 'flex');
+    }
+
+    function closeDealerLocationModal() {
+      const modal = document.getElementById('dealerLocationModal');
+      modal.classList.replace('flex', 'hidden');
+      state.editingDealerLocId = null;
+    }
+
+    function handleEditDealerMapClick(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const xPercent = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+      const yPercent = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+
+      const dot = document.getElementById('editDealerPinDot');
+      dot.style.left = `${xPercent}%`;
+      dot.style.top = `${yPercent}%`;
+      dot.dataset.x = xPercent;
+      dot.dataset.y = yPercent;
+
+      document.getElementById('editDealerCoordBadge').innerText = `X: ${xPercent}%, Y: ${yPercent}%`;
+    }
+
+    function saveDealerLocation() {
+      if (!state.editingDealerLocId) return;
+      const dealer = state.dealers.find(d => d.id === state.editingDealerLocId);
+      if (!dealer) return;
+
+      const dot = document.getElementById('editDealerPinDot');
+      const newX = parseInt(dot.dataset.x, 10);
+      const newY = parseInt(dot.dataset.y, 10);
+
+      if (!isNaN(newX) && !isNaN(newY)) {
+        dealer.mapPercentX = newX;
+        dealer.mapPercentY = newY;
+        saveDealersToLocal();
+        showToast(`Đã lưu vị trí bản đồ cho đại lý ${dealer.name}!`, 'success');
+      }
+
+      closeDealerLocationModal();
+      renderDealersManagerTable();
+      renderDealerCards();
+    }
+
     function renderDealerCards() {
       const container = document.getElementById('dealersGrid');
       if (!container) return;
@@ -1660,186 +1818,47 @@
       });
     }
 
-    function renderMapPins(dealersList) {
-      const layer = document.getElementById('mapMarkersLayer');
-      if (!layer) return;
-      layer.innerHTML = '';
-
-      document.getElementById('mapLegendCount').innerHTML = `<i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> ${dealersList.length} Điểm`;
-
-      dealersList.forEach(item => {
-        const dObj = state.dealers.find(d => d.name === item.name);
-        const coords = (dObj && dObj.mapPercentX && dObj.mapPercentY) 
-          ? { x: dObj.mapPercentX, y: dObj.mapPercentY } 
-          : getDealerPercentCoords(item.name);
-
-        const pin = document.createElement('div');
-        pin.id = `map-pin-${item.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
-        pin.className = "absolute w-2.5 h-2.5 rounded-full bg-slate-700 border border-white shadow-sm cursor-pointer transform -translate-x-1/2 -translate-y-1/2 transition-all duration-150 hover:scale-150 z-20 hover:bg-rose-500";
-        pin.style.left = `${coords.x}%`;
-        pin.style.top = `${coords.y}%`;
-
-        pin.onmouseenter = (e) => showPinTooltip(e, item, coords);
-        pin.onmouseleave = hidePinTooltip;
-        pin.onclick = () => openDealerModal(item.name);
-
-        layer.appendChild(pin);
-      });
-    }
-
-    function highlightPinOnMap(dealerName, isHovered) {
-      const pinId = `map-pin-${dealerName.replace(/[^a-zA-Z0-9]/g, '_')}`;
-      const pin = document.getElementById(pinId);
-      if (!pin) return;
-
-      if (isHovered) {
-        pin.className = "absolute w-4 h-4 rounded-full bg-rose-500 border-2 border-white shadow-lg cursor-pointer transform -translate-x-1/2 -translate-y-1/2 active-map-pin";
-        const dObj = state.dealers.find(d => d.name === dealerName);
-        const techsCount = new Set(state.records.filter(r => r.dealer === dealerName).map(r => r.trainee)).size;
-        let certCount = 0;
-        state.records.filter(r => r.dealer === dealerName).forEach(r => certCount += extractCertCodes(r.certCode).length);
-        const coords = (dObj && dObj.mapPercentX && dObj.mapPercentY) ? { x: dObj.mapPercentX, y: dObj.mapPercentY } : getDealerPercentCoords(dealerName);
-
-        showPinTooltip(null, { name: dealerName, region: dObj ? dObj.region : guessRegion(dealerName), techsCount, certCount }, coords);
-      } else {
-        pin.className = "absolute w-2.5 h-2.5 rounded-full bg-slate-700 border border-white shadow-sm cursor-pointer transform -translate-x-1/2 -translate-y-1/2 transition-all duration-150";
-        hidePinTooltip();
-      }
-    }
-
-    function showPinTooltip(e, item, coords) {
-      const tooltip = document.getElementById('mapTooltip');
-      if (!tooltip) return;
-
-      document.getElementById('mapTooltipName').innerText = item.name;
-      document.getElementById('mapTooltipRegion').innerText = item.region || guessRegion(item.name);
-      document.getElementById('mapTooltipTechs').innerText = `KTV: ${item.techs ? item.techs.size : (item.techsCount || 0)}`;
-      document.getElementById('mapTooltipCerts').innerText = `Chứng chỉ: ${item.certCount || 0}`;
-
-      tooltip.style.left = `${coords.x}%`;
-      tooltip.style.top = `calc(${coords.y}% - 14px)`;
-      tooltip.classList.remove('hidden');
-    }
-
-    function hidePinTooltip() {
-      const tooltip = document.getElementById('mapTooltip');
-      if (tooltip) tooltip.classList.add('hidden');
-    }
-
-    function handleNewDealerMapClick(e) {
-      if (state.currentUser && state.currentUser.role !== 'admin') return;
-      const box = e.currentTarget;
-      const rect = box.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const clickY = e.clientY - rect.top;
-
-      if (clickX < 0 || clickX > rect.width || clickY < 0 || clickY > rect.height) return;
-
-      const xPercent = Math.round((clickX / rect.width) * 100);
-      const yPercent = Math.round((clickY / rect.height) * 100);
-
-      document.getElementById('entryMapX').value = xPercent;
-      document.getElementById('entryMapY').value = yPercent;
-
-      const dot = document.getElementById('newDealerPinDot');
-      dot.style.left = `${xPercent}%`;
-      dot.style.top = `${yPercent}%`;
-      dot.classList.remove('hidden');
-      document.getElementById('entryCoordBadge').innerText = `X: ${xPercent}%, Y: ${yPercent}%`;
-    }
-
-    function openDealerLocationModal(dealerId) {
-      if (state.currentUser && state.currentUser.role !== 'admin') {
-        showToast('Tài khoản người xem không có quyền chỉnh sửa vị trí bản đồ!', 'error');
-        return;
-      }
-      const dealer = state.dealers.find(d => d.id === dealerId);
-      if (!dealer) return;
-
-      state.editingDealerLocId = dealerId;
-      document.getElementById('dealerLocModalName').innerText = dealer.name;
-      const coords = (dealer.mapPercentX && dealer.mapPercentY) ? { x: dealer.mapPercentX, y: dealer.mapPercentY } : getDealerPercentCoords(dealer.name);
-
-      const dot = document.getElementById('editDealerPinDot');
-      dot.style.left = `${coords.x}%`;
-      dot.style.top = `${coords.y}%`;
-      dot.dataset.x = coords.x;
-      dot.dataset.y = coords.y;
-
-      document.getElementById('editDealerCoordBadge').innerText = `X: ${coords.x}%, Y: ${coords.y}%`;
-      document.getElementById('dealerLocationModal').classList.replace('hidden', 'flex');
-    }
-
-    function closeDealerLocationModal() {
-      document.getElementById('dealerLocationModal').classList.replace('flex', 'hidden');
-      state.editingDealerLocId = null;
-    }
-
-    function handleEditDealerMapClick(e) {
-      const box = e.currentTarget;
-      const rect = box.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const clickY = e.clientY - rect.top;
-
-      if (clickX < 0 || clickX > rect.width || clickY < 0 || clickY > rect.height) return;
-
-      const xPercent = Math.round((clickX / rect.width) * 100);
-      const yPercent = Math.round((clickY / rect.height) * 100);
-
-      const dot = document.getElementById('editDealerPinDot');
-      dot.style.left = `${xPercent}%`;
-      dot.style.top = `${yPercent}%`;
-      dot.dataset.x = xPercent;
-      dot.dataset.y = yPercent;
-      document.getElementById('editDealerCoordBadge').innerText = `X: ${xPercent}%, Y: ${yPercent}%`;
-    }
-
-    function saveDealerLocation() {
-      if (!state.editingDealerLocId || state.currentUser.role !== 'admin') return;
-      const dealer = state.dealers.find(d => d.id === state.editingDealerLocId);
-      if (!dealer) return;
-
-      const dot = document.getElementById('editDealerPinDot');
-      const newX = parseInt(dot.dataset.x, 10);
-      const newY = parseInt(dot.dataset.y, 10);
-
-      if (!isNaN(newX) && !isNaN(newY)) {
-        dealer.mapPercentX = newX;
-        dealer.mapPercentY = newY;
-        saveDealersToLocal();
-        showToast(`Đã lưu vị trí bản đồ cho đại lý ${dealer.name}!`, 'success');
-      }
-
-      closeDealerLocationModal();
-      renderDealersManagerTable();
-      renderDealerCards();
-    }
-
+    // ==============================================================
+    // 4. DEALER DETAIL MODAL & BATCH DELETE
+    // ==============================================================
     function openDealerModal(dealerName) {
       state.currentModalDealer = dealerName;
       state.selectedModalRecords.clear();
+
       document.body.classList.add('overflow-hidden');
 
-      document.getElementById('modalDealerTitle').innerText = dealerName;
-      document.getElementById('modalDealerSubtitle').innerText = `Danh sách nhân sự & Chứng chỉ đào tạo GMTC`;
+      const modal = document.getElementById('dealerModal');
+      const title = document.getElementById('modalDealerTitle');
+      const subtitle = document.getElementById('modalDealerSubtitle');
+
+      if (title) title.innerText = dealerName;
+      if (subtitle) subtitle.innerText = `Danh sách nhân sự & Chứng chỉ đào tạo GMTC`;
 
       const courseSelect = document.getElementById('modalCourseFilter');
-      courseSelect.innerHTML = `<option value="ALL">Tất cả khóa học</option>`;
-      const dealerCourses = new Set();
-      state.records.filter(r => r.dealer === dealerName).forEach(r => dealerCourses.add(r.course));
-      dealerCourses.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c;
-        opt.innerText = c;
-        courseSelect.appendChild(opt);
-      });
+      if (courseSelect) {
+        courseSelect.innerHTML = `<option value="ALL">Tất cả khóa học</option>`;
+        const dealerCourses = new Set();
+        state.records.filter(r => r.dealer === dealerName).forEach(r => dealerCourses.add(r.course));
+        dealerCourses.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.innerText = c;
+          courseSelect.appendChild(opt);
+        });
+      }
 
       renderModalTechnicians();
-      document.getElementById('dealerModal').classList.replace('hidden', 'flex');
+
+      if (modal) {
+        modal.classList.replace('hidden', 'flex');
+      }
     }
 
     function closeDealerModal() {
-      document.getElementById('dealerModal').classList.replace('flex', 'hidden');
+      const modal = document.getElementById('dealerModal');
+      if (modal) {
+        modal.classList.replace('flex', 'hidden');
+      }
       document.body.classList.remove('overflow-hidden');
       state.currentModalDealer = null;
       state.selectedModalRecords.clear();
@@ -1847,45 +1866,581 @@
 
     function renderModalTechnicians() {
       const tbody = document.getElementById('modalTechTableBody');
+      if (!tbody) return;
       tbody.innerHTML = '';
 
-      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
       const filterVal = document.getElementById('modalCourseFilter').value;
       let records = state.records.filter(r => r.dealer === state.currentModalDealer);
-      if (filterVal !== 'ALL') records = records.filter(r => r.course === filterVal);
+      if (filterVal !== 'ALL') {
+        records = records.filter(r => r.course === filterVal);
+      }
 
       updateBatchCounter();
 
       if (records.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Chưa có dữ liệu đào tạo cho đại lý này.</td></tr>`;
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-8 text-center text-slate-400">
+              Chưa có dữ liệu đào tạo cho đại lý này hoặc không khớp với khóa học đang lọc.
+            </td>
+          </tr>
+        `;
         return;
       }
 
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
       records.forEach(r => {
         const isChecked = state.selectedModalRecords.has(r.id);
         const formattedCert = formatCertCodeHTML(r.certCode);
+
         const courseObj = state.courses.find(c => normalizeStr(c.name).toUpperCase() === normalizeStr(r.course).toUpperCase());
         const isManual = courseObj ? courseObj.isManualCert : false;
 
         let certActionBtn = '';
         if (isAdmin && (!r.certCode || r.certCode.trim() === '')) {
           if (isManual) {
-            certActionBtn = `<button onclick="openManualCertModal('${r.id}', '${r.trainee.replace(/'/g, "\\'")}', '${r.course.replace(/'/g, "\\'")}')" class="px-2 py-1 rounded bg-amber-500 hover:bg-amber-600 text-white font-bold text-[10px] shadow transition"><i class="fa-solid fa-pen mr-1"></i> Điền mã CC</button>`;
+            certActionBtn = `
+              <button onclick="openManualCertModal('${r.id}', '${r.trainee.replace(/'/g, "\\'")}', '${r.course.replace(/'/g, "\\'")}')" class="px-2 py-1 rounded bg-amber-500 hover:bg-amber-600 text-white font-bold text-[10px] shadow transition">
+                <i class="fa-solid fa-pen mr-1"></i> Điền mã CC
+              </button>
+            `;
           } else {
-            certActionBtn = `<button onclick="handleAutoAssignCert('${r.id}')" class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] shadow transition"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Cấp số CC</button>`;
+            certActionBtn = `
+              <button onclick="handleAutoAssignCert('${r.id}')" class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] shadow transition">
+                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Cấp số CC
+              </button>
+            `;
           }
         }
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
         tr.innerHTML = `
-          <td class="py-2.5 px-3 text-center"><input type="checkbox" onchange="toggleSelectModalRecord('${r.id}', this)" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-geely-blue rounded" ${!isAdmin ? 'disabled' : ''}></td>
+          <td class="py-2.5 px-3 text-center">
+            ${isAdmin ? `<input type="checkbox" onchange="toggleSelectModalRecord('${r.id}', this)" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-geely-blue rounded">` : ''}
+          </td>
           <td class="py-2.5 px-3 font-bold text-slate-800 uppercase">${r.trainee}</td>
           <td class="py-2.5 px-3 font-semibold text-geely-blue">${r.course}</td>
-          <td class="py-2.5 px-3"><div class="flex items-center space-x-2"><div class="flex flex-wrap gap-1">${formattedCert || '<span class="text-rose-500 font-semibold text-[11px] italic">Chưa cấp</span>'}</div>${certActionBtn}</div></td>
+          <td class="py-2.5 px-3">
+            <div class="flex items-center space-x-2">
+              <div class="flex flex-wrap gap-1">${formattedCert || '<span class="text-rose-500 font-semibold text-[11px] italic">Chưa cấp</span>'}</div>
+              ${certActionBtn}
+            </div>
+          </td>
           <td class="py-2.5 px-3 font-bold text-emerald-600">${r.score || '-'}</td>
           <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">${r.time || '-'}</td>
-          <td class="py-2.5 px-3 text-right">${isAdmin ? `<button onclick="deleteSingleRecord('${r.id}')" class="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50 transition" title="Xóa nhân sự"><i class="fa-solid fa-trash-can"></i></button>` : `<span class="text-[10px] text-slate-400">Chỉ xem</span>`}</td>
+          <td class="py-2.5 px-3 text-right">
+            ${isAdmin ? `
+              <button onclick="deleteSingleRecord('${r.id}')" class="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50 transition" title="Xóa nhân sự">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            ` : `<span class="text-[10px] text-slate-400">Chỉ xem</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderDealersManagerTable() {
+      const tbody = document.getElementById('dealersManagerTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const searchVal = (document.getElementById('dealerTabSearch')?.value || '').trim().toUpperCase();
+      let list = [...state.dealers];
+      if (searchVal) {
+        list = list.filter(d => d.name.includes(searchVal) || d.region.toUpperCase().includes(searchVal));
+      }
+
+      const countBadge = document.getElementById('dealerCountBadge');
+      if (countBadge) countBadge.innerText = `${list.length} Đại lý`;
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
+
+      list.forEach((d, idx) => {
+        const techsCount = new Set(state.records.filter(r => r.dealer === d.name).map(r => r.trainee)).size;
+        let certsCount = 0;
+        state.records.filter(r => r.dealer === d.name).forEach(r => {
+          certsCount += extractCertCodes(r.certCode).length;
+        });
+
+        const hasMap = (d.mapPercentX && d.mapPercentY);
+        const coordBadge = hasMap 
+          ? `<span class="font-mono text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">X:${d.mapPercentX}%, Y:${d.mapPercentY}%</span>`
+          : `<span class="text-[10px] text-slate-400 italic">Mặc định</span>`;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 text-slate-400 font-bold">${idx + 1}</td>
+          <td class="py-2.5 px-3 font-bold text-slate-800 uppercase">${d.name}</td>
+          <td class="py-2.5 px-3 text-slate-500">${d.region}</td>
+          <td class="py-2.5 px-3 text-center font-bold text-slate-700">${techsCount}</td>
+          <td class="py-2.5 px-3 text-center font-bold text-amber-600">${certsCount}</td>
+          <td class="py-2.5 px-3 text-center">
+            <div class="inline-flex items-center space-x-1.5">
+              ${coordBadge}
+              ${isAdmin ? `<button onclick="openDealerLocationModal('${d.id}')" class="p-1 rounded bg-slate-100 hover:bg-geely-blue hover:text-white text-slate-600 transition" title="Điều chỉnh vị trí bản đồ"><i class="fa-solid fa-map-pin text-rose-500"></i></button>` : ''}
+            </div>
+          </td>
+          <td class="py-2.5 px-3 text-right">
+            ${isAdmin ? `<button onclick="deleteDealer('${d.id}', '${d.name.replace(/'/g, "\\'")}')" class="text-rose-500 hover:text-rose-700 p-1.5 rounded hover:bg-rose-50 transition" title="Xóa đại lý"><i class="fa-solid fa-trash-can"></i></button>` : `<span class="text-[10px] text-slate-400">Chỉ xem</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ==============================================================
+    // 7. POPULATE DROPDOWNS & COURSE LOGIC
+    // ==============================================================
+    function populateDropdowns() {
+      const dealerSelect = document.getElementById('entryDealer');
+      const courseSelect = document.getElementById('entryCourse');
+      if (!dealerSelect || !courseSelect) return;
+
+      dealerSelect.innerHTML = '';
+      courseSelect.innerHTML = '';
+
+      const dealerNames = Array.from(new Set(state.dealers.map(d => d.name))).sort((a, b) => a.localeCompare(b));
+      dealerNames.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.innerText = name;
+        dealerSelect.appendChild(opt);
+      });
+
+      state.courses.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.name;
+        opt.innerText = c.name;
+        courseSelect.appendChild(opt);
+      });
+
+      handleCourseChange();
+    }
+
+    function handleCourseChange() {
+      const courseName = document.getElementById('entryCourse').value;
+      const courseObj = state.courses.find(c => c.name === courseName);
+      if (courseObj) {
+        document.getElementById('entryType').value = courseObj.type || 'Online';
+        if (courseObj.trainingDate) document.getElementById('entryTime').value = courseObj.trainingDate;
+        if (courseObj.defaultTrainer) document.getElementById('entryTrainer').value = courseObj.defaultTrainer;
+      }
+      calculateNextCertCode();
+    }
+
+    function calculateNextCertCode() {
+      const courseName = document.getElementById('entryCourse').value;
+      const courseObj = state.courses.find(c => c.name === courseName);
+      const isManual = courseObj ? courseObj.isManualCert : false;
+
+      const certInput = document.getElementById('entryCertCode');
+      const certLabel = document.getElementById('entryCertLabel');
+      const gapsNotice = document.getElementById('certGapsNotice');
+      const explanation = document.getElementById('certExplanation');
+      const refreshBtn = document.getElementById('btnRefreshCert');
+
+      if (isManual) {
+        if (certLabel) certLabel.innerText = "Mã số Chứng chỉ (Tự điền tay)";
+        if (certInput) {
+          certInput.readOnly = false;
+          certInput.classList.remove('bg-slate-50', 'text-amber-700');
+          certInput.classList.add('bg-white', 'text-slate-800');
+          certInput.placeholder = "Nhập mã CC hoặc để trống lưu sau...";
+          if (!certInput.dataset.manualEdited) certInput.value = "";
+        }
+        if (gapsNotice) gapsNotice.classList.add('hidden');
+        if (refreshBtn) refreshBtn.classList.add('hidden');
+        if (explanation) explanation.innerText = "Khóa học này sử dụng chứng chỉ tự điền. Có thể để trống và bổ sung sau.";
+        return;
+      }
+
+      if (certLabel) certLabel.innerText = "Mã số Chứng chỉ (Tự động tính)";
+      if (certInput) {
+        certInput.readOnly = false;
+        certInput.classList.add('bg-slate-50', 'text-amber-700');
+        certInput.classList.remove('bg-white', 'text-slate-800');
+        certInput.placeholder = "";
+      }
+      if (refreshBtn) refreshBtn.classList.remove('hidden');
+
+      const prefix = courseObj ? courseObj.prefix : (courseName.includes('LEVEL II') ? 'GMTC-D-2-VN-' : 'GMTC-D-1-VN-');
+      const digits = courseObj ? courseObj.digits : 4;
+
+      const nums = [];
+      state.records.forEach(r => {
+        const codes = extractCertCodes(r.certCode);
+        codes.forEach(c => {
+          if (c.toUpperCase().startsWith(prefix.toUpperCase())) {
+            const numPart = c.substring(prefix.length).trim();
+            const val = parseInt(numPart, 10);
+            if (!isNaN(val) && val > 0) nums.push(val);
+          }
+        });
+      });
+
+      let nextNum = 1;
+      let isGap = false;
+
+      if (nums.length > 0) {
+        const maxNum = Math.max(...nums);
+        for (let i = 1; i <= maxNum; i++) {
+          if (!nums.includes(i)) {
+            nextNum = i;
+            isGap = true;
+            break;
+          }
+        }
+        if (!isGap) nextNum = maxNum + 1;
+      }
+
+      const generated = `${prefix}${String(nextNum).padStart(digits, '0')}`;
+      if (certInput) certInput.value = generated;
+
+      if (isGap) {
+        if (gapsNotice) {
+          gapsNotice.innerText = `Đang bù số thứ tự còn thiếu: #${nextNum}`;
+          gapsNotice.classList.remove('hidden');
+        }
+        if (explanation) explanation.innerText = `Phát hiện số thứ tự #${nextNum} bị khuyết do xóa nhân sự trước đó. Hệ thống tự động ưu tiên cấp bù số này.`;
+      } else {
+        if (gapsNotice) gapsNotice.classList.add('hidden');
+        if (explanation) explanation.innerText = `Cấp số thứ tự tăng dần kế tiếp #${nextNum} theo tiền tố ${prefix}.`;
+      }
+    }
+
+    function renderCourseTable() {
+      const tbody = document.getElementById('courseTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const badge = document.getElementById('totalCoursesBadge');
+      if (badge) badge.innerText = `${state.courses.length} khóa học`;
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
+
+      state.courses.forEach((c) => {
+        const count = state.records.filter(r => normalizeStr(r.course).toUpperCase() === normalizeStr(c.name).toUpperCase() && r.certCode && r.certCode.trim() !== '').length;
+        const certTypeBadge = c.isManualCert
+          ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200"><i class="fa-solid fa-pen mr-1"></i> Tự điền tay</span>`
+          : `<span class="font-mono font-bold text-slate-700 whitespace-nowrap">${c.prefix} + ${c.digits} số</span>`;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-3 font-bold text-geely-blue">${c.name}</td>
+          <td class="py-3 px-3">${certTypeBadge}</td>
+          <td class="py-3 px-3 font-semibold text-emerald-600">${c.scorePass || '-'}</td>
+          <td class="py-3 px-3 text-slate-500 font-mono text-xs">${c.trainingDate || '-'}</td>
+          <td class="py-3 px-3 font-bold text-amber-600">${count} CC</td>
+          <td class="py-3 px-3 text-right">
+            ${isAdmin ? `
+              <div class="flex items-center justify-end space-x-1">
+                <button onclick="openEditCourseModal('${c.id}')" class="text-geely-accent hover:text-sky-700 p-1.5 rounded hover:bg-sky-50 transition" title="Điều chỉnh thông tin khóa học"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button onclick="deleteCourse('${c.id}', '${c.name.replace(/'/g, "\\'")}')" class="text-rose-500 hover:text-rose-700 p-1.5 rounded hover:bg-rose-50 transition" title="Xóa khóa học"><i class="fa-solid fa-trash-can"></i></button>
+              </div>
+            ` : `<span class="text-[10px] text-slate-400">Chỉ xem</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderUsersTable() {
+      const tbody = document.getElementById('usersTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
+
+      state.users.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-3 px-3 font-bold text-slate-800">${u.username}</td>
+          <td class="py-3 px-3">${u.fullname || '-'}</td>
+          <td class="py-3 px-3"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${u.role === 'admin' ? 'bg-sky-100 text-sky-800' : 'bg-slate-100 text-slate-700'}">${u.role === 'admin' ? 'Quản trị viên' : 'Người xem'}</span></td>
+          <td class="py-3 px-3 font-mono text-[10px] text-slate-400 max-w-xs truncate" title="${u.hash}">${u.hash || 'Chưa mã hóa'}</td>
+          <td class="py-3 px-3 text-right">
+            ${isAdmin && state.currentUser.username !== u.username ? `<button onclick="deleteUser('${u.username}')" class="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50 transition" title="Xóa tài khoản"><i class="fa-solid fa-trash-can"></i></button>` : `<span class="text-[10px] text-slate-400">-</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterReportRecords() {
+      const timeFilter = document.getElementById('reportTimeFilter').value;
+      const courseFilter = document.getElementById('reportCourseFilter').value;
+      const dealerFilter = document.getElementById('reportDealerFilter').value;
+      const entryDateFrom = document.getElementById('reportEntryDateFrom')?.value || '';
+      const entryDateTo = document.getElementById('reportEntryDateTo')?.value || '';
+      const dateFrom = document.getElementById('reportDateFrom')?.value || '';
+      const dateTo = document.getElementById('reportDateTo')?.value || '';
+
+      let filtered = [...state.records];
+      if (timeFilter !== 'ALL') filtered = filtered.filter(r => r.time === timeFilter);
+      if (courseFilter !== 'ALL') filtered = filtered.filter(r => r.course === courseFilter);
+      if (dealerFilter !== 'ALL') filtered = filtered.filter(r => r.dealer === dealerFilter);
+      if (entryDateFrom) filtered = filtered.filter(r => r.entryDate && r.entryDate >= entryDateFrom);
+      if (entryDateTo) filtered = filtered.filter(r => r.entryDate && r.entryDate <= entryDateTo);
+      if (dateFrom) filtered = filtered.filter(r => r.issuedDate && r.issuedDate >= dateFrom);
+      if (dateTo) filtered = filtered.filter(r => r.issuedDate && r.issuedDate <= dateTo);
+
+      document.getElementById('reportCountLabel').innerText = `Hiển thị ${filtered.length} bản ghi`;
+      const tbody = document.getElementById('reportTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" class="py-8 text-center text-slate-400">Không có dữ liệu báo cáo nào phù hợp với bộ lọc.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 border-r border-slate-200 text-center font-bold text-slate-500">${idx + 1}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-mono text-[11px] text-emerald-700 bg-emerald-50/30">${r.entryDate || '-'}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-semibold">${r.country || 'VIET NAM'}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-slate-800">${r.dealer}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-geely-blue">${r.trainee}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200">${r.position || 'TECHNICIAN'}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-mono text-[11px]">${r.time}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-semibold">${r.course}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-bold text-emerald-600">${r.score}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200">${r.trainer}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-bold text-emerald-600">${r.eval}</td>
+          <td class="py-2.5 px-3 text-right"><div class="flex flex-wrap justify-end gap-1">${formatCertCodeHTML(r.certCode || '') || '-'}</div></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderRecentCandidatesTable() {
+      const tbody = document.getElementById('recentCandidatesTableBody');
+      const badge = document.getElementById('recentCandidatesBadge');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (badge) badge.innerText = `${state.recentCandidates.length} ứng viên`;
+
+      if (state.recentCandidates.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="py-6 text-center text-slate-400">
+              Chưa có ứng viên nào được tạo trong phiên làm việc này.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      state.recentCandidates.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-mono font-bold text-emerald-700 bg-emerald-50/50 rounded">${r.entryDate || '-'}</td>
+          <td class="py-2.5 px-3 font-bold text-slate-800 uppercase">${r.trainee}</td>
+          <td class="py-2.5 px-3 font-semibold text-slate-600">${r.dealer}</td>
+          <td class="py-2.5 px-3 text-geely-blue font-semibold">${r.course}</td>
+          <td class="py-2.5 px-3"><div class="flex flex-wrap gap-1">${formatCertCodeHTML(r.certCode) || '<span class="text-rose-500 italic">Chưa cấp</span>'}</div></td>
+          <td class="py-2.5 px-3 font-mono text-[11px] text-slate-600">${r.issuedDate || '-'}</td>
+          <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">${r.time || '-'}</td>
+          <td class="py-2.5 px-3 text-right">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+              <i class="fa-solid fa-check mr-1"></i> Đã lưu
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function populateReportFilters() {
+      const timeFilter = document.getElementById('reportTimeFilter');
+      const courseFilter = document.getElementById('reportCourseFilter');
+      const dealerFilter = document.getElementById('reportDealerFilter');
+      if (!timeFilter || !courseFilter || !dealerFilter) return;
+
+      const curTime = timeFilter.value;
+      const curCourse = courseFilter.value;
+      const curDealer = dealerFilter.value;
+
+      timeFilter.innerHTML = `<option value="ALL">Tất cả các đợt đào tạo</option>`;
+      courseFilter.innerHTML = `<option value="ALL">Tất cả khóa học</option>`;
+      dealerFilter.innerHTML = `<option value="ALL">Tất cả Đại lý</option>`;
+
+      const times = new Set();
+      const courses = new Set();
+      const dealers = new Set();
+
+      state.records.forEach(r => {
+        if (r.time) times.add(r.time);
+        if (r.course) courses.add(r.course);
+        if (r.dealer) dealers.add(r.dealer);
+      });
+
+      times.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.innerText = t;
+        timeFilter.appendChild(opt);
+      });
+
+      courses.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.innerText = c;
+        courseFilter.appendChild(opt);
+      });
+
+      Array.from(dealers).sort().forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.innerText = d;
+        dealerFilter.appendChild(opt);
+      });
+
+      if (curTime) timeFilter.value = curTime;
+      if (curCourse) courseFilter.value = curCourse;
+      if (curDealer) dealerFilter.value = curDealer;
+    }
+
+    function renderGapQueueTable() {
+      const tbody = document.getElementById('gapQueueTableBody');
+      const badgeCount = document.getElementById('queueBadgeCount');
+      const subtabGapsCount = document.getElementById('subtabGapsCount');
+      if (tbody) tbody.innerHTML = '';
+
+      const prefixSet = new Set();
+      state.courses.forEach(c => {
+        if (!c.isManualCert && c.prefix) prefixSet.add(c.prefix.trim().toUpperCase());
+      });
+
+      state.records.forEach(r => {
+        const codes = extractCertCodes(r.certCode);
+        codes.forEach(code => {
+          const match = code.match(/^([A-Z0-9]+-[A-Z0-9]+-[A-Z0-9]+-[A-Z0-9]+-)/i);
+          if (match) prefixSet.add(match[1].toUpperCase());
+        });
+      });
+
+      let allGaps = [];
+      prefixSet.forEach(prefix => {
+        const courseWithPrefix = state.courses.find(c => (c.prefix || '').trim().toUpperCase() === prefix);
+        const digits = courseWithPrefix ? courseWithPrefix.digits : 4;
+        const nums = [];
+        state.records.forEach(r => {
+          extractCertCodes(r.certCode).forEach(c => {
+            if (c.toUpperCase().startsWith(prefix)) {
+              const val = parseInt(c.substring(prefix.length).trim(), 10);
+              if (!isNaN(val) && val > 0) nums.push(val);
+            }
+          });
+        });
+
+        if (nums.length > 0) {
+          const maxNum = Math.max(...nums);
+          for (let i = 1; i <= maxNum; i++) {
+            if (!nums.includes(i)) {
+              allGaps.push({ prefix, gapNum: i, code: `${prefix}${String(i).padStart(digits, '0')}` });
+            }
+          }
+        }
+      });
+
+      if (badgeCount) badgeCount.innerText = allGaps.length;
+      if (subtabGapsCount) subtabGapsCount.innerText = allGaps.length;
+
+      if (tbody) {
+        if (allGaps.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400"><i class="fa-solid fa-circle-check text-emerald-500 text-2xl mb-2 block"></i> Không có mã số chứng chỉ nào bị khuyết.</td></tr>`;
+        } else {
+          allGaps.forEach((g, idx) => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+            tr.innerHTML = `
+              <td class="py-2.5 px-3 font-bold text-slate-400">${idx + 1}</td>
+              <td class="py-2.5 px-3 font-mono font-semibold text-geely-blue">${g.prefix}</td>
+              <td class="py-2.5 px-3 font-mono font-bold text-amber-700 bg-amber-50/70 px-2 py-0.5 rounded border border-amber-200 w-fit">${g.code}</td>
+              <td class="py-2.5 px-3 font-mono font-bold text-slate-700">#${g.gapNum}</td>
+              <td class="py-2.5 px-3"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Chờ cấp bù</span></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      }
+
+      renderDuplicatesTable();
+    }
+
+    function renderDuplicatesTable() {
+      const tbody = document.getElementById('duplicatesTableBody');
+      const dupBadgeMenu = document.getElementById('duplicateBadgeCount');
+      const subtabDupCount = document.getElementById('subtabDuplicatesCount');
+      const alertBox = document.getElementById('duplicateAlertBox');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const certMap = new Map();
+      state.records.forEach(r => {
+        extractCertCodes(r.certCode).forEach(code => {
+          const upperCode = code.trim().toUpperCase();
+          if (upperCode) {
+            if (!certMap.has(upperCode)) certMap.set(upperCode, []);
+            certMap.get(upperCode).push(r);
+          }
+        });
+      });
+
+      const duplicateEntries = [];
+      certMap.forEach((recordsList, code) => {
+        if (recordsList.length > 1) duplicateEntries.push({ certCode: code, count: recordsList.length, records: recordsList });
+      });
+
+      if (subtabDupCount) subtabDupCount.innerText = duplicateEntries.length;
+      if (dupBadgeMenu) {
+        if (duplicateEntries.length > 0) {
+          dupBadgeMenu.innerText = `${duplicateEntries.length} trùng`;
+          dupBadgeMenu.classList.remove('hidden');
+        } else {
+          dupBadgeMenu.classList.add('hidden');
+        }
+      }
+      if (alertBox) {
+        if (duplicateEntries.length > 0) alertBox.classList.remove('hidden');
+        else alertBox.classList.add('hidden');
+      }
+
+      if (duplicateEntries.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400"><i class="fa-solid fa-circle-check text-emerald-500 text-2xl mb-2 block"></i> Tuyệt vời! Không phát hiện mã chứng chỉ bị trùng.</td></tr>`;
+        return;
+      }
+
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
+      duplicateEntries.forEach((item, idx) => {
+        const candidatesHTML = item.records.map(rec => `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 mb-1 last:mb-0">
+            <div class="flex items-center space-x-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+              <span class="font-bold text-slate-800 uppercase">${rec.trainee}</span>
+              <span class="text-slate-400">|</span>
+              <span class="font-semibold text-slate-600">${rec.dealer}</span>
+              <span class="text-slate-400">|</span>
+              <span class="text-geely-blue font-semibold">${rec.course}</span>
+            </div>
+            ${isAdmin ? `<button onclick="deleteSingleRecord('${rec.id}')" class="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-100 transition text-[11px] font-bold flex items-center space-x-1"><i class="fa-solid fa-trash-can"></i><span>Xóa bản ghi</span></button>` : ''}
+          </div>
+        `).join('');
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-3 px-3 font-bold text-slate-400 text-center">${idx + 1}</td>
+          <td class="py-3 px-3 font-mono font-bold text-rose-600 bg-rose-50/80 px-2.5 py-1 rounded-md border border-rose-300 w-fit text-xs">${item.certCode}</td>
+          <td class="py-3 px-3 text-center"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-600 text-white">${item.count} lần</span></td>
+          <td class="py-3 px-3"><div class="space-y-1 max-w-2xl">${candidatesHTML}</div></td>
+          <td class="py-3 px-3 text-right"><span class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200"><i class="fa-solid fa-triangle-exclamation mr-1 text-amber-600"></i> Cần xử lý</span></td>
         `;
         tbody.appendChild(tr);
       });
@@ -1950,6 +2505,7 @@
       state.selectedModalRecords.clear();
       saveRecordsToLocal();
       showToast('Đã xóa thành công các nhân sự đã chọn!', 'success');
+      
       renderModalTechnicians();
       renderDashboardStats();
       renderDealerCards();
@@ -1957,570 +2513,69 @@
       filterReportRecords();
     }
 
-    let currentManualCertRecId = null;
-    function openManualCertModal(recId, trainee, course) {
-      if (state.currentUser.role !== 'admin') return;
-      currentManualCertRecId = recId;
-      document.getElementById('manualCertTraineeName').innerText = trainee;
-      document.getElementById('manualCertCourseName').innerText = course;
-      const rec = state.records.find(r => r.id === recId);
-      document.getElementById('manualCertInput').value = rec ? (rec.certCode || '') : '';
-      document.getElementById('manualCertModal').classList.replace('hidden', 'flex');
-    }
-
-    function closeManualCertModal() {
-      document.getElementById('manualCertModal').classList.replace('flex', 'hidden');
-      currentManualCertRecId = null;
-    }
-
-    function saveManualCertCode() {
-      if (!currentManualCertRecId || state.currentUser.role !== 'admin') return;
-      const val = document.getElementById('manualCertInput').value.trim();
-      const rec = state.records.find(r => r.id === currentManualCertRecId);
-      if (rec) {
-        rec.certCode = val;
-        saveRecordsToLocal();
-        showToast('Đã lưu mã chứng chỉ thủ công!', 'success');
-        closeManualCertModal();
-        if (state.currentModalDealer) renderModalTechnicians();
-        renderDashboardStats();
-        renderDealerCards();
-        renderGapQueueTable();
-        filterReportRecords();
-      }
-    }
-
-    function handleAutoAssignCert(recId) {
-      if (state.currentUser.role !== 'admin') return;
-      const rec = state.records.find(r => r.id === recId);
-      if (!rec) return;
-
-      const courseObj = state.courses.find(c => normalizeStr(c.name).toUpperCase() === normalizeStr(rec.course).toUpperCase());
-      const prefix = courseObj ? courseObj.prefix : (rec.course.includes('LEVEL II') ? 'GMTC-D-2-VN-' : 'GMTC-D-1-VN-');
-      const digits = courseObj ? courseObj.digits : 4;
-
-      const nums = [];
-      state.records.forEach(r => {
-        extractCertCodes(r.certCode).forEach(c => {
-          if (c.toUpperCase().startsWith(prefix.toUpperCase())) {
-            const val = parseInt(c.substring(prefix.length).trim(), 10);
-            if (!isNaN(val) && val > 0) nums.push(val);
-          }
-        });
-      });
-
-      let nextNum = 1;
-      if (nums.length > 0) {
-        const maxNum = Math.max(...nums);
-        for (let i = 1; i <= maxNum; i++) {
-          if (!nums.includes(i)) { nextNum = i; break; }
-        }
-        if (nextNum === 1) nextNum = maxNum + 1;
-      }
-
-      const generated = `${prefix}${String(nextNum).padStart(digits, '0')}`;
-      rec.certCode = generated;
-      saveRecordsToLocal();
-      showToast(`Đã cấp mã chứng chỉ ${generated}!`, 'success');
-      if (state.currentModalDealer) renderModalTechnicians();
-      renderDashboardStats();
-      renderDealerCards();
-      renderGapQueueTable();
-      filterReportRecords();
-    }
-
-    function handleCreateDealer(e) {
+    async function handleChangePassword(e) {
       e.preventDefault();
-      if (state.currentUser.role !== 'admin') return;
+      const curPass = document.getElementById('currentPasswordInput').value;
+      const newPass = document.getElementById('newPasswordInput').value;
+      const confirmPass = document.getElementById('confirmNewPasswordInput').value;
 
-      let name = normalizeStr(document.getElementById('dealerNameInput').value).toUpperCase();
-      if (!name.startsWith('GEELY ')) name = 'GEELY ' + name;
-
-      const region = document.getElementById('dealerRegionInput').value;
-      const address = normalizeStr(document.getElementById('dealerAddressInput').value) || 'Đại lý ủy quyền Geely';
-      const hotline = normalizeStr(document.getElementById('dealerPhoneInput').value) || '1900 xxxx';
-      const manager = normalizeStr(document.getElementById('dealerContactInput').value) || 'Bộ phận Dịch vụ';
-
-      const xPercent = parseInt(document.getElementById('entryMapX')?.value, 10);
-      const yPercent = parseInt(document.getElementById('entryMapY')?.value, 10);
-      const defCoords = getDealerPercentCoords(name);
-
-      if (state.dealers.some(d => d.name === name)) {
-        showToast(`Đại lý "${name}" đã tồn tại!`, 'error');
+      if (newPass !== confirmPass) {
+        showToast('Mật khẩu mới và xác nhận mật khẩu không khớp!', 'error');
         return;
       }
 
-      const newDealer = {
-        id: `DLR-${Date.now()}`,
-        name,
-        region,
-        address,
-        hotline,
-        manager,
-        mapPercentX: !isNaN(xPercent) ? xPercent : defCoords.x,
-        mapPercentY: !isNaN(yPercent) ? yPercent : defCoords.y
-      };
+      let curHash = '';
+      try {
+        curHash = (await sha256(curPass)).toLowerCase();
+      } catch (err) {
+        curHash = curPass;
+      }
 
-      state.dealers.push(newDealer);
-      saveDealersToLocal();
+      const userIdx = state.users.findIndex(u => u.username.toLowerCase() === state.currentUser.username.toLowerCase());
+      if (userIdx === -1) {
+        showToast('Không tìm thấy tài khoản người dùng!', 'error');
+        return;
+      }
 
-      document.getElementById('createDealerForm').reset();
-      document.getElementById('newDealerPinDot')?.classList.add('hidden');
-      document.getElementById('entryCoordBadge').innerText = 'Chưa ghim';
+      const existingUser = state.users[userIdx];
+      const isMatch = (existingUser.hash && existingUser.hash.toLowerCase() === curHash) || 
+                      (existingUser.plainPassword && existingUser.plainPassword === curPass);
 
-      showToast(`Đã thêm đại lý ${name} thành công!`, 'success');
-      renderDealersManagerTable();
-      renderDashboardStats();
-      renderDealerCards();
-      populateDropdowns();
-    }
+      if (!isMatch) {
+        showToast('Mật khẩu hiện tại không đúng!', 'error');
+        return;
+      }
 
-    function renderDealersManagerTable() {
-      const tbody = document.getElementById('dealersManagerTableBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
+      const newHash = await sha256(newPass);
+      state.users[userIdx].hash = newHash;
+      state.users[userIdx].plainPassword = '';
+      state.currentUser.hash = newHash;
 
-      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
-      const searchVal = (document.getElementById('dealerTabSearch')?.value || '').trim().toUpperCase();
-      let list = state.dealers.filter(d => !searchVal || d.name.includes(searchVal) || d.region.toUpperCase().includes(searchVal));
-      document.getElementById('dealerCountBadge').innerText = `${list.length} Đại lý`;
-
-      list.forEach((d, idx) => {
-        const techsCount = new Set(state.records.filter(r => r.dealer === d.name).map(r => r.trainee)).size;
-        let certsCount = 0;
-        state.records.filter(r => r.dealer === d.name).forEach(r => certsCount += extractCertCodes(r.certCode).length);
-        const coords = (d.mapPercentX && d.mapPercentY) ? { x: d.mapPercentX, y: d.mapPercentY } : getDealerPercentCoords(d.name);
-
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-        tr.innerHTML = `
-          <td class="py-2.5 px-3 text-slate-400 font-bold">${idx + 1}</td>
-          <td class="py-2.5 px-3 font-bold text-slate-800 uppercase">${d.name}</td>
-          <td class="py-2.5 px-3 text-slate-500">${d.region}</td>
-          <td class="py-2.5 px-3 text-center font-bold text-slate-700">${techsCount}</td>
-          <td class="py-2.5 px-3 text-center font-bold text-amber-600">${certsCount}</td>
-          <td class="py-2.5 px-3 text-center">
-            ${isAdmin ? `
-              <button onclick="openDealerLocationModal('${d.id}')" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 transition">
-                <i class="fa-solid fa-map-pin text-rose-500 mr-1"></i> ${coords.x}%, ${coords.y}%
-              </button>
-            ` : `<span class="font-mono text-slate-500 text-[10px]">${coords.x}%, ${coords.y}%</span>`}
-          </td>
-          <td class="py-2.5 px-3 text-right">${isAdmin ? `<button onclick="deleteDealer('${d.id}', '${d.name.replace(/'/g, "\\'")}')" class="text-rose-500 hover:text-rose-700 p-1.5 rounded hover:bg-rose-50 transition"><i class="fa-solid fa-trash-can"></i></button>` : `<span class="text-[10px] text-slate-400">Chỉ xem</span>`}</td>
-        `;
-        tbody.appendChild(tr);
-      });
+      saveUsersToLocal();
+      closeChangePasswordModal();
+      showToast('Đổi mật khẩu thành công! Mật khẩu mới đã được cập nhật.', 'success');
     }
 
     // ==============================================================
-    // 8. USERS MANAGEMENT & PASSWORD HASHING
+    // 9. APP INITIALIZATION (INIT APP STATE)
     // ==============================================================
-    function renderUsersTable() {
-      const tbody = document.getElementById('usersTableBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      if (state.users.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="5" class="py-6 text-center text-slate-400">
-              Chưa có tài khoản nào trong hệ thống.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      state.users.forEach(u => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-        tr.innerHTML = `
-          <td class="py-3 px-3 font-bold text-slate-800">${u.username}</td>
-          <td class="py-3 px-3">${u.fullname || '-'}</td>
-          <td class="py-3 px-3">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${u.role === 'admin' ? 'bg-sky-100 text-sky-800' : 'bg-slate-100 text-slate-700'}">
-              ${u.role === 'admin' ? 'Quản trị viên' : 'Người xem'}
-            </span>
-          </td>
-          <td class="py-3 px-3 font-mono text-[10px] text-slate-400 max-w-xs truncate" title="${u.hash}">${u.hash || 'Chưa mã hóa'}</td>
-          <td class="py-3 px-3 text-right">
-            ${state.currentUser && state.currentUser.role === 'admin' && state.currentUser.username !== u.username ? `
-              <button onclick="deleteUser('${u.username}')" class="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50 transition" title="Xóa tài khoản">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            ` : `<span class="text-[10px] text-slate-400">-</span>`}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    // Render Course Table and management functions
-    function renderCourseTable() {
-      const tbody = document.getElementById('courseTableBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-      const badge = document.getElementById('totalCoursesBadge');
-      if (badge) badge.innerText = `${state.courses.length} khóa học`;
-
-      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
-
-      if (state.courses.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" class="py-8 text-center text-slate-400">
-              Chưa có khóa học nào trong hệ thống.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      state.courses.forEach(c => {
-        const count = state.records.filter(r => normalizeStr(r.course).toUpperCase() === normalizeStr(c.name).toUpperCase() && r.certCode && r.certCode.trim() !== '').length;
-        const certTypeBadge = c.isManualCert
-          ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200"><i class="fa-solid fa-pen mr-1"></i> Tự điền tay</span>`
-          : `<span class="font-mono font-bold text-slate-700 whitespace-nowrap">${c.prefix} + ${c.digits} số</span>`;
-
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-        tr.innerHTML = `
-          <td class="py-3 px-3 font-bold text-geely-blue">${c.name}</td>
-          <td class="py-3 px-3">${certTypeBadge}</td>
-          <td class="py-3 px-3 font-semibold text-emerald-600">${c.scorePass || '-'}</td>
-          <td class="py-3 px-3 text-slate-500 font-mono text-xs">${c.trainingDate || '-'}</td>
-          <td class="py-3 px-3 font-bold text-amber-600">${count} CC</td>
-          <td class="py-3 px-3 text-right">
-            ${isAdmin ? `
-              <div class="flex items-center justify-end space-x-1">
-                <button onclick="openEditCourseModal('${c.id}')" class="text-geely-accent hover:text-sky-700 p-1.5 rounded hover:bg-sky-50 transition" title="Điều chỉnh khóa học">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button onclick="deleteCourse('${c.id}', '${c.name.replace(/'/g, "\\'")}')" class="text-rose-500 hover:text-rose-700 p-1.5 rounded hover:bg-rose-50 transition" title="Xóa khóa học">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </div>
-            ` : `<span class="text-[10px] text-slate-400">Chỉ xem</span>`}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function deleteCourse(courseId, courseName) {
-      if (!state.currentUser || state.currentUser.role !== 'admin') {
-        showToast('Tài khoản người xem không có quyền xóa khóa học!', 'error');
-        return;
-      }
-      if (!window.confirm(`Xác nhận xóa khóa học "${courseName}"?`)) return;
-
-      state.courses = state.courses.filter(c => c.id !== courseId);
-      saveCoursesToLocal();
-      showToast(`Đã xóa khóa học ${courseName}!`, 'success');
-      renderCourseTable();
-      populateDropdowns();
-    }
-
-    function filterReportRecords() {
-      const timeFilter = document.getElementById('reportTimeFilter')?.value || 'ALL';
-      const courseFilter = document.getElementById('reportCourseFilter')?.value || 'ALL';
-      const dealerFilter = document.getElementById('reportDealerFilter')?.value || 'ALL';
-      const entryDateFrom = document.getElementById('reportEntryDateFrom')?.value || '';
-      const entryDateTo = document.getElementById('reportEntryDateTo')?.value || '';
-      const dateFrom = document.getElementById('reportDateFrom')?.value || '';
-      const dateTo = document.getElementById('reportDateTo')?.value || '';
-
-      let filtered = [...state.records];
-      if (timeFilter !== 'ALL') filtered = filtered.filter(r => r.time === timeFilter);
-      if (courseFilter !== 'ALL') filtered = filtered.filter(r => r.course === courseFilter);
-      if (dealerFilter !== 'ALL') filtered = filtered.filter(r => r.dealer === dealerFilter);
-
-      if (entryDateFrom) filtered = filtered.filter(r => r.entryDate && r.entryDate >= entryDateFrom);
-      if (entryDateTo) filtered = filtered.filter(r => r.entryDate && r.entryDate <= entryDateTo);
-      if (dateFrom) filtered = filtered.filter(r => r.issuedDate && r.issuedDate >= dateFrom);
-      if (dateTo) filtered = filtered.filter(r => r.issuedDate && r.issuedDate <= dateTo);
-
-      const countLabel = document.getElementById('reportCountLabel');
-      if (countLabel) countLabel.innerText = `Hiển thị ${filtered.length} bản ghi`;
-
-      const tbody = document.getElementById('reportTableBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="12" class="py-8 text-center text-slate-400">
-              Không có dữ liệu báo cáo nào phù hợp với bộ lọc đã chọn.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      filtered.forEach((r, idx) => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-        const formattedCert = formatCertCodeHTML(r.certCode || '');
-        tr.innerHTML = `
-          <td class="py-2.5 px-3 border-r border-slate-200 text-center font-bold text-slate-500">${idx + 1}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-mono text-[11px] text-emerald-700 bg-emerald-50/30">${r.entryDate || '-'}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-semibold">${r.country || 'VIET NAM'}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-slate-800">${r.dealer}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-geely-blue">${r.trainee}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200">${r.position || 'TECHNICIAN'}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-mono text-[11px]">${r.time || '-'}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-semibold">${r.course}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-bold text-emerald-600">${r.score || '-'}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200">${r.trainer || '-'}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200 font-bold text-emerald-600">${r.eval || 'PASSED'}</td>
-          <td class="py-2.5 px-3 text-right"><div class="flex flex-wrap justify-end gap-1">${formattedCert || '-'}</div></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function deleteDealer(dealerId, dealerName) {
-      if (!state.currentUser || state.currentUser.role !== 'admin') {
-        showToast('Tài khoản người xem không có quyền xóa đại lý!', 'error');
-        return;
-      }
-      if (!window.confirm(`Xác nhận xóa đại lý "${dealerName}"?`)) return;
-
-      state.dealers = state.dealers.filter(d => d.id !== dealerId);
-      saveDealersToLocal();
-      showToast(`Đã xóa đại lý ${dealerName}!`, 'success');
-      renderDealersManagerTable();
-      renderDashboardStats();
-      renderDealerCards();
-      populateDropdowns();
-    }
-
-    function populateDropdowns() {
-      const dealerSelect = document.getElementById('entryDealer');
-      const courseSelect = document.getElementById('entryCourse');
-      if (!dealerSelect || !courseSelect) return;
-
-      dealerSelect.innerHTML = '';
-      courseSelect.innerHTML = '';
-
-      Array.from(new Set(state.dealers.map(d => d.name))).sort().forEach(name => {
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.innerText = name;
-        dealerSelect.appendChild(opt);
-      });
-
-      state.courses.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.name;
-        opt.innerText = c.name;
-        courseSelect.appendChild(opt);
-      });
-
-      handleCourseChange();
-    }
-
-    function handleCourseChange() {
-      const courseName = document.getElementById('entryCourse').value;
-      const courseObj = state.courses.find(c => c.name === courseName);
-      if (courseObj) {
-        document.getElementById('entryType').value = courseObj.type || 'Online';
-        if (courseObj.trainingDate) document.getElementById('entryTime').value = courseObj.trainingDate;
-        if (courseObj.defaultTrainer) document.getElementById('entryTrainer').value = courseObj.defaultTrainer;
-      }
-      calculateNextCertCode();
-    }
-
-    function calculateNextCertCode() {
-      const courseName = document.getElementById('entryCourse').value;
-      const courseObj = state.courses.find(c => c.name === courseName);
-      const isManual = courseObj ? courseObj.isManualCert : false;
-
-      const certInput = document.getElementById('entryCertCode');
-      const certLabel = document.getElementById('entryCertLabel');
-      const gapsNotice = document.getElementById('certGapsNotice');
-      const explanation = document.getElementById('certExplanation');
-      const refreshBtn = document.getElementById('btnRefreshCert');
-
-      if (isManual) {
-        certLabel.innerText = "Mã số Chứng chỉ (Tự điền tay)";
-        certInput.readOnly = false;
-        certInput.className = "w-full p-2.5 rounded-xl border border-slate-200 bg-white font-mono font-bold text-slate-800 focus:ring-2 focus:ring-geely-accent focus:outline-none whitespace-nowrap";
-        gapsNotice.classList.add('hidden');
-        refreshBtn.classList.add('hidden');
-        explanation.innerText = "Khóa học này sử dụng chứng chỉ thủ công. Có thể điền trực tiếp.";
-        return;
-      }
-
-      certLabel.innerText = "Mã số Chứng chỉ (Tự động tính)";
-      certInput.readOnly = false;
-      certInput.className = "w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono font-bold text-amber-700 focus:ring-2 focus:ring-geely-accent focus:outline-none whitespace-nowrap";
-      refreshBtn.classList.remove('hidden');
-
-      const prefix = courseObj ? courseObj.prefix : 'GMTC-D-1-VN-';
-      const digits = courseObj ? courseObj.digits : 4;
-
-      const nums = [];
-      state.records.forEach(r => {
-        extractCertCodes(r.certCode).forEach(c => {
-          if (c.toUpperCase().startsWith(prefix.toUpperCase())) {
-            const val = parseInt(c.substring(prefix.length).trim(), 10);
-            if (!isNaN(val) && val > 0) nums.push(val);
-          }
-        });
-      });
-
-      let nextNum = 1;
-      let isGap = false;
-      if (nums.length > 0) {
-        const maxNum = Math.max(...nums);
-        for (let i = 1; i <= maxNum; i++) {
-          if (!nums.includes(i)) { nextNum = i; isGap = true; break; }
-        }
-        if (!isGap) nextNum = maxNum + 1;
-      }
-
-      certInput.value = `${prefix}${String(nextNum).padStart(digits, '0')}`;
-      if (isGap) {
-        gapsNotice.innerText = `Đang bù số khuyết: #${nextNum}`;
-        gapsNotice.classList.remove('hidden');
-      } else {
-        gapsNotice.classList.add('hidden');
-      }
-      explanation.innerText = `Cấp số tự động tăng dần kế tiếp theo tiền tố ${prefix}.`;
-    }
-
-    function handleSaveRecord(e) {
-      e.preventDefault();
-      if (state.currentUser.role !== 'admin') return;
-
-      const dealer = document.getElementById('entryDealer').value;
-      const trainee = normalizeStr(document.getElementById('entryTrainee').value).toUpperCase();
-      const course = document.getElementById('entryCourse').value;
-      const certCode = normalizeStr(document.getElementById('entryCertCode').value);
-      const type = document.getElementById('entryType').value;
-      const time = normalizeStr(document.getElementById('entryTime').value);
-      const entryDate = document.getElementById('entryInputDate').value || new Date().toISOString().slice(0, 10);
-      const issuedDate = document.getElementById('entryIssuedDate').value;
-      const scoreVal = normalizeStr(document.getElementById('entryScore').value);
-      const trainer = normalizeStr(document.getElementById('entryTrainer').value).toUpperCase() || 'LE KHANH VAN';
-      const isPassed = document.getElementById('entryPassed').checked;
-
-      const newRecord = {
-        id: `REC-${Date.now()}`,
-        country: 'VIET NAM',
-        dealer,
-        trainee,
-        position: 'TECHNICIAN',
-        place: type === 'Online' ? 'ONLINE UMU' : 'HO CHI MINH',
-        type,
-        time,
-        course,
-        score: scoreVal,
-        trainer,
-        eval: isPassed ? 'PASSED' : 'FAILED',
-        certCode,
-        entryDate,
-        issuedDate
-      };
-
-      state.records.push(newRecord);
-      saveRecordsToLocal();
-      state.recentCandidates.unshift(newRecord);
-
-      showToast(`Đã lưu hồ sơ thành công cho ${trainee}!`, 'success');
-      document.getElementById('entryTrainee').value = '';
-      calculateNextCertCode();
-
-      renderDashboardStats();
-      renderDealerCards();
-      renderGapQueueTable();
-      filterReportRecords();
-      renderRecentCandidatesTable();
-    }
-
-    function renderRecentCandidatesTable() {
-      const tbody = document.getElementById('recentCandidatesTableBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-      document.getElementById('recentCandidatesBadge').innerText = `${state.recentCandidates.length} ứng viên`;
-
-      if (state.recentCandidates.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400">Chưa có ứng viên nào được tạo trong phiên này.</td></tr>`;
-        return;
-      }
-
-      state.recentCandidates.forEach(r => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-        tr.innerHTML = `
-          <td class="py-2.5 px-3 font-mono font-bold text-emerald-700 bg-emerald-50/50 rounded">${r.entryDate || '-'}</td>
-          <td class="py-2.5 px-3 font-bold text-slate-800 uppercase">${r.trainee}</td>
-          <td class="py-2.5 px-3 font-semibold text-slate-600">${r.dealer}</td>
-          <td class="py-2.5 px-3 text-geely-blue font-semibold">${r.course}</td>
-          <td class="py-2.5 px-3"><div class="flex flex-wrap gap-1">${formatCertCodeHTML(r.certCode) || '<span class="text-rose-500 italic">Chưa cấp</span>'}</div></td>
-          <td class="py-2.5 px-3 font-mono text-[11px] text-slate-600">${r.issuedDate || '-'}</td>
-          <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">${r.time || '-'}</td>
-          <td class="py-2.5 px-3 text-right"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check mr-1"></i> Đã lưu</span></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function resetEntryForm() {
-      document.getElementById('recordEntryForm').reset();
-      const today = new Date().toISOString().slice(0, 10);
-      document.getElementById('entryInputDate').value = today;
-      document.getElementById('entryIssuedDate').value = today;
-      document.getElementById('entryPassed').checked = true;
-      calculateNextCertCode();
-    }
-
-    function populateReportFilters() {
-      const timeFilter = document.getElementById('reportTimeFilter');
-      const courseFilter = document.getElementById('reportCourseFilter');
-      const dealerFilter = document.getElementById('reportDealerFilter');
-      if (!timeFilter) return;
-
-      const curTime = timeFilter.value;
-      const curCourse = courseFilter.value;
-      const curDealer = dealerFilter.value;
-
-      timeFilter.innerHTML = `<option value="ALL">Tất cả các đợt đào tạo</option>`;
-      courseFilter.innerHTML = `<option value="ALL">Tất cả khóa học</option>`;
-      dealerFilter.innerHTML = `<option value="ALL">Tất cả Đại lý</option>`;
-
-      const times = new Set();
-      const courses = new Set();
-      const dealers = new Set();
-
-      state.records.forEach(r => {
-        if (r.time) times.add(r.time);
-        if (r.course) courses.add(r.course);
-        if (r.dealer) dealers.add(r.dealer);
-      });
-
-      times.forEach(t => { const opt = document.createElement('option'); opt.value = t; opt.innerText = t; timeFilter.appendChild(opt); });
-      courses.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; courseFilter.appendChild(opt); });
-      Array.from(dealers).sort().forEach(d => { const opt = document.createElement('option'); opt.value = d; opt.innerText = d; dealerFilter.appendChild(opt); });
-
-      if (curTime) timeFilter.value = curTime;
-      if (curCourse) courseFilter.value = curCourse;
-      if (curDealer) dealerFilter.value = curDealer;
-    }
-
     function initAppState() {
       const today = new Date().toISOString().slice(0, 10);
-      if (document.getElementById('entryInputDate')) document.getElementById('entryInputDate').value = today;
-      if (document.getElementById('entryIssuedDate')) document.getElementById('entryIssuedDate').value = today;
+      const entryInp = document.getElementById('entryInputDate');
+      const dateInp = document.getElementById('entryIssuedDate');
+      if (entryInp) entryInp.value = today;
+      if (dateInp) dateInp.value = today;
 
       document.getElementById('sheetApiUrl').value = state.syncUrl;
       generateAppsScriptCode();
 
       const localRecords = localStorage.getItem('geely_records');
       if (localRecords) {
-        try { state.records = JSON.parse(localRecords); } catch (e) { state.records = []; }
+        try {
+          state.records = JSON.parse(localRecords);
+        } catch (e) {
+          state.records = [];
+        }
       }
 
       if (state.records.length === 0) {
@@ -2546,43 +2601,72 @@
 
       const localCourses = localStorage.getItem('geely_courses');
       if (localCourses) {
-        try { state.courses = JSON.parse(localCourses); } catch (e) { state.courses = []; }
+        try {
+          state.courses = JSON.parse(localCourses);
+        } catch (e) {
+          state.courses = [];
+        }
       }
 
       if (state.courses.length === 0) {
         state.courses = [
-          { id: 'CRS-1', name: 'GMTC LEVEL 1 (NEW)', prefix: 'GMTC-D-1-VN-', digits: 4, scorePass: '80/100', trainingDate: '1-31/10/2026', defaultTrainer: 'LE KHANH VAN', type: 'Online', isManualCert: false },
-          { id: 'CRS-2', name: 'GMTC LEVEL II', prefix: 'GMTC-D-2-VN-', digits: 4, scorePass: '80/100', trainingDate: '21-22/5/2026', defaultTrainer: 'LE KHANH VAN', type: 'Offline', isManualCert: false }
+          {
+            id: 'CRS-1',
+            name: 'GMTC LEVEL 1 (NEW)',
+            prefix: 'GMTC-D-1-VN-',
+            digits: 4,
+            scorePass: '80/100',
+            trainingDate: '1-31/10/2026',
+            defaultTrainer: 'LE KHANH VAN',
+            type: 'Online',
+            isManualCert: false
+          },
+          {
+            id: 'CRS-2',
+            name: 'GMTC LEVEL II',
+            prefix: 'GMTC-D-2-VN-',
+            digits: 4,
+            scorePass: '80/100',
+            trainingDate: '21-22/5/2026',
+            defaultTrainer: 'LE KHANH VAN',
+            type: 'Offline',
+            isManualCert: false
+          }
         ];
         localStorage.setItem('geely_courses', JSON.stringify(state.courses));
       }
 
       const localDealers = localStorage.getItem('geely_custom_dealers');
       if (localDealers) {
-        try { state.dealers = JSON.parse(localDealers); } catch (e) { state.dealers = []; }
+        try {
+          state.dealers = JSON.parse(localDealers);
+        } catch (e) {
+          state.dealers = [];
+        }
       }
 
       if (state.dealers.length === 0) {
         const dealerSet = new Set(state.records.map(r => r.dealer).filter(Boolean));
-        state.dealers = Array.from(dealerSet).map((name, idx) => {
-          const coords = getDealerPercentCoords(name);
-          return {
-            id: `DLR-${idx + 1}`,
-            name,
-            region: guessRegion(name),
-            address: 'Hệ thống đại lý ủy quyền Geely Auto',
-            hotline: '1900 xxxx',
-            manager: 'Bộ phận Dịch vụ & Đào tạo',
-            mapPercentX: coords.x,
-            mapPercentY: coords.y
-          };
-        });
+        state.dealers = Array.from(dealerSet).map((name, idx) => ({
+          id: `DLR-${idx + 1}`,
+          name: name,
+          region: guessRegion(name),
+          address: 'Hệ thống đại lý ủy quyền Geely Auto',
+          hotline: '1900 xxxx',
+          manager: 'Bộ phận Dịch vụ & Đào tạo',
+          mapPercentX: null,
+          mapPercentY: null
+        }));
         localStorage.setItem('geely_custom_dealers', JSON.stringify(state.dealers));
       }
 
       const localUsers = localStorage.getItem('geely_users');
       if (localUsers) {
-        try { state.users = JSON.parse(localUsers); } catch (e) { state.users = []; }
+        try {
+          state.users = JSON.parse(localUsers);
+        } catch (e) {
+          state.users = [];
+        }
       }
 
       const savedUser = sessionStorage.getItem('geely_session_user');
@@ -2594,169 +2678,177 @@
       }
     }
 
-    let currentQueueSubTab = 'gaps';
-    function switchQueueSubTab(subTab) {
-      currentQueueSubTab = subTab;
-      if (subTab === 'gaps') {
-        document.getElementById('subtab-btn-gaps').className = 'px-4 py-2 font-bold border-b-2 border-geely-blue text-geely-blue flex items-center space-x-2 transition';
-        document.getElementById('subtab-btn-duplicates').className = 'px-4 py-2 font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center space-x-2 transition';
-        document.getElementById('subtab-content-gaps').classList.replace('hidden', 'block');
-        document.getElementById('subtab-content-duplicates').classList.replace('block', 'hidden');
-      } else {
-        document.getElementById('subtab-btn-duplicates').className = 'px-4 py-2 font-bold border-b-2 border-rose-600 text-rose-600 flex items-center space-x-2 transition';
-        document.getElementById('subtab-btn-gaps').className = 'px-4 py-2 font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center space-x-2 transition';
-        document.getElementById('subtab-content-duplicates').classList.replace('hidden', 'block');
-        document.getElementById('subtab-content-gaps').classList.replace('block', 'hidden');
-      }
-    }
-
-    function renderGapQueueTable() {
-      const tbody = document.getElementById('gapQueueTableBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      const prefixSet = new Set();
-      state.courses.forEach(c => { if (!c.isManualCert && c.prefix) prefixSet.add(c.prefix.trim().toUpperCase()); });
-      state.records.forEach(r => {
-        extractCertCodes(r.certCode).forEach(code => {
-          const match = code.match(/^([A-Z0-9]+-[A-Z0-9]+-[A-Z0-9]+-[A-Z0-9]+-)/i);
-          if (match) prefixSet.add(match[1].toUpperCase());
-        });
-      });
-
-      let allGaps = [];
-      prefixSet.forEach(prefix => {
-        const courseWithPrefix = state.courses.find(c => (c.prefix || '').trim().toUpperCase() === prefix);
-        const digits = courseWithPrefix ? courseWithPrefix.digits : 4;
-        const nums = [];
-        state.records.forEach(r => {
-          extractCertCodes(r.certCode).forEach(c => {
-            if (c.toUpperCase().startsWith(prefix)) {
-              const val = parseInt(c.substring(prefix.length).trim(), 10);
-              if (!isNaN(val) && val > 0) nums.push(val);
-            }
-          });
-        });
-
-        if (nums.length > 0) {
-          const maxNum = Math.max(...nums);
-          for (let i = 1; i <= maxNum; i++) {
-            if (!nums.includes(i)) allGaps.push({ prefix, gapNum: i, code: `${prefix}${String(i).padStart(digits, '0')}` });
-          }
-        }
-      });
-
-      document.getElementById('queueBadgeCount').innerText = allGaps.length;
-      document.getElementById('subtabGapsCount').innerText = allGaps.length;
-
-      if (allGaps.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400"><i class="fa-solid fa-circle-check text-emerald-500 text-2xl mb-2 block"></i> Không có số chứng chỉ nào bị khuyết.</td></tr>`;
-      } else {
-        allGaps.forEach((g, idx) => {
-          const tr = document.createElement('tr');
-          tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-          tr.innerHTML = `
-            <td class="py-2.5 px-3 font-bold text-slate-400">${idx + 1}</td>
-            <td class="py-2.5 px-3 font-mono font-semibold text-geely-blue">${g.prefix}</td>
-            <td class="py-2.5 px-3 font-mono font-bold text-amber-700 bg-amber-50/70 px-2 py-0.5 rounded border border-amber-200 w-fit">${g.code}</td>
-            <td class="py-2.5 px-3 font-mono font-bold text-slate-700">#${g.gapNum}</td>
-            <td class="py-2.5 px-3"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Chờ cấp bù</span></td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-
-      renderDuplicatesTable();
-    }
-
-    function renderDuplicatesTable() {
-      const tbody = document.getElementById('duplicatesTableBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
-      const certMap = new Map();
-      state.records.forEach(r => {
-        extractCertCodes(r.certCode).forEach(code => {
-          const upperCode = code.trim().toUpperCase();
-          if (upperCode) {
-            if (!certMap.has(upperCode)) certMap.set(upperCode, []);
-            certMap.get(upperCode).push(r);
-          }
-        });
-      });
-
-      const duplicateEntries = [];
-      certMap.forEach((recordsList, code) => {
-        if (recordsList.length > 1) duplicateEntries.push({ certCode: code, count: recordsList.length, records: recordsList });
-      });
-
-      const totalDupCodes = duplicateEntries.length;
-      document.getElementById('subtabDuplicatesCount').innerText = totalDupCodes;
-      const dupBadgeMenu = document.getElementById('duplicateBadgeCount');
-      if (totalDupCodes > 0) {
-        dupBadgeMenu.innerText = `${totalDupCodes} trùng`;
-        dupBadgeMenu.classList.remove('hidden');
-        document.getElementById('duplicateAlertBox').classList.remove('hidden');
-      } else {
-        dupBadgeMenu.classList.add('hidden');
-        document.getElementById('duplicateAlertBox').classList.add('hidden');
-      }
-
-      if (totalDupCodes === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400"><i class="fa-solid fa-circle-check text-emerald-500 text-2xl mb-2 block"></i> Không phát hiện mã chứng chỉ nào bị trùng lặp.</td></tr>`;
-        return;
-      }
-
-      duplicateEntries.forEach((item, idx) => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-        const candidatesHTML = item.records.map(rec => `
-          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 mb-1 last:mb-0">
-            <div class="flex items-center space-x-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-              <span class="font-bold text-slate-800 uppercase">${rec.trainee}</span>
-              <span class="text-slate-400">|</span>
-              <span class="font-semibold text-slate-600">${rec.dealer}</span>
-              <span class="text-slate-400">|</span>
-              <span class="text-geely-blue font-semibold">${rec.course}</span>
-            </div>
-            ${isAdmin ? `<button onclick="deleteSingleRecord('${rec.id}')" class="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-100 transition text-[11px] font-bold flex items-center space-x-1"><i class="fa-solid fa-trash-can"></i><span>Xóa bản ghi này</span></button>` : ''}
-          </div>
-        `).join('');
-
-        tr.innerHTML = `
-          <td class="py-3 px-3 font-bold text-slate-400 text-center">${idx + 1}</td>
-          <td class="py-3 px-3 font-mono font-bold text-rose-600 bg-rose-50/80 px-2.5 py-1 rounded-md border border-rose-300 w-fit text-xs">${item.certCode}</td>
-          <td class="py-3 px-3 text-center"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-600 text-white">${item.count} lần</span></td>
-          <td class="py-3 px-3"><div class="space-y-1 max-w-2xl">${candidatesHTML}</div></td>
-          <td class="py-3 px-3 text-right"><span class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200"><i class="fa-solid fa-triangle-exclamation mr-1 text-amber-600"></i> Trùng số</span></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function exportToExcel() {
-      const timeFilter = document.getElementById('reportTimeFilter').value;
-      const courseFilter = document.getElementById('reportCourseFilter').value;
-      const dealerFilter = document.getElementById('reportDealerFilter').value;
-      let filtered = [...state.records];
-      if (timeFilter !== 'ALL') filtered = filtered.filter(r => r.time === timeFilter);
-      if (courseFilter !== 'ALL') filtered = filtered.filter(r => r.course === courseFilter);
-      if (dealerFilter !== 'ALL') filtered = filtered.filter(r => r.dealer === dealerFilter);
-
-      const headers = ["No.", "Entry Date", "Country", "Dealer Name", "Trainee Name", "Position", "Training Time", "Training Course", "Exam Score", "Trainer", "Evaluation", "Certificate code", "Issued Date"];
-      const dataRows = filtered.map((r, idx) => [idx + 1, r.entryDate || '', r.country || 'VIET NAM', r.dealer, r.trainee, r.position || 'TECHNICIAN', String(r.time || ''), r.course, r.score, r.trainer, r.eval, r.certCode || '', r.issuedDate || '']);
-      const ws = XLSX.utils.aoa_to_sheet([headers, ...dataRows]);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Training Record");
-      XLSX.writeFile(wb, `GEELY_GMTC_TRAINING_${new Date().toISOString().slice(0, 10)}.xlsx`);
-      showToast('Đã xuất file Excel thành công!', 'success');
-    }
-
+    // ==============================================================
+    // 9C. GAP QUEUE & DUPLICATE CERTIFICATES AUDIT
+    // ==============================================================
+    // 13. GOOGLE SHEETS 2-WAY SYNC
+    // ==============================================================
     function generateAppsScriptCode() {
-      const code = `function doPost(e) { return ContentService.createTextOutput(JSON.stringify({status:"SUCCESS"})).setMimeType(ContentService.MimeType.JSON); }
-function doGet(e) { return ContentService.createTextOutput(JSON.stringify({status:"SUCCESS", data:{records:[], dealers:[], courses:[], users:[]}})).setMimeType(ContentService.MimeType.JSON); }`;
+      const code = `/**
+ * GEELY VIETNAM - GMTC DATABASE BACKEND (GOOGLE APPS SCRIPT)
+ * Hỗ trợ lưu trữ: Bảng TrainingRecords (có cột L: Entry Date), 
+ * Bảng Dealers (có cột G: MapX, cột H: MapY), Courses và Users.
+ */
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    // 1. Sync TrainingRecords (Thêm cột Entry Date ở vị trí cột L / thứ 12)
+    if (data.records) {
+      var sheetRec = ss.getSheetByName("TrainingRecords") || ss.insertSheet("TrainingRecords");
+      sheetRec.clearContents();
+      var headers = ["No.", "Country", "Dealer Name", "Trainee Name", "Position", "Training Time", "Training Course", "Exam Score", "Trainer", "Evaluation", "Certificate Code", "Entry Date"];
+      sheetRec.appendRow(headers);
+      var rows = data.records.map(function(r, idx) {
+        var textTime = "'" + String(r.time || "");
+        var entryDateVal = String(r.entryDate || "");
+        return [idx + 1, r.country || "VIET NAM", r.dealer, r.trainee, r.position || "TECHNICIAN", textTime, r.course, r.score, r.trainer, r.eval, r.certCode, entryDateVal];
+      });
+      if (rows.length > 0) {
+        sheetRec.getRange(2, 1, rows.length, headers.length).setNumberFormat("@").setValues(rows);
+      }
+    }
+
+    // 2. Sync Courses
+    if (data.courses) {
+      var sheetCourse = ss.getSheetByName("Courses") || ss.insertSheet("Courses");
+      sheetCourse.clearContents();
+      sheetCourse.appendRow(["ID", "Course Name", "Prefix", "Digits", "Score Pass", "Training Date", "Trainer", "Type", "IsManualCert"]);
+      var cRows = data.courses.map(function(c) {
+        return [c.id, c.name, c.prefix, c.digits, c.scorePass, "'" + String(c.trainingDate || ""), c.defaultTrainer, c.type, c.isManualCert ? "YES" : "NO"];
+      });
+      if (cRows.length > 0) {
+        sheetCourse.getRange(2, 1, cRows.length, 9).setNumberFormat("@").setValues(cRows);
+      }
+    }
+
+    // 3. Sync Dealers (Lưu thêm tọa độ MapX và MapY ở cột G và H)
+    if (data.dealers) {
+      var sheetDealers = ss.getSheetByName("Dealers") || ss.insertSheet("Dealers");
+      sheetDealers.clearContents();
+      sheetDealers.appendRow(["ID", "Dealer Name", "Region", "Address", "Hotline", "Manager", "MapX", "MapY"]);
+      var dRows = data.dealers.map(function(d) {
+        return [d.id, d.name, d.region, d.address, d.hotline, d.manager, d.mapPercentX || "", d.mapPercentY || ""];
+      });
+      if (dRows.length > 0) {
+        sheetDealers.getRange(2, 1, dRows.length, 8).setValues(dRows);
+      }
+    }
+
+    // 4. Sync Encrypted Users
+    if (data.users) {
+      var sheetUsers = ss.getSheetByName("Users") || ss.insertSheet("Users");
+      sheetUsers.clearContents();
+      sheetUsers.appendRow(["Username", "FullName", "Role", "PasswordHashSHA256"]);
+      var uRows = data.users.map(function(u) {
+        return [u.username, u.fullname, u.role, u.hash];
+      });
+      if (uRows.length > 0) {
+        sheetUsers.getRange(2, 1, uRows.length, 4).setValues(uRows);
+      }
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ status: "SUCCESS", message: "Đồng bộ thành công!" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "ERROR", error: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var result = {
+      records: [],
+      dealers: [],
+      courses: [],
+      users: []
+    };
+
+    // 1. Read TrainingRecords (Đọc đến cột thứ 12 lấy Entry Date)
+    var sheetRec = ss.getSheetByName("TrainingRecords");
+    if (sheetRec && sheetRec.getLastRow() > 1) {
+      var recData = sheetRec.getRange(2, 1, sheetRec.getLastRow() - 1, 12).getDisplayValues();
+      result.records = recData.map(function(row, idx) {
+        return {
+          id: "REC-GS-" + idx,
+          country: String(row[1] || "VIET NAM"),
+          dealer: String(row[2] || "").trim().toUpperCase(),
+          trainee: String(row[3] || "").trim().toUpperCase(),
+          position: String(row[4] || "TECHNICIAN"),
+          time: String(row[5] || ""),
+          course: String(row[6] || ""),
+          score: String(row[7] || ""),
+          trainer: String(row[8] || ""),
+          eval: String(row[9] || "PASSED"),
+          certCode: String(row[10] || "").trim(),
+          entryDate: String(row[11] || new Date().toISOString().slice(0, 10))
+        };
+      });
+    }
+
+    // 2. Read Dealers (Đọc MapX và MapY từ cột 7 và 8)
+    var sheetDealers = ss.getSheetByName("Dealers");
+    if (sheetDealers && sheetDealers.getLastRow() > 1) {
+      var dData = sheetDealers.getRange(2, 1, sheetDealers.getLastRow() - 1, 8).getDisplayValues();
+      result.dealers = dData.map(function(row, idx) {
+        return {
+          id: String(row[0] || ("DLR-GS-" + (idx + 1))),
+          name: String(row[1] || "").trim().toUpperCase(),
+          region: String(row[2] || "Miền Nam"),
+          address: String(row[3] || ""),
+          hotline: String(row[4] || "1900 xxxx"),
+          manager: String(row[5] || "Bộ phận Dịch vụ"),
+          mapPercentX: parseInt(row[6], 10) || null,
+          mapPercentY: parseInt(row[7], 10) || null
+        };
+      }).filter(function(d) { return d.name !== ""; });
+    }
+
+    // 3. Read Courses
+    var sheetCourse = ss.getSheetByName("Courses");
+    if (sheetCourse && sheetCourse.getLastRow() > 1) {
+      var cData = sheetCourse.getRange(2, 1, sheetCourse.getLastRow() - 1, 9).getDisplayValues();
+      result.courses = cData.map(function(row, idx) {
+        var isManual = String(row[8] || "").toUpperCase() === "YES" || String(row[8] || "") === "TRUE";
+        return {
+          id: String(row[0] || ("CRS-GS-" + (idx + 1))),
+          name: String(row[1] || "").trim().toUpperCase(),
+          prefix: String(row[2] || "").trim().toUpperCase(),
+          digits: parseInt(row[3], 10) || 4,
+          scorePass: String(row[4] || "80/100"),
+          trainingDate: String(row[5] || ""),
+          defaultTrainer: String(row[6] || "LE KHANH VAN"),
+          type: String(row[7] || "Online"),
+          isManualCert: isManual
+        };
+      }).filter(function(c) { return c.name !== ""; });
+    }
+
+    // 4. Read Users
+    var sheetUsers = ss.getSheetByName("Users");
+    if (sheetUsers && sheetUsers.getLastRow() > 1) {
+      var uData = sheetUsers.getRange(2, 1, sheetUsers.getLastRow() - 1, 4).getDisplayValues();
+      result.users = uData.map(function(row) {
+        return {
+          username: String(row[0] || "").trim().toLowerCase(),
+          fullname: String(row[1] || ""),
+          role: String(row[2] || "viewer").trim().toLowerCase(),
+          hash: String(row[3] || ""),
+          plainPassword: ""
+        };
+      }).filter(function(u) { return u.username !== ""; });
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ status: "SUCCESS", data: result }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "ERROR", error: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
       document.getElementById('appsScriptCodeBlock').value = code;
     }
 
