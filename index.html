@@ -82,8 +82,8 @@
     <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100 relative overflow-hidden">
       <div class="absolute -top-12 -right-12 w-40 h-40 bg-geely-accent/15 rounded-full blur-2xl"></div>
       <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-geely-blue text-white shadow-lg mb-4">
-          <i class="fa-solid fa-car-side text-2xl text-geely-accent"></i>
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white shadow-md p-2 mb-4 border border-slate-200">
+          <img src="logo.png" alt="GEELY Logo" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Geely_wordmark_and_logo_2023.svg/512px-Geely_wordmark_and_logo_2023.svg.png';">
         </div>
         <h2 class="text-2xl font-bold tracking-tight text-geely-blue uppercase">GEELY AUTO VIỆT NAM</h2>
         <p class="text-sm text-slate-500 mt-1 font-medium">Hệ Thống Đào Tạo & Cấp Chứng Chỉ GMTC</p>
@@ -135,8 +135,8 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-geely-accent border border-white/10">
-              <i class="fa-solid fa-car-side text-lg"></i>
+            <div class="h-10 px-2 rounded-xl bg-white flex items-center justify-center shadow-sm border border-white/20">
+              <img src="logo.png" alt="GEELY" class="h-7 w-auto object-contain" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Geely_wordmark_and_logo_2023.svg/512px-Geely_wordmark_and_logo_2023.svg.png';">
             </div>
             <div>
               <h1 class="font-bold text-base sm:text-lg tracking-tight uppercase leading-none">GEELY VIETNAM</h1>
@@ -216,46 +216,46 @@
       <div id="tab-dashboard" class="tab-content block space-y-6">
         <!-- KPI METRICS -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center space-x-4">
             <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl">
               <i class="fa-solid fa-store"></i>
             </div>
             <div>
-              <p class="text-xs uppercase font-bold text-slate-400">Tổng Đại lý</p>
+              <p class="text-xs uppercase font-bold text-slate-500">Tổng Đại lý</p>
               <h3 id="statTotalDealers" class="text-2xl font-black text-slate-800 leading-tight">66</h3>
             </div>
           </div>
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
-            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+          <div class="bg-white p-5 rounded-2xl border-2 border-emerald-300 bg-gradient-to-br from-white to-emerald-50/30 shadow-sm flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl shadow-md shadow-emerald-500/25">
               <i class="fa-solid fa-users"></i>
             </div>
             <div>
-              <p class="text-xs uppercase font-bold text-slate-400">Kỹ thuật viên</p>
-              <h3 id="statTotalTechs" class="text-2xl font-black text-slate-800 leading-tight">165</h3>
+              <p class="text-xs uppercase font-extrabold text-emerald-700">Kỹ thuật viên</p>
+              <h3 id="statTotalTechs" class="text-2xl font-black text-emerald-800 leading-tight">165</h3>
             </div>
           </div>
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center space-x-4">
             <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
               <i class="fa-solid fa-certificate"></i>
             </div>
             <div>
-              <p class="text-xs uppercase font-bold text-slate-400">Đã cấp chứng chỉ</p>
+              <p class="text-xs uppercase font-bold text-slate-500">Đã cấp chứng chỉ</p>
               <h3 id="statTotalCerts" class="text-2xl font-black text-slate-800 leading-tight">168</h3>
             </div>
           </div>
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center space-x-4">
             <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
               <i class="fa-solid fa-circle-check"></i>
             </div>
             <div>
-              <p class="text-xs uppercase font-bold text-slate-400">Tỷ lệ đạt chuẩn</p>
+              <p class="text-xs uppercase font-bold text-slate-500">Tỷ lệ đạt chuẩn</p>
               <h3 id="statPassRate" class="text-2xl font-black text-slate-800 leading-tight">100%</h3>
             </div>
           </div>
         </div>
 
         <!-- SEARCH & FILTER TOOLBAR -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
           <div class="relative w-full sm:w-96">
             <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm">
               <i class="fa-solid fa-magnifying-glass"></i>
@@ -411,16 +411,20 @@
               </div>
               <div>
                 <label class="block font-semibold text-slate-600 mb-1 flex items-center justify-between">
-                  <span>Ngày cấp (Issued Date) *</span>
-                  <span class="text-[10px] text-geely-accent font-normal">In trên chứng chỉ</span>
+                  <span>Ngày nhập (Tự động) *</span>
+                  <span class="text-[10px] text-emerald-600 font-bold">Ngày hệ thống</span>
                 </label>
-                <input type="date" id="entryIssuedDate" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none font-semibold text-slate-800">
+                <input type="date" id="entryInputDate" required class="w-full p-2.5 rounded-xl border border-slate-200 bg-emerald-50/50 focus:ring-2 focus:ring-geely-accent focus:outline-none font-semibold text-slate-800">
               </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
               <div>
-                <label class="block font-semibold text-slate-600 mb-1">Số điểm đạt được (Chỉ nhập số)</label>
+                <label class="block font-semibold text-slate-600 mb-1">Ngày cấp (Issued Date) *</label>
+                <input type="date" id="entryIssuedDate" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none font-semibold text-slate-800">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Số điểm đạt được</label>
                 <input type="number" step="0.1" id="entryScore" placeholder="Ví dụ: 85" value="85" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none font-bold text-emerald-600">
               </div>
               <div>
@@ -463,10 +467,12 @@
               <table class="w-full text-left text-xs whitespace-nowrap">
                 <thead class="bg-slate-50 text-slate-500 uppercase font-bold sticky top-0 border-b border-slate-200">
                   <tr>
+                    <th class="py-2.5 px-3">Ngày Nhập</th>
                     <th class="py-2.5 px-3">Học Viên</th>
                     <th class="py-2.5 px-3">Đại Lý</th>
                     <th class="py-2.5 px-3">Khóa Học</th>
                     <th class="py-2.5 px-3">Mã Chứng Chỉ</th>
+                    <th class="py-2.5 px-3">Ngày Cấp</th>
                     <th class="py-2.5 px-3">Thời Gian Học</th>
                     <th class="py-2.5 px-3 text-right">Trạng Thái</th>
                   </tr>
@@ -659,7 +665,7 @@
           </div>
 
           <!-- REPORT FILTERS (BAO GỒM BỘ LỌC NGÀY NHẬP / NGÀY CẤP) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 py-4 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 py-4 text-xs">
             <div>
               <label class="block font-semibold text-slate-600 mb-1">Lọc theo Đợt / Thời gian học</label>
               <select id="reportTimeFilter" onchange="filterReportRecords()" class="w-full p-2 rounded-xl border border-slate-200 bg-white">
@@ -682,7 +688,16 @@
             </div>
             <div>
               <label class="block font-semibold text-slate-600 mb-1 flex items-center justify-between">
-                <span>Khoảng Ngày cấp (Từ - Đến)</span>
+                <span>Ngày nhập (Từ - Đến)</span>
+              </label>
+              <div class="flex items-center space-x-1">
+                <input type="date" id="reportEntryDateFrom" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]" title="Từ ngày nhập">
+                <input type="date" id="reportEntryDateTo" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]" title="Đến ngày nhập">
+              </div>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1 flex items-center justify-between">
+                <span>Ngày cấp (Từ - Đến)</span>
                 <span id="reportCountLabel" class="text-[10px] text-slate-400 font-bold">196 bản ghi</span>
               </label>
               <div class="flex items-center space-x-1">
@@ -698,6 +713,7 @@
               <thead class="bg-geely-blue text-white uppercase text-[10px] sticky top-0 font-bold tracking-wider">
                 <tr>
                   <th class="py-2.5 px-3 border-r border-white/10 text-center">No.</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Ngày Nhập</th>
                   <th class="py-2.5 px-3 border-r border-white/10">Country</th>
                   <th class="py-2.5 px-3 border-r border-white/10">Dealer Name</th>
                   <th class="py-2.5 px-3 border-r border-white/10">Trainee Name</th>
@@ -1672,12 +1688,12 @@
           const matched = Array.from(item.techs).filter(t => t.toUpperCase().includes(searchVal));
           if (matched.length > 0) {
             matchedTechsHTML = `
-              <div class="mt-2.5 pt-2 border-t border-slate-100">
-                <span class="text-[10px] font-bold text-emerald-600 block mb-1">
+              <div class="mt-2.5 pt-2 border-t border-slate-200">
+                <span class="text-[10px] font-bold text-emerald-700 block mb-1">
                   <i class="fa-solid fa-user-check mr-1"></i> KTV trùng khớp (${matched.length}):
                 </span>
                 <div class="flex flex-wrap gap-1">
-                  ${matched.map(t => `<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[10px] font-bold border border-emerald-200">${t}</span>`).join('')}
+                  ${matched.map(t => `<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-900 text-[10px] font-bold border border-emerald-300">${t}</span>`).join('')}
                 </div>
               </div>
             `;
@@ -1685,33 +1701,33 @@
         }
 
         const card = document.createElement('div');
-        card.className = "bg-white p-5 rounded-2xl border border-slate-200/90 hover:border-geely-accent hover:shadow-lg transition-all duration-200 cursor-pointer flex flex-col justify-between group";
+        card.className = "bg-white p-5 rounded-2xl border-2 border-slate-300 hover:border-emerald-500 shadow-md hover:shadow-xl hover:ring-2 hover:ring-emerald-400/20 transition-all duration-200 cursor-pointer flex flex-col justify-between group";
         card.onclick = () => openDealerModal(item.name);
 
         card.innerHTML = `
           <div>
             <div class="flex items-start justify-between mb-2">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 uppercase tracking-wider">
+              <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wider">
                 ${item.region}
               </span>
-              <span class="text-slate-300 group-hover:text-geely-accent transition">
+              <span class="text-slate-400 group-hover:text-emerald-600 transition">
                 <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
               </span>
             </div>
-            <h4 class="font-bold text-slate-800 text-sm group-hover:text-geely-blue transition line-clamp-1 uppercase">
+            <h4 class="font-black text-slate-900 text-sm group-hover:text-emerald-700 transition line-clamp-1 uppercase tracking-tight">
               ${item.name}
             </h4>
           </div>
 
           <div>
-            <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-100 text-center">
-              <div class="bg-slate-50 p-2 rounded-xl">
-                <span class="text-[10px] text-slate-400 font-bold block uppercase">Kỹ thuật viên</span>
-                <span class="text-base font-black text-slate-800">${item.techs.size}</span>
+            <div class="grid grid-cols-2 gap-2.5 mt-4 pt-3 border-t border-slate-200 text-center">
+              <div class="bg-emerald-50/80 p-2.5 rounded-xl border border-emerald-200 shadow-sm">
+                <span class="text-[10px] text-emerald-800 font-extrabold block uppercase tracking-wider">Kỹ thuật viên</span>
+                <span class="text-lg font-black text-emerald-700">${item.techs.size}</span>
               </div>
-              <div class="bg-amber-50/60 p-2 rounded-xl border border-amber-100/50">
-                <span class="text-[10px] text-amber-700 font-bold block uppercase">Chứng chỉ</span>
-                <span class="text-base font-black text-amber-700">${item.certCount}</span>
+              <div class="bg-amber-50/80 p-2.5 rounded-xl border border-amber-200 shadow-sm">
+                <span class="text-[10px] text-amber-800 font-extrabold block uppercase tracking-wider">Chứng chỉ</span>
+                <span class="text-lg font-black text-amber-700">${item.certCount}</span>
               </div>
             </div>
             ${matchedTechsHTML}
@@ -2260,6 +2276,7 @@
       const certCode = normalizeStr(document.getElementById('entryCertCode').value);
       const type = document.getElementById('entryType').value;
       const time = normalizeStr(document.getElementById('entryTime').value);
+      const entryDate = document.getElementById('entryInputDate').value || new Date().toISOString().slice(0, 10);
       const issuedDate = document.getElementById('entryIssuedDate').value;
       const scoreVal = normalizeStr(document.getElementById('entryScore').value);
       const trainer = normalizeStr(document.getElementById('entryTrainer').value).toUpperCase() || 'LE KHANH VAN';
@@ -2294,6 +2311,7 @@
         trainer: trainer,
         eval: isPassed ? 'PASSED' : 'FAILED',
         certCode: certCode,
+        entryDate: entryDate,
         issuedDate: issuedDate
       };
 
@@ -2325,7 +2343,7 @@
       if (state.recentCandidates.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="py-6 text-center text-slate-400">
+            <td colspan="8" class="py-6 text-center text-slate-400">
               Chưa có ứng viên nào được tạo trong phiên làm việc này.
             </td>
           </tr>
@@ -2337,10 +2355,12 @@
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
         tr.innerHTML = `
+          <td class="py-2.5 px-3 font-mono font-bold text-emerald-700 bg-emerald-50/50 rounded">${r.entryDate || '-'}</td>
           <td class="py-2.5 px-3 font-bold text-slate-800 uppercase">${r.trainee}</td>
           <td class="py-2.5 px-3 font-semibold text-slate-600">${r.dealer}</td>
           <td class="py-2.5 px-3 text-geely-blue font-semibold">${r.course}</td>
           <td class="py-2.5 px-3"><div class="flex flex-wrap gap-1">${formatCertCodeHTML(r.certCode) || '<span class="text-rose-500 italic">Chưa cấp</span>'}</div></td>
+          <td class="py-2.5 px-3 font-mono text-[11px] text-slate-600">${r.issuedDate || '-'}</td>
           <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">${r.time || '-'}</td>
           <td class="py-2.5 px-3 text-right">
             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
@@ -2355,7 +2375,10 @@
     function resetEntryForm() {
       document.getElementById('recordEntryForm').reset();
       const today = new Date().toISOString().slice(0, 10);
-      document.getElementById('entryIssuedDate').value = today;
+      const entryInput = document.getElementById('entryInputDate');
+      const issuedInput = document.getElementById('entryIssuedDate');
+      if (entryInput) entryInput.value = today;
+      if (issuedInput) issuedInput.value = today;
       document.getElementById('entryPassed').checked = true;
       calculateNextCertCode();
     }
@@ -2571,12 +2594,12 @@
     // 9. APP INITIALIZATION (INIT APP STATE)
     // ==============================================================
     function initAppState() {
-      // Thiết lập ngày cấp mặc định là hôm nay
+      // Thiết lập ngày nhập và ngày cấp mặc định là hôm nay
+      const today = new Date().toISOString().slice(0, 10);
+      const entryInp = document.getElementById('entryInputDate');
       const dateInp = document.getElementById('entryIssuedDate');
-      if (dateInp) {
-        const today = new Date().toISOString().slice(0, 10);
-        dateInp.value = today;
-      }
+      if (entryInp) entryInp.value = today;
+      if (dateInp) dateInp.value = today;
 
       // Khởi tạo link đồng bộ
       document.getElementById('sheetApiUrl').value = state.syncUrl;
@@ -2607,6 +2630,7 @@
           trainer: r[6],
           eval: r[7],
           certCode: r[8] || '',
+          entryDate: '2026-11-05',
           issuedDate: '2026-11-01'
         }));
         localStorage.setItem('geely_records', JSON.stringify(state.records));
@@ -3154,6 +3178,8 @@
       const timeFilter = document.getElementById('reportTimeFilter').value;
       const courseFilter = document.getElementById('reportCourseFilter').value;
       const dealerFilter = document.getElementById('reportDealerFilter').value;
+      const entryDateFrom = document.getElementById('reportEntryDateFrom') ? document.getElementById('reportEntryDateFrom').value : '';
+      const entryDateTo = document.getElementById('reportEntryDateTo') ? document.getElementById('reportEntryDateTo').value : '';
       const dateFrom = document.getElementById('reportDateFrom').value;
       const dateTo = document.getElementById('reportDateTo').value;
 
@@ -3161,6 +3187,14 @@
       if (timeFilter !== 'ALL') filtered = filtered.filter(r => r.time === timeFilter);
       if (courseFilter !== 'ALL') filtered = filtered.filter(r => r.course === courseFilter);
       if (dealerFilter !== 'ALL') filtered = filtered.filter(r => r.dealer === dealerFilter);
+
+      // Lọc theo Ngày Nhập (Entry Date)
+      if (entryDateFrom) {
+        filtered = filtered.filter(r => r.entryDate && r.entryDate >= entryDateFrom);
+      }
+      if (entryDateTo) {
+        filtered = filtered.filter(r => r.entryDate && r.entryDate <= entryDateTo);
+      }
 
       // Lọc theo ngày cấp (Issued Date)
       if (dateFrom) {
@@ -3177,7 +3211,7 @@
       if (filtered.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="11" class="py-8 text-center text-slate-400">
+            <td colspan="12" class="py-8 text-center text-slate-400">
               Không có dữ liệu báo cáo nào phù hợp với bộ lọc đã chọn.
             </td>
           </tr>
@@ -3191,6 +3225,7 @@
         const formattedCert = formatCertCodeHTML(r.certCode || '');
         tr.innerHTML = `
           <td class="py-2.5 px-3 border-r border-slate-200 text-center font-bold text-slate-500">${idx + 1}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-mono text-[11px] text-emerald-700 bg-emerald-50/30">${r.entryDate || '-'}</td>
           <td class="py-2.5 px-3 border-r border-slate-200 font-semibold">${r.country || 'VIET NAM'}</td>
           <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-slate-800">${r.dealer}</td>
           <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-geely-blue">${r.trainee}</td>
@@ -3210,6 +3245,8 @@
       const timeFilter = document.getElementById('reportTimeFilter').value;
       const courseFilter = document.getElementById('reportCourseFilter').value;
       const dealerFilter = document.getElementById('reportDealerFilter').value;
+      const entryDateFrom = document.getElementById('reportEntryDateFrom') ? document.getElementById('reportEntryDateFrom').value : '';
+      const entryDateTo = document.getElementById('reportEntryDateTo') ? document.getElementById('reportEntryDateTo').value : '';
       const dateFrom = document.getElementById('reportDateFrom').value;
       const dateTo = document.getElementById('reportDateTo').value;
 
@@ -3217,11 +3254,14 @@
       if (timeFilter !== 'ALL') filtered = filtered.filter(r => r.time === timeFilter);
       if (courseFilter !== 'ALL') filtered = filtered.filter(r => r.course === courseFilter);
       if (dealerFilter !== 'ALL') filtered = filtered.filter(r => r.dealer === dealerFilter);
+      if (entryDateFrom) filtered = filtered.filter(r => r.entryDate && r.entryDate >= entryDateFrom);
+      if (entryDateTo) filtered = filtered.filter(r => r.entryDate && r.entryDate <= entryDateTo);
       if (dateFrom) filtered = filtered.filter(r => r.issuedDate && r.issuedDate >= dateFrom);
       if (dateTo) filtered = filtered.filter(r => r.issuedDate && r.issuedDate <= dateTo);
 
       const headers = [
         "No.",
+        "Entry Date",
         "Country",
         "Dealer Name",
         "Trainee Name",
@@ -3231,11 +3271,13 @@
         "Exam Score",
         "Trainer",
         "Evaluation of the trainer",
-        "Certificate code"
+        "Certificate code",
+        "Issued Date"
       ];
 
       const dataRows = filtered.map((r, idx) => [
         idx + 1,
+        r.entryDate || '',
         r.country || 'VIET NAM',
         r.dealer,
         r.trainee,
@@ -3245,13 +3287,15 @@
         r.score,
         r.trainer,
         r.eval,
-        r.certCode || ''
+        r.certCode || '',
+        r.issuedDate || ''
       ]);
 
       const ws = XLSX.utils.aoa_to_sheet([headers, ...dataRows]);
 
       ws['!cols'] = [
         { wch: 6 },
+        { wch: 14 },
         { wch: 12 },
         { wch: 30 },
         { wch: 26 },
@@ -3261,7 +3305,8 @@
         { wch: 16 },
         { wch: 18 },
         { wch: 14 },
-        { wch: 22 }
+        { wch: 22 },
+        { wch: 14 }
       ];
 
       const wb = XLSX.utils.book_new();
