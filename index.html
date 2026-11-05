@@ -2574,7 +2574,7 @@ function doPost(e) {
       var headers = ["No.", "Country", "Dealer Name", "Trainee Name", "Position", "Training Place", "Training Time", "Training Course", "Exam Score", "Trainer", "Evaluation", "Photos", "Certificate Code", "Certificate Photo"];
       sheetRec.appendRow(headers);
       var rows = data.records.map(function(r, idx) {
-        return [idx + 1, r.country, r.dealer, r.trainee, r.position, r.place, r.time, r.course, r.score, r.trainer, r.eval, r.photos || "", r.certCode, r.certPhoto || ""];
+        return [idx + 1, r.country || "VIET NAM", r.dealer, r.trainee, r.position || "TECHNICIAN", r.place, r.time, r.course, r.score, r.trainer, r.eval, r.photos || "", r.certCode, r.certPhoto || ""];
       });
       if (rows.length > 0) {
         sheetRec.getRange(2, 1, rows.length, headers.length).setValues(rows);
@@ -2638,7 +2638,7 @@ function doGet(e) {
       users: []
     };
 
-    // Read TrainingRecords
+    // 1. Read TrainingRecords
     var sheetRec = ss.getSheetByName("TrainingRecords");
     if (sheetRec && sheetRec.getLastRow() > 1) {
       var recData = sheetRec.getRange(2, 1, sheetRec.getLastRow() - 1, 14).getValues();
@@ -2661,6 +2661,55 @@ function doGet(e) {
           certPhoto: ""
         };
       });
+    }
+
+    // 2. Read Dealers
+    var sheetDealers = ss.getSheetByName("Dealers");
+    if (sheetDealers && sheetDealers.getLastRow() > 1) {
+      var dData = sheetDealers.getRange(2, 1, sheetDealers.getLastRow() - 1, 6).getValues();
+      result.dealers = dData.map(function(row, idx) {
+        return {
+          id: String(row[0] || ("DLR-GS-" + (idx + 1))),
+          name: String(row[1] || "").trim().toUpperCase(),
+          region: String(row[2] || "Miền Nam"),
+          address: String(row[3] || ""),
+          hotline: String(row[4] || "1900 xxxx"),
+          manager: String(row[5] || "Bộ phận Dịch vụ")
+        };
+      }).filter(function(d) { return d.name !== ""; });
+    }
+
+    // 3. Read Courses
+    var sheetCourse = ss.getSheetByName("Courses");
+    if (sheetCourse && sheetCourse.getLastRow() > 1) {
+      var cData = sheetCourse.getRange(2, 1, sheetCourse.getLastRow() - 1, 8).getValues();
+      result.courses = cData.map(function(row, idx) {
+        return {
+          id: String(row[0] || ("CRS-GS-" + (idx + 1))),
+          name: String(row[1] || "").trim().toUpperCase(),
+          prefix: String(row[2] || "").trim().toUpperCase(),
+          digits: parseInt(row[3], 10) || 4,
+          scorePass: String(row[4] || "80/100"),
+          trainingDate: String(row[5] || ""),
+          defaultTrainer: String(row[6] || "LE KHANH VAN"),
+          type: String(row[7] || "Online")
+        };
+      }).filter(function(c) { return c.name !== ""; });
+    }
+
+    // 4. Read Users
+    var sheetUsers = ss.getSheetByName("Users");
+    if (sheetUsers && sheetUsers.getLastRow() > 1) {
+      var uData = sheetUsers.getRange(2, 1, sheetUsers.getLastRow() - 1, 4).getValues();
+      result.users = uData.map(function(row) {
+        return {
+          username: String(row[0] || "").trim().toLowerCase(),
+          fullname: String(row[1] || ""),
+          role: String(row[2] || "viewer").trim().toLowerCase(),
+          hash: String(row[3] || ""),
+          plainPassword: ""
+        };
+      }).filter(function(u) { return u.username !== ""; });
     }
 
     return ContentService.createTextOutput(JSON.stringify({ status: "SUCCESS", data: result }))
@@ -2757,40 +2806,43 @@ function doGet(e) {
       const syncIcon = document.getElementById('headerSyncIcon');
       if (syncIcon) syncIcon.classList.add('fa-spin');
 
-      if (!silent) showToast('Đang kết nối & tải dữ liệu mới nhất từ Google Sheets...', 'info');
+      if (!silent) showToast('Đang kết nối & tải toàn bộ dữ liệu (Đào tạo, Đại lý, Khóa học) từ Google Sheets...', 'info');
 
       try {
         const response = await fetch(state.syncUrl);
         const res = await response.json();
         if (res && res.status === 'SUCCESS' && res.data) {
-          let updatedCount = 0;
+          let updatedDetails = [];
 
           // 1. Cập nhật Records
           if (res.data.records && Array.isArray(res.data.records) && res.data.records.length > 0) {
             state.records = res.data.records;
             localStorage.setItem('geely_records', JSON.stringify(state.records));
-            updatedCount = state.records.length;
+            updatedDetails.push(`${state.records.length} bản ghi đào tạo`);
           }
 
-          // 2. Cập nhật Dealers (nếu có trên sheet)
+          // 2. Cập nhật Dealers (từ tab Dealers trên Sheet)
           if (res.data.dealers && Array.isArray(res.data.dealers) && res.data.dealers.length > 0) {
             state.dealers = res.data.dealers;
             localStorage.setItem('geely_custom_dealers', JSON.stringify(state.dealers));
+            updatedDetails.push(`${state.dealers.length} đại lý`);
           }
 
-          // 3. Cập nhật Courses (nếu có trên sheet)
+          // 3. Cập nhật Courses (từ tab Courses trên Sheet)
           if (res.data.courses && Array.isArray(res.data.courses) && res.data.courses.length > 0) {
             state.courses = res.data.courses;
             localStorage.setItem('geely_courses', JSON.stringify(state.courses));
+            updatedDetails.push(`${state.courses.length} khóa học`);
           }
 
-          // 4. Cập nhật Users (nếu có trên sheet)
+          // 4. Cập nhật Users (từ tab Users trên Sheet)
           if (res.data.users && Array.isArray(res.data.users) && res.data.users.length > 0) {
             state.users = res.data.users;
             localStorage.setItem('geely_users', JSON.stringify(state.users));
+            updatedDetails.push(`${state.users.length} tài khoản`);
           }
 
-          // Render lại toàn bộ giao diện
+          // Render lại toàn bộ giao diện và các dropdown
           renderDashboardStats();
           renderDealerCards();
           renderDealersManagerTable();
@@ -2800,13 +2852,14 @@ function doGet(e) {
           filterReportRecords();
 
           updateSyncBadge(true);
-          if (!silent) showToast(`Đồng bộ thành công! Đã cập nhật ${updatedCount} bản ghi từ Google Sheets.`, 'success');
+          const detailMsg = updatedDetails.length > 0 ? updatedDetails.join(', ') : 'Dữ liệu đã đồng bộ';
+          if (!silent) showToast(`Đồng bộ thành công! Đã cập nhật: ${detailMsg}.`, 'success', 3500);
         } else {
-          if (!silent) showToast('Google Sheets đã kết nối nhưng chưa có dữ liệu.', 'info');
+          if (!silent) showToast('Google Sheets đã kết nối nhưng chưa có dữ liệu hợp lệ.', 'info');
         }
       } catch (err) {
         console.warn('Pull error:', err);
-        if (!silent) showToast('Không thể kết nối tới Google Sheets! Kiểm tra lại link Web App và quyền Anyone.', 'error');
+        if (!silent) showToast('Không thể kết nối tới Google Sheets! Vui lòng kiểm tra lại URL Web App và quyền truy cập Anyone.', 'error');
       } finally {
         if (syncIcon) syncIcon.classList.remove('fa-spin');
       }
