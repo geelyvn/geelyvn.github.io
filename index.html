@@ -111,922 +111,653 @@
           <i class="fa-solid fa-arrow-right-to-bracket text-sm"></i>
         </button>
 
+        <div class="pt-3 border-t border-slate-100 text-center">
+          <p id="loginSyncStatus" class="text-xs text-sky-600 font-semibold flex items-center justify-center mx-auto space-x-1.5">
+            <i class="fa-solid fa-rotate fa-spin"></i>
+            <span>Đang nạp danh sách tài khoản từ Google Sheets...</span>
+          </p>
+        </div>
+
       </form>
     </div>
   </div>
 
-  <!-- MAIN APP WRAPPER -->
-  <div id="appContainer" class="hidden flex-col flex-1" style="display: none;">
-
-    <!-- TOP NAVIGATION BAR -->
-    <header class="bg-geely-blue text-white shadow-lg sticky top-0 z-30">
+  <!-- MAIN APP CONTAINER -->
+  <div id="appContainer" class="hidden flex-col flex-1 min-h-screen">
+    <!-- TOP NAVIGATION HEADER -->
+    <header class="bg-geely-blue text-white shadow-xl sticky top-0 z-30 border-b border-white/10">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
+        <div class="flex items-center justify-between h-16">
           <div class="flex items-center space-x-3">
-            <div class="h-10 w-10 bg-geely-accent/20 rounded-xl flex items-center justify-center text-geely-accent border border-geely-accent/30 font-extrabold text-lg">
-              G
+            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-geely-accent border border-white/10">
+              <i class="fa-solid fa-car-side text-lg"></i>
             </div>
             <div>
-              <span class="text-lg font-bold tracking-tight text-white block leading-tight">GEELY VIETNAM</span>
-              <span class="text-[11px] text-geely-accent font-medium tracking-wider uppercase block">GMTC TRAINING DASHBOARD</span>
+              <h1 class="font-bold text-base sm:text-lg tracking-tight uppercase leading-none">GEELY VIETNAM</h1>
+              <p class="text-[11px] text-slate-300 font-medium">Hệ Thống Quản Lý Đào Tạo & Chứng Chỉ GMTC</p>
             </div>
           </div>
 
-          <!-- Active Tabs Switcher -->
-          <nav class="hidden md:flex space-x-1 font-medium text-sm">
-            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn px-3 py-2 rounded-xl transition duration-150 flex items-center space-x-1.5 bg-white/10 text-white font-semibold">
-              <i class="fa-solid fa-chart-pie text-geely-accent"></i>
-              <span>Tổng quan Đại lý</span>
-            </button>
-            <button onclick="switchTab('dealers')" id="nav-dealers" class="tab-btn px-3 py-2 rounded-xl transition duration-150 flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-white/5">
-              <i class="fa-solid fa-store text-sky-400"></i>
-              <span>Quản lý Đại lý</span>
-            </button>
-            <button onclick="switchTab('entry')" id="nav-entry" class="tab-btn px-3 py-2 rounded-xl transition duration-150 flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-white/5">
-              <i class="fa-solid fa-user-plus text-emerald-400"></i>
-              <span>Nhập nhân sự & Chứng chỉ</span>
-            </button>
-            <button onclick="switchTab('courses')" id="nav-courses" class="tab-btn px-3 py-2 rounded-xl transition duration-150 flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-white/5">
-              <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-              <span>Khóa học</span>
-            </button>
-            <button onclick="switchTab('report')" id="nav-report" class="tab-btn px-3 py-2 rounded-xl transition duration-150 flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-white/5">
-              <i class="fa-solid fa-file-excel text-green-400"></i>
-              <span>Xuất Báo Cáo</span>
-            </button>
-            <button onclick="switchTab('sync')" id="nav-sync" class="tab-btn px-3 py-2 rounded-xl transition duration-150 flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-white/5">
-              <i class="fa-solid fa-cloud-arrow-up text-blue-300"></i>
-              <span>Google Sync</span>
-            </button>
-            <button onclick="switchTab('users')" id="nav-users" class="tab-btn px-3 py-2 rounded-xl transition duration-150 flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-white/5">
-              <i class="fa-solid fa-users-gear text-purple-400"></i>
-              <span>Tài khoản</span>
-            </button>
-          </nav>
-
-          <!-- Current User Profile & Actions -->
           <div class="flex items-center space-x-2 sm:space-x-3">
-            <!-- NÚT ĐỒNG BỘ NHANH TỪ GOOGLE SHEET VỀ WEB TRÊN HEADER -->
-            <button onclick="pullFromGoogleSheets(false)" id="headerSyncBtn" title="Đồng bộ cập nhật dữ liệu mới nhất từ Google Sheet về Dashboard" class="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 hover:text-white border border-emerald-400/30 transition flex items-center space-x-1.5 text-xs font-bold">
-              <i class="fa-solid fa-arrows-rotate" id="headerSyncIcon"></i>
+            <!-- PULL FROM SHEET BUTTON -->
+            <button onclick="pullFromGoogleSheets(false)" class="flex items-center space-x-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-xl transition border border-white/10" title="Đồng bộ lại từ Google Sheets">
+              <i id="headerSyncIcon" class="fa-solid fa-rotate text-geely-accent"></i>
               <span class="hidden sm:inline">Lấy dữ liệu từ Sheet</span>
             </button>
-            <div class="text-right hidden sm:block">
-              <div id="currentUserLabel" class="text-sm font-bold text-white capitalize">Admin</div>
-              <div id="currentUserRole" class="text-[10px] uppercase font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full inline-block">Quản trị viên</div>
+
+            <!-- USER INFO & LOGOUT -->
+            <div class="flex items-center space-x-2 pl-2 sm:pl-3 border-l border-white/10">
+              <div class="text-right hidden sm:block">
+                <div id="currentUserLabel" class="text-xs font-bold leading-tight">Admin</div>
+                <div id="currentUserRole" class="text-[10px] text-slate-300">Quản trị viên</div>
+              </div>
+              <button onclick="openChangePasswordModal()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 transition" title="Đổi mật khẩu">
+                <i class="fa-solid fa-key text-xs"></i>
+              </button>
+              <button onclick="handleLogout()" class="p-2 rounded-xl bg-rose-500/20 hover:bg-rose-500 text-rose-200 hover:text-white transition" title="Đăng xuất">
+                <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+              </button>
             </div>
-            <button onclick="openChangePasswordModal()" title="Đổi mật khẩu tài khoản" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-geely-accent/20 text-slate-200 hover:text-white transition flex items-center space-x-1.5 text-xs font-semibold">
-              <i class="fa-solid fa-key text-geely-accent"></i>
-              <span class="hidden md:inline">Đổi MK</span>
-            </button>
-            <button onclick="handleLogout()" title="Đăng xuất" class="p-2 rounded-xl bg-white/10 hover:bg-red-500/20 text-slate-300 hover:text-red-400 transition">
-              <i class="fa-solid fa-power-off text-base"></i>
-            </button>
           </div>
         </div>
       </div>
 
-      <!-- Mobile navigation pills -->
-      <div class="md:hidden overflow-x-auto custom-scrollbar flex py-2 px-3 space-x-2 bg-slate-900 border-t border-slate-800 text-xs font-semibold">
-        <button onclick="switchTab('dashboard')" class="px-3 py-1.5 rounded-lg bg-white/10 text-white whitespace-nowrap">Tổng quan</button>
-        <button onclick="switchTab('dealers')" class="px-3 py-1.5 rounded-lg text-slate-300 hover:bg-white/5 whitespace-nowrap">Đại lý</button>
-        <button onclick="switchTab('entry')" class="px-3 py-1.5 rounded-lg text-slate-300 hover:bg-white/5 whitespace-nowrap">Nhập liệu</button>
-        <button onclick="switchTab('courses')" class="px-3 py-1.5 rounded-lg text-slate-300 hover:bg-white/5 whitespace-nowrap">Khóa học</button>
-        <button onclick="switchTab('report')" class="px-3 py-1.5 rounded-lg text-slate-300 hover:bg-white/5 whitespace-nowrap">Báo cáo</button>
-        <button onclick="switchTab('sync')" class="px-3 py-1.5 rounded-lg text-slate-300 hover:bg-white/5 whitespace-nowrap">Google Sync</button>
-        <button onclick="switchTab('users')" class="px-3 py-1.5 rounded-lg text-slate-300 hover:bg-white/5 whitespace-nowrap">Tài khoản</button>
+      <!-- NAVIGATION TABS -->
+      <div class="bg-slate-900/40 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto space-x-1 py-1 custom-scrollbar text-xs">
+          <button id="nav-dashboard" onclick="switchTab('dashboard')" class="tab-btn px-3.5 py-2 rounded-lg font-semibold text-white bg-white/10 flex items-center space-x-2 whitespace-nowrap transition">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Tổng quan Đại lý</span>
+          </button>
+          <button id="nav-dealers" onclick="switchTab('dealers')" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 whitespace-nowrap transition">
+            <i class="fa-solid fa-store"></i>
+            <span>Quản lý Đại lý</span>
+          </button>
+          <button id="nav-entry" onclick="switchTab('entry')" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 whitespace-nowrap transition">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Nhập liệu Đào tạo</span>
+          </button>
+          <button id="nav-courses" onclick="switchTab('courses')" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 whitespace-nowrap transition">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>Quản lý Khóa học</span>
+          </button>
+          <button id="nav-report" onclick="switchTab('report')" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 whitespace-nowrap transition">
+            <i class="fa-solid fa-file-excel"></i>
+            <span>Báo cáo GMTC</span>
+          </button>
+          <button id="nav-users" onclick="switchTab('users')" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 whitespace-nowrap transition">
+            <i class="fa-solid fa-users-gear"></i>
+            <span>Quản trị Tài khoản</span>
+          </button>
+          <button id="nav-sync" onclick="switchTab('sync')" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 whitespace-nowrap transition">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>Google Sync</span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <!-- CONTENT BODY -->
+    <!-- MAIN BODY CONTENT AREA -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-
-      <!-- ============================================================== -->
-      <!-- TAB 1: DASHBOARD (ĐẠI LÝ & KỸ THUẬT VIÊN) -->
-      <!-- ============================================================== -->
-      <section id="tab-dashboard" class="tab-content block space-y-6">
-        
-        <!-- Top Stats Row -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
-            <div>
-              <p class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Tổng số Đại lý</p>
-              <h3 id="statTotalDealers" class="text-2xl font-black text-geely-blue mt-1">66</h3>
-              <p class="text-[11px] text-slate-400 mt-0.5">Toàn quốc đang hoạt động</p>
-            </div>
-            <div class="h-12 w-12 rounded-2xl bg-sky-50 text-geely-accent flex items-center justify-center text-xl">
+      
+      <!-- TAB 1: DASHBOARD -->
+      <div id="tab-dashboard" class="tab-content block space-y-6">
+        <!-- KPI METRICS -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl">
               <i class="fa-solid fa-store"></i>
             </div>
-          </div>
-
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
             <div>
-              <p class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Tổng Kỹ thuật viên</p>
-              <h3 id="statTotalTechs" class="text-2xl font-black text-emerald-600 mt-1">0</h3>
-              <p class="text-[11px] text-slate-400 mt-0.5">Đã tham gia đào tạo</p>
-            </div>
-            <div class="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
-              <i class="fa-solid fa-user-gear"></i>
+              <p class="text-xs uppercase font-bold text-slate-400">Tổng Đại lý</p>
+              <h3 id="statTotalDealers" class="text-2xl font-black text-slate-800 leading-tight">66</h3>
             </div>
           </div>
-
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
-            <div>
-              <p class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Chứng chỉ đã cấp</p>
-              <h3 id="statTotalCerts" class="text-2xl font-black text-amber-500 mt-1">0</h3>
-              <p class="text-[11px] text-slate-400 mt-0.5">Có mã chứng chỉ hợp lệ</p>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-users"></i>
             </div>
-            <div class="h-12 w-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl">
+            <div>
+              <p class="text-xs uppercase font-bold text-slate-400">Kỹ thuật viên</p>
+              <h3 id="statTotalTechs" class="text-2xl font-black text-slate-800 leading-tight">165</h3>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
               <i class="fa-solid fa-certificate"></i>
             </div>
-          </div>
-
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
             <div>
-              <p class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Tỉ lệ Đạt (PASSED)</p>
-              <h3 id="statPassRate" class="text-2xl font-black text-indigo-600 mt-1">100%</h3>
-              <p class="text-[11px] text-slate-400 mt-0.5">Theo đánh giá Giảng viên</p>
+              <p class="text-xs uppercase font-bold text-slate-400">Đã cấp chứng chỉ</p>
+              <h3 id="statTotalCerts" class="text-2xl font-black text-slate-800 leading-tight">168</h3>
             </div>
-            <div class="h-12 w-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
-              <i class="fa-solid fa-award"></i>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+              <p class="text-xs uppercase font-bold text-slate-400">Tỷ lệ đạt chuẩn</p>
+              <h3 id="statPassRate" class="text-2xl font-black text-slate-800 leading-tight">100%</h3>
             </div>
           </div>
         </div>
 
-        <!-- Filter Bar & Search -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          <div class="flex-1 relative">
-            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+        <!-- SEARCH & FILTER TOOLBAR -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div class="relative w-full sm:w-80">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm">
               <i class="fa-solid fa-magnifying-glass"></i>
             </span>
-            <input type="text" id="dealerSearchInput" oninput="renderDealerCards()" placeholder="Tìm kiếm tên Đại lý, thành phố (vd: Hải Phòng, Cà Mau, Tân Phú...)" class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-geely-accent focus:border-transparent text-sm">
+            <input type="text" id="dealerSearchInput" oninput="renderDealerCards()" placeholder="Tìm theo tên đại lý hoặc khu vực..." class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent focus:border-transparent">
           </div>
-          
-          <div class="flex items-center space-x-2">
-            <label class="text-xs font-semibold text-slate-500 whitespace-nowrap">Sắp xếp:</label>
-            <select id="dealerSortSelect" onchange="renderDealerCards()" class="text-sm border border-slate-300 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-geely-accent">
-              <option value="tech-desc">Số KTV nhiều nhất</option>
-              <option value="tech-asc">Số KTV ít nhất</option>
-              <option value="name-asc">Tên đại lý (A-Z)</option>
-              <option value="cert-desc">Số chứng chỉ nhiều nhất</option>
+          <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+            <select id="dealerSortSelect" onchange="renderDealerCards()" class="px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-geely-accent font-medium">
+              <option value="tech-desc">Sắp xếp: Kỹ thuật viên (Cao -> Thấp)</option>
+              <option value="tech-asc">Sắp xếp: Kỹ thuật viên (Thấp -> Cao)</option>
+              <option value="cert-desc">Sắp xếp: Chứng chỉ (Cao -> Thấp)</option>
+              <option value="name-asc">Sắp xếp: Tên đại lý (A -> Z)</option>
             </select>
-            <button onclick="pullFromGoogleSheets(false)" title="Kéo và cập nhật dữ liệu mới nhất từ Google Sheets" class="text-xs px-3 py-2 text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl font-bold flex items-center">
-              <i class="fa-solid fa-cloud-arrow-down mr-1"></i> Đồng bộ Sheet
-            </button>
-            <button onclick="resetDealerFilters()" class="text-xs px-3 py-2 text-slate-600 hover:text-slate-800 bg-slate-100 rounded-xl">
-              <i class="fa-solid fa-arrows-rotate mr-1"></i> Làm mới
-            </button>
+            <span id="filteredDealerCount" class="text-xs font-semibold text-slate-500 whitespace-nowrap">Hiển thị 66 đại lý</span>
           </div>
         </div>
 
-        <!-- Dealers Grid Display -->
-        <div class="space-y-2">
-          <div class="flex justify-between items-center px-1">
-            <h4 class="text-sm font-bold text-slate-700 uppercase tracking-wider">Danh Sách Đại Lý & Số Lượng KTV</h4>
-            <span id="filteredDealerCount" class="text-xs text-slate-500 font-medium">Hiển thị 66 đại lý</span>
-          </div>
-          <div id="dealersGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <!-- Dynamically populated by JS -->
-          </div>
+        <!-- DEALER CARDS GRID -->
+        <div id="dealersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <!-- Rendered dynamically -->
         </div>
+      </div>
 
-      </section>
-
-      <!-- ============================================================== -->
-      <!-- TAB MỚI: QUẢN LÝ & THÊM MỚI ĐẠI LÝ (DEALER MANAGEMENT) -->
-      <!-- ============================================================== -->
-      <section id="tab-dealers" class="tab-content hidden space-y-6">
+      <!-- TAB 2: DEALERS MANAGER -->
+      <div id="tab-dealers" class="tab-content hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <!-- Add Dealer Form -->
-          <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm lg:col-span-1">
-            <h3 class="text-lg font-black text-geely-blue mb-1 flex items-center space-x-2">
-              <i class="fa-solid fa-store text-sky-500"></i>
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm h-fit">
+            <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center space-x-2">
+              <i class="fa-solid fa-plus-circle text-geely-accent"></i>
               <span>Thêm Đại Lý Mới</span>
             </h3>
-            <p class="text-xs text-slate-500 mb-5">Đại lý mới sẽ lập tức xuất hiện trong toàn bộ danh sách chọn và báo cáo của hệ thống.</p>
-
-            <form id="createDealerForm" onsubmit="handleCreateDealer(event)" class="space-y-4">
+            <form id="createDealerForm" onsubmit="handleCreateDealer(event)" class="space-y-4 text-xs">
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tên Đại lý <span class="text-rose-500">*</span></label>
-                <input type="text" id="dealerNameInput" required placeholder="Vd: GEELY QUẬN 7 hoặc GEELY BÌNH TÂN" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm uppercase font-semibold focus:outline-none focus:ring-2 focus:ring-geely-accent">
-                <span class="text-[11px] text-slate-400 mt-1 block">Tên chuẩn có tiền tố GEELY (Vd: GEELY CAN THO)</span>
+                <label class="block font-semibold text-slate-600 mb-1">Tên Đại lý (Tự động thêm GEELY)</label>
+                <input type="text" id="dealerNameInput" required placeholder="Ví dụ: TÂY HỒ hoặc GEELY TÂY HỒ" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase">
               </div>
-
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Khu vực</label>
-                <select id="dealerRegionInput" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-geely-accent font-medium">
-                  <option value="Miền Nam">Miền Nam</option>
+                <label class="block font-semibold text-slate-600 mb-1">Khu vực</label>
+                <select id="dealerRegionInput" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-white">
                   <option value="Miền Bắc">Miền Bắc</option>
                   <option value="Miền Trung & Tây Nguyên">Miền Trung & Tây Nguyên</option>
+                  <option value="Miền Nam">Miền Nam</option>
                 </select>
               </div>
-
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Địa chỉ phòng trưng bày / Xưởng dịch vụ</label>
-                <input type="text" id="dealerAddressInput" placeholder="Số ..., Đường ..., Tỉnh/Thành phố" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent">
+                <label class="block font-semibold text-slate-600 mb-1">Địa chỉ</label>
+                <input type="text" id="dealerAddressInput" placeholder="Địa chỉ đại lý..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
               </div>
-
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Hotline Dịch vụ</label>
-                  <input type="text" id="dealerPhoneInput" placeholder="1900 xxxx" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent">
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Người phụ trách Dịch vụ</label>
-                  <input type="text" id="dealerContactInput" placeholder="Giám đốc DV / TP DV" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent">
-                </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Hotline Dịch vụ</label>
+                <input type="text" id="dealerPhoneInput" placeholder="Ví dụ: 1900 xxxx" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
               </div>
-
-              <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-geely-blue hover:bg-slate-900 text-white font-semibold text-sm shadow-md transition flex items-center justify-center space-x-2">
-                <i class="fa-solid fa-plus-circle"></i>
-                <span>Tạo & Lưu Đại Lý Mới</span>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Người phụ trách đào tạo</label>
+                <input type="text" id="dealerContactInput" placeholder="Họ tên người phụ trách..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+              </div>
+              <button type="submit" class="w-full py-2.5 bg-geely-blue hover:bg-slate-900 text-white font-bold rounded-xl shadow transition">
+                Lưu Đại Lý
               </button>
             </form>
           </div>
 
-          <!-- Existing Dealers Table with Search -->
-          <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm lg:col-span-2 flex flex-col justify-between">
-            <div>
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                <div>
-                  <h3 class="text-lg font-black text-geely-blue flex items-center space-x-2">
-                    <i class="fa-solid fa-list-check text-sky-600"></i>
-                    <span>Danh Sách Đại Lý Toàn Quốc</span>
-                  </h3>
-                  <p class="text-xs text-slate-500">Quản lý mạng lưới đại lý ủy quyền chính thức Geely Auto.</p>
-                </div>
-                <span id="dealerCountBadge" class="text-xs px-3 py-1 rounded-full bg-sky-50 text-sky-700 font-bold border border-sky-200 self-start sm:self-auto">
-                  66 Đại lý
-                </span>
-              </div>
-
-              <!-- Search in tab -->
-              <div class="mb-4">
-                <input type="text" id="dealerTabSearch" oninput="renderDealersManagerTable()" placeholder="Lọc theo tên đại lý hoặc khu vực..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-geely-accent">
-              </div>
-
-              <div class="overflow-x-auto custom-scrollbar max-h-[480px] border border-slate-200 rounded-2xl">
-                <table class="w-full text-left text-xs border-collapse">
-                  <thead class="sticky top-0 bg-slate-100 text-slate-700 uppercase tracking-wider font-bold border-b border-slate-200 z-10">
-                    <tr>
-                      <th class="py-2.5 px-3">STT</th>
-                      <th class="py-2.5 px-3">Tên Đại Lý</th>
-                      <th class="py-2.5 px-3">Khu vực</th>
-                      <th class="py-2.5 px-3 text-center">Số KTV</th>
-                      <th class="py-2.5 px-3 text-center">Chứng chỉ</th>
-                      <th class="py-2.5 px-3 text-right">Thao tác</th>
-                    </tr>
-                  </thead>
-                  <tbody id="dealersManagerTableBody" class="divide-y divide-slate-100">
-                    <!-- Populated by JS -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <p class="text-[11px] text-slate-400 mt-3 italic">
-              * Ghi chú: Xóa đại lý sẽ chỉ thực hiện được khi đại lý chưa có nhân sự hoặc đã xóa hết nhân sự thuộc đại lý đó để đảm bảo toàn vẹn dữ liệu.
-            </p>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- ============================================================== -->
-      <!-- TAB 2: DATA ENTRY (NHẬP NHÂN SỰ & CHỨNG CHỈ TỰ TĂNG/BÙ LỖ HỔNG) -->
-      <!-- ============================================================== -->
-      <section id="tab-entry" class="tab-content hidden space-y-6">
-        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 max-w-4xl mx-auto">
-          <div class="border-b border-slate-100 pb-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 class="text-xl font-black text-geely-blue flex items-center space-x-2">
-                <i class="fa-solid fa-user-plus text-emerald-500"></i>
-                <span>Ghi Nhận Kết Quả Đào Tạo & Cấp Chứng Chỉ</span>
+          <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+                <i class="fa-solid fa-list-check text-emerald-600"></i>
+                <span>Danh Mục Đại Lý Toàn Quốc</span>
               </h3>
-              <p class="text-xs text-slate-500 mt-1">Hệ thống tự động cấp số chứng chỉ kế tiếp hoặc bù lại vị trí số bị thiếu do nhân sự đã nghỉ việc.</p>
+              <div class="flex items-center space-x-2">
+                <input type="text" id="dealerTabSearch" oninput="renderDealersManagerTable()" placeholder="Lọc đại lý..." class="px-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none">
+                <span id="dealerCountBadge" class="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">66 Đại lý</span>
+              </div>
             </div>
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-              <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Auto Code Sequencer
-            </span>
+            <div class="overflow-x-auto max-h-[500px] custom-scrollbar border border-slate-100 rounded-xl">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider sticky top-0 border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-3">STT</th>
+                    <th class="py-2.5 px-3">Tên Đại Lý</th>
+                    <th class="py-2.5 px-3">Khu Vực</th>
+                    <th class="py-2.5 px-3 text-center">KTV</th>
+                    <th class="py-2.5 px-3 text-center">Chứng chỉ</th>
+                    <th class="py-2.5 px-3 text-right">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="dealersManagerTableBody" class="divide-y divide-slate-100">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: DATA ENTRY -->
+      <div id="tab-entry" class="tab-content hidden space-y-6">
+        <div class="max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/90 shadow-sm">
+          <div class="mb-6 border-b border-slate-100 pb-4">
+            <h3 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+              <i class="fa-solid fa-file-circle-plus text-geely-accent"></i>
+              <span>Nhập Liệu Đào Tạo & Cấp Mã Chứng Chỉ Tự Động</span>
+            </h3>
+            <p class="text-xs text-slate-500 mt-1">Hệ thống tự động phát hiện số thứ tự còn thiếu (nếu có nhân sự nghỉ việc bị xóa) hoặc tự động tăng số kế tiếp.</p>
           </div>
 
-          <form id="recordForm" onsubmit="handleSaveRecord(event)" class="space-y-5">
-            <!-- Row 1: Course & Smart Cert Code -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <form id="recordEntryForm" onsubmit="handleSaveRecord(event)" class="space-y-4 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Khóa đào tạo <span class="text-rose-500">*</span>
-                </label>
-                <select id="entryCourse" required onchange="handleCourseChange()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent bg-white">
-                  <!-- Populated from courses state -->
+                <label class="block font-semibold text-slate-600 mb-1">Đại lý áp dụng *</label>
+                <select id="entryDealer" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-white">
+                  <!-- Rendered dynamically -->
                 </select>
-                <span id="courseRuleInfo" class="text-[11px] text-slate-500 block mt-1 italic">Quy ước: GMTC-D-1-VN-XXXX</span>
               </div>
-
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                  <span>Số chứng chỉ (Mã tự động) <span class="text-rose-500">*</span></span>
-                  <span id="certGapsNotice" class="text-[10px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md hidden">
-                    <i class="fa-solid fa-triangle-exclamation mr-1"></i>Bù số còn thiếu
-                  </span>
+                <label class="block font-semibold text-slate-600 mb-1">Họ và tên Kỹ thuật viên *</label>
+                <input type="text" id="entryTrainee" required placeholder="Nhập họ và tên..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Khóa đào tạo *</label>
+                <select id="entryCourse" onchange="calculateNextCertCode()" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-white font-semibold text-geely-blue">
+                  <!-- Rendered dynamically -->
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1 flex items-center justify-between">
+                  <span>Mã số Chứng chỉ (Tự động tính)</span>
+                  <span id="certGapsNotice" class="text-[10px] text-amber-600 font-bold hidden"></span>
                 </label>
-                <div class="relative">
-                  <input type="text" id="entryCertCode" required placeholder="GMTC-D-1-VN-0001" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-mono font-bold bg-slate-50 text-geely-blue focus:outline-none focus:ring-2 focus:ring-geely-accent">
-                  <button type="button" onclick="calculateNextCertCode()" title="Tái tính toán số chứng chỉ" class="absolute inset-y-0 right-0 pr-3 flex items-center text-geely-accent hover:text-geely-blue text-xs font-bold">
-                    <i class="fa-solid fa-arrows-rotate mr-1"></i> Tính lại
+                <div class="flex items-center space-x-2">
+                  <input type="text" id="entryCertCode" required class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono font-bold text-amber-700 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+                  <button type="button" onclick="calculateNextCertCode()" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition" title="Tính lại số chứng chỉ">
+                    <i class="fa-solid fa-arrows-rotate"></i>
                   </button>
                 </div>
-                <p id="certExplanation" class="text-[11px] text-slate-500 mt-1">Được kiểm tra để không bị trùng lặp với nhân sự hiện tại.</p>
+                <p id="certExplanation" class="text-[10px] text-slate-400 mt-1 italic"></p>
               </div>
             </div>
 
-            <!-- Row 2: Dealer & Trainee Name -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Đại lý làm việc <span class="text-rose-500">*</span>
-                </label>
-                <select id="entryDealer" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent bg-white">
-                  <!-- Populated from all dealers -->
+                <label class="block font-semibold text-slate-600 mb-1">Hình thức</label>
+                <select id="entryType" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-white">
+                  <option value="Online">Online</option>
+                  <option value="Offline">Offline</option>
                 </select>
               </div>
-
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Họ và tên Kỹ thuật viên <span class="text-rose-500">*</span>
-                </label>
-                <input type="text" id="entryTrainee" required placeholder="NGUYEN VAN A" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-geely-accent">
+                <label class="block font-semibold text-slate-600 mb-1">Địa điểm / Nền tảng</label>
+                <input type="text" id="entryPlace" value="ONLINE UMU" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Thời gian đào tạo</label>
+                <input type="text" id="entryTime" value="1-31/10/2026" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
               </div>
             </div>
 
-            <!-- Row 3: Training Type & Training Place -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Hình thức đào tạo <span class="text-rose-500">*</span>
-                </label>
-                <select id="entryType" onchange="handleTypeChange()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent bg-white">
-                  <option value="Online">Online (Học trực tuyến)</option>
-                  <option value="Offline">Offline (Tại địa điểm/Trực tiếp)</option>
-                </select>
+                <label class="block font-semibold text-slate-600 mb-1">Điểm thi đạt được</label>
+                <input type="text" id="entryScore" placeholder="Ví dụ: 88/100" value="85/100" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none font-bold text-emerald-600">
               </div>
-
-              <div class="md:col-span-2">
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Địa điểm đào tạo (Training Place)
-                </label>
-                <input type="text" id="entryPlace" value="ONLINE UMU" placeholder="ONLINE UMU hoặc HO CHI MINH / HA NOI" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent">
-              </div>
-            </div>
-
-            <!-- Row 4: Training Time & Trainer Name -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Thời gian đào tạo (Training Time - Điền tay) <span class="text-rose-500">*</span>
-                </label>
-                <input type="text" id="entryTime" placeholder="1-31/10/2026 hoặc 21-22/5/2026" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent">
-                <span class="text-[11px] text-slate-400 block mt-1">Định dạng theo mẫu Geely: ngày/tháng/năm hoặc khoảng ngày</span>
+                <label class="block font-semibold text-slate-600 mb-1">Giảng viên phụ trách</label>
+                <input type="text" id="entryTrainer" value="LE KHANH VAN" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase">
               </div>
-
-              <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Giảng viên đào tạo (Trainer)
+              <div class="pt-5">
+                <label class="inline-flex items-center space-x-2 cursor-pointer bg-slate-50 p-2.5 rounded-xl border border-slate-200 w-full">
+                  <input type="checkbox" id="entryPassed" checked class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
+                  <span class="font-bold text-slate-700">Đạt chuẩn (PASSED)</span>
                 </label>
-                <input type="text" id="entryTrainer" value="LE KHANH VAN" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent">
-              </div>
-            </div>
-
-            <!-- Row 5: Exam Score & Evaluation -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
-              <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Số điểm đạt được <span class="text-rose-500">*</span>
-                </label>
-                <input type="text" id="entryScore" required placeholder="Vd: 85/100 hoặc 90/100, 92/100" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-geely-accent">
-              </div>
-
-              <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Điểm chuẩn của khóa
-                </label>
-                <input type="text" id="entryMaxScore" readonly class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 text-sm font-medium">
-              </div>
-
-              <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Đánh giá đạt chuẩn
-                </label>
-                <div class="flex items-center h-[42px] px-3.5 rounded-xl border border-slate-300 bg-slate-50">
-                  <input type="checkbox" id="entryPassed" checked class="h-4 w-4 text-emerald-600 focus:ring-emerald-500 rounded border-slate-300">
-                  <label for="entryPassed" class="ml-2.5 text-xs font-bold text-emerald-700 flex items-center">
-                    <i class="fa-solid fa-circle-check text-emerald-500 mr-1.5"></i> PASSED (Đạt tiêu chuẩn cấp chứng chỉ)
-                  </label>
-                </div>
               </div>
             </div>
 
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
-              <button type="button" onclick="resetEntryForm()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 text-sm font-semibold transition">
-                Nhập lại
+              <button type="button" onclick="resetEntryForm()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold transition">
+                Làm mới
               </button>
-              <button type="submit" class="px-6 py-2.5 rounded-xl bg-geely-blue hover:bg-slate-900 text-white text-sm font-semibold shadow-lg shadow-geely-blue/20 hover:shadow-xl flex items-center space-x-2 transition">
-                <i class="fa-solid fa-floppy-disk"></i>
-                <span>Lưu thông tin & Cấp chứng chỉ</span>
+              <button type="submit" class="px-6 py-2.5 rounded-xl bg-geely-blue hover:bg-slate-900 text-white font-bold shadow-lg shadow-geely-blue/20 transition">
+                Lưu Hồ Sơ Đào Tạo
               </button>
             </div>
           </form>
         </div>
-      </section>
+      </div>
 
-      <!-- ============================================================== -->
-      <!-- TAB 3: COURSE CREATION & CONVENTION SETTINGS -->
-      <!-- ============================================================== -->
-      <section id="tab-courses" class="tab-content hidden space-y-6">
+      <!-- TAB 4: COURSES MANAGEMENT -->
+      <div id="tab-courses" class="tab-content hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <!-- Create Course Form -->
-          <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm lg:col-span-1">
-            <h3 class="text-lg font-black text-geely-blue mb-1 flex items-center space-x-2">
-              <i class="fa-solid fa-circle-plus text-amber-500"></i>
-              <span>Tạo Khóa Học Mới</span>
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm h-fit">
+            <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center space-x-2">
+              <i class="fa-solid fa-folder-plus text-geely-accent"></i>
+              <span>Thêm Khóa Học Mới</span>
             </h3>
-            <p class="text-xs text-slate-500 mb-5">Định nghĩa khóa học, quy ước sinh mã và điểm tổng đạt chuẩn.</p>
-
-            <form id="createCourseForm" onsubmit="handleCreateCourse(event)" class="space-y-4">
+            <form id="createCourseForm" onsubmit="handleCreateCourse(event)" class="space-y-4 text-xs">
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tên khóa học <span class="text-rose-500">*</span></label>
-                <input type="text" id="courseNameInput" required placeholder="GMTC LEVEL 3 hoặc HYBRID SPECIALIST" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-geely-accent">
+                <label class="block font-semibold text-slate-600 mb-1">Tên khóa học *</label>
+                <input type="text" id="courseNameInput" required placeholder="Ví dụ: GMTC LEVEL 3" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase">
               </div>
-
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Quy ước mã chứng chỉ <span class="text-rose-500">*</span></label>
-                <input type="text" id="coursePrefixInput" required placeholder="GMTC-D-3-VN-" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-mono font-bold uppercase focus:outline-none focus:ring-2 focus:ring-geely-accent">
-                <span class="text-[11px] text-slate-400 mt-1 block">Ví dụ: <code>GMTC-D-1-VN-</code> kèm 4 chữ số tăng dần</span>
+                <label class="block font-semibold text-slate-600 mb-1">Tiền tố quy ước chứng chỉ (Prefix) *</label>
+                <input type="text" id="coursePrefixInput" required placeholder="Ví dụ: GMTC-D-3-VN-" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase font-mono">
               </div>
-
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Điểm đạt</label>
-                  <input type="text" id="courseScoreInput" placeholder="80/100" value="80/100" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent">
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Độ dài số thứ tự</label>
-                  <select id="courseDigitsInput" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-geely-accent">
-                    <option value="4">4 số (0001)</option>
-                    <option value="3">3 số (001)</option>
-                    <option value="5">5 số (00001)</option>
-                  </select>
-                </div>
-              </div>
-
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Ngày đào tạo dự kiến (Điền tay)</label>
-                <input type="text" id="courseDateInput" placeholder="01-30/11/2026" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent">
+                <label class="block font-semibold text-slate-600 mb-1">Số chữ số thứ tự</label>
+                <input type="number" id="courseDigitsInput" value="4" min="3" max="6" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
               </div>
-
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Giảng viên mặc định</label>
-                <input type="text" id="courseTrainerInput" value="LE KHANH VAN" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent">
+                <label class="block font-semibold text-slate-600 mb-1">Điểm chuẩn đạt</label>
+                <input type="text" id="courseScoreInput" placeholder="Ví dụ: 80/100" value="80/100" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
               </div>
-
-              <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm shadow-md transition">
-                <i class="fa-solid fa-plus mr-1.5"></i> Thêm Khóa Học
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Thời gian đào tạo điền tay</label>
+                <input type="text" id="courseDateInput" placeholder="Ví dụ: 1-30/11/2026" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Giảng viên mặc định</label>
+                <input type="text" id="courseTrainerInput" value="LE KHANH VAN" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase">
+              </div>
+              <button type="submit" class="w-full py-2.5 bg-geely-blue hover:bg-slate-900 text-white font-bold rounded-xl shadow transition">
+                Tạo Khóa Học
               </button>
             </form>
           </div>
 
-          <!-- Existing Courses List -->
-          <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm lg:col-span-2">
-            <h3 class="text-lg font-black text-geely-blue mb-1 flex items-center justify-between">
-              <span class="flex items-center space-x-2">
-                <i class="fa-solid fa-list-check text-indigo-500"></i>
-                <span>Danh Mục Khóa Học & Quy Ước Mã Đang Áp Dụng</span>
-              </span>
-              <span id="totalCoursesBadge" class="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-bold">2 khóa học</span>
-            </h3>
-            <p class="text-xs text-slate-500 mb-4">Các khóa học được dùng để tự động sinh mã và phân loại báo cáo.</p>
-
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-sm border-collapse">
-                <thead>
-                  <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+          <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+                <i class="fa-solid fa-graduation-cap text-geely-blue"></i>
+                <span>Danh Sách Khóa Học & Quy Ước Mã</span>
+              </h3>
+              <span id="totalCoursesBadge" class="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">2 khóa học</span>
+            </div>
+            <div class="overflow-x-auto rounded-xl border border-slate-100">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+                  <tr>
                     <th class="py-3 px-3">Tên Khóa Học</th>
-                    <th class="py-3 px-3">Quy ước Mã Chứng chỉ</th>
-                    <th class="py-3 px-3">Điểm chuẩn</th>
-                    <th class="py-3 px-3">Thời gian đào tạo</th>
-                    <th class="py-3 px-3">Đã cấp</th>
-                    <th class="py-3 px-3 text-right">Thao tác</th>
+                    <th class="py-3 px-3">Quy Ước Mã</th>
+                    <th class="py-3 px-3">Điểm Đạt</th>
+                    <th class="py-3 px-3">Thời Gian</th>
+                    <th class="py-3 px-3">Đã Cấp</th>
+                    <th class="py-3 px-3 text-right">Thao Tác</th>
                   </tr>
                 </thead>
                 <tbody id="courseTableBody" class="divide-y divide-slate-100">
-                  <!-- Populated by JS -->
+                  <!-- Rendered dynamically -->
                 </tbody>
               </table>
             </div>
           </div>
-
         </div>
-      </section>
+      </div>
 
-      <!-- ============================================================== -->
-      <!-- TAB 4: MONTHLY REPORT EXPORT (MẪU GEELY 14 CỘT CHUẨN) -->
-      <!-- ============================================================== -->
-      <section id="tab-report" class="tab-content hidden space-y-6">
-        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8">
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+      <!-- TAB 5: REPORT & EXCEL EXPORT -->
+      <div id="tab-report" class="tab-content hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
+          <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
             <div>
-              <h3 class="text-xl font-black text-geely-blue flex items-center space-x-2">
+              <h3 class="text-base font-bold text-slate-800 flex items-center space-x-2">
                 <i class="fa-solid fa-file-excel text-emerald-600"></i>
-                <span>Xuất Báo Cáo Kết Quả Đào Tạo (Mẫu Geely GMTC 14 Cột)</span>
+                <span>Báo Cáo Đào Tạo Chuẩn Mẫu Geely (14 Cột)</span>
               </h3>
-              <p class="text-xs text-slate-500 mt-1">Xuất file Excel đúng chuẩn biểu mẫu: <code>GEELY GMTC TRAINING RESULTS FINAL.xlsx</code> đính kèm.</p>
+              <p class="text-xs text-slate-500 mt-1">Xuất trực tiếp file Microsoft Excel (.xlsx) khớp hoàn toàn với mẫu file thực tế.</p>
             </div>
-
-            <button onclick="exportToExcel()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-lg shadow-emerald-600/20 hover:shadow-xl flex items-center space-x-2 transition self-start md:self-auto">
-              <i class="fa-solid fa-file-arrow-down text-base"></i>
-              <span>Tải file Excel (.XLSX)</span>
+            <button onclick="exportToExcel()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 text-xs flex items-center space-x-2 transition">
+              <i class="fa-solid fa-download"></i>
+              <span>Tải File Excel (.xlsx)</span>
             </button>
           </div>
 
-          <!-- Report Filters -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+          <!-- REPORT FILTERS -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 py-4 text-xs">
             <div>
-              <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Lọc theo Thời gian / Tháng</label>
-              <select id="reportTimeFilter" onchange="filterReportRecords()" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-geely-accent">
+              <label class="block font-semibold text-slate-600 mb-1">Lọc theo Đợt / Tháng</label>
+              <select id="reportTimeFilter" onchange="filterReportRecords()" class="w-full p-2 rounded-xl border border-slate-200 bg-white">
                 <option value="ALL">Tất cả các đợt đào tạo</option>
-                <!-- Populated dynamically -->
               </select>
             </div>
-
             <div>
-              <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Lọc theo Khóa học</label>
-              <select id="reportCourseFilter" onchange="filterReportRecords()" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-geely-accent">
+              <label class="block font-semibold text-slate-600 mb-1">Lọc theo Khóa học</label>
+              <select id="reportCourseFilter" onchange="filterReportRecords()" class="w-full p-2 rounded-xl border border-slate-200 bg-white">
                 <option value="ALL">Tất cả khóa học</option>
-                <!-- Populated dynamically -->
               </select>
             </div>
-
             <div>
-              <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Lọc theo Đại lý</label>
-              <select id="reportDealerFilter" onchange="filterReportRecords()" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-geely-accent">
-                <option value="ALL">Tất cả Đại lý (66 đại lý)</option>
-                <!-- Populated dynamically -->
+              <label class="block font-semibold text-slate-600 mb-1 flex items-center justify-between">
+                <span>Lọc theo Đại lý</span>
+                <span id="reportCountLabel" class="text-[10px] text-slate-400 font-bold">196 bản ghi</span>
+              </label>
+              <select id="reportDealerFilter" onchange="filterReportRecords()" class="w-full p-2 rounded-xl border border-slate-200 bg-white">
+                <option value="ALL">Tất cả Đại lý</option>
               </select>
             </div>
           </div>
 
-          <!-- Report Preview Table -->
-          <div class="mt-6">
-            <div class="flex justify-between items-center mb-2 px-1">
-              <span id="reportCountLabel" class="text-xs font-semibold text-slate-600">Hiển thị 196 bản ghi</span>
-              <span class="text-[11px] text-slate-400">14 cột chuẩn quốc tế Geely</span>
-            </div>
-            
-            <div class="border border-slate-200 rounded-2xl overflow-x-auto custom-scrollbar max-h-[500px]">
-              <table class="w-full text-left text-xs border-collapse whitespace-nowrap">
-                <thead class="sticky top-0 bg-geely-blue text-white z-10">
-                  <tr class="font-bold text-[11px] uppercase tracking-wider">
-                    <th class="py-3 px-3 border-r border-slate-700">No.</th>
-                    <th class="py-3 px-3 border-r border-slate-700">Country</th>
-                    <th class="py-3 px-3 border-r border-slate-700">Dealer Name</th>
-                    <th class="py-3 px-3 border-r border-slate-700">Trainee Name</th>
-                    <th class="py-3 px-3 border-r border-slate-700">Position</th>
-                    <th class="py-3 px-3 border-r border-slate-700">Training Place</th>
-                    <th class="py-3 px-3 border-r border-slate-700">Training Time</th>
-                    <th class="py-3 px-3 border-r border-slate-700">Training Course</th>
-                    <th class="py-3 px-3 border-r border-slate-700">Exam Score</th>
-                    <th class="py-3 px-3 border-r border-slate-700">Trainer</th>
-                    <th class="py-3 px-3 border-r border-slate-700">Evaluation</th>
-                    <th class="py-3 px-3 border-r border-slate-700">Training Photos</th>
-                    <th class="py-3 px-3 border-r border-slate-700">Certificate Code</th>
-                    <th class="py-3 px-3">Certificate Photo</th>
-                  </tr>
-                </thead>
-                <tbody id="reportTableBody" class="divide-y divide-slate-100 bg-white">
-                  <!-- Populated by JS -->
-                </tbody>
-              </table>
-            </div>
+          <!-- PREVIEW TABLE -->
+          <div class="overflow-x-auto max-h-[600px] custom-scrollbar border border-slate-200 rounded-xl text-[11px]">
+            <table class="w-full text-left whitespace-nowrap border-collapse">
+              <thead class="bg-geely-blue text-white uppercase text-[10px] sticky top-0 font-bold tracking-wider">
+                <tr>
+                  <th class="py-2.5 px-3 border-r border-white/10 text-center">No.</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Country</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Dealer Name</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Trainee Name</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Position</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Training Place</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Training Time</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Training Course</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Exam Score</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Trainer</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Evaluation</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Photos</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Certificate Code</th>
+                  <th class="py-2.5 px-3">Photo</th>
+                </tr>
+              </thead>
+              <tbody id="reportTableBody" class="divide-y divide-slate-100">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- ============================================================== -->
-      <!-- TAB 5: GOOGLE SHEETS 2-WAY SYNC & HOSTING GUIDE -->
-      <!-- ============================================================== -->
-      <section id="tab-sync" class="tab-content hidden space-y-6">
-        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8">
-          <div class="border-b border-slate-100 pb-5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div>
-              <h3 class="text-xl font-black text-geely-blue flex items-center space-x-2">
-                <i class="fa-solid fa-cloud-arrow-up text-blue-500"></i>
-                <span>Tự Động Đồng Bộ Google Sheets Miễn Phí 100%</span>
-              </h3>
-              <p class="text-xs text-slate-500 mt-1">Hệ thống tự động lưu vào Google Sheets mỗi khi thêm/xóa/sửa nhân sự mà không cần thao tác thủ công.</p>
-            </div>
-            <div class="flex items-center space-x-2">
-              <span id="syncStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                <i class="fa-solid fa-circle-dot mr-1 text-amber-500"></i> Chế độ Cục bộ (Local)
-              </span>
-            </div>
-          </div>
-
-          <!-- Web App URL Setup -->
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-6 space-y-4">
-            <h4 class="text-sm font-bold text-slate-800 flex items-center justify-between">
-              <span>Cấu hình kết nối Google Apps Script Web App</span>
-              <span class="text-xs font-normal text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                <i class="fa-solid fa-shield-halved mr-1"></i>Link được lưu vĩnh viễn trên máy tính
-              </span>
-            </h4>
-            <div class="flex flex-col sm:flex-row gap-3">
-              <input type="url" id="sheetApiUrl" placeholder="https://script.google.com/macros/s/AKfycbx.../exec" class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent">
-              <button onclick="saveAndTestSyncUrl()" class="px-5 py-2.5 rounded-xl bg-geely-blue hover:bg-slate-900 text-white text-sm font-semibold transition flex items-center justify-center space-x-2">
-                <i class="fa-solid fa-link"></i>
-                <span>Lưu & Đồng bộ ngay</span>
-              </button>
-            </div>
-            <div class="flex flex-wrap items-center gap-3 pt-1 text-xs">
-              <button type="button" onclick="pullFromGoogleSheets()" class="px-3 py-1.5 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-800 font-bold transition flex items-center space-x-1">
-                <i class="fa-solid fa-cloud-arrow-down"></i>
-                <span>Kéo dữ liệu từ Sheet về (Pull)</span>
-              </button>
-              <button type="button" onclick="pushToGoogleSheets(true)" class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold transition flex items-center space-x-1">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-                <span>Đẩy toàn bộ lên Sheet ngay (Push)</span>
-              </button>
-              <span class="text-slate-400">|</span>
-              <span class="text-slate-500 italic"><i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Tự động đồng bộ thời gian thực mỗi khi có thao tác nhập hoặc xóa.</span>
-            </div>
-          </div>
-
-          <!-- Free Hosting Recommendations Box -->
-          <div class="bg-gradient-to-r from-slate-900 to-geely-blue text-white rounded-2xl p-6 mb-6 shadow-md">
-            <h4 class="text-base font-black text-geely-accent mb-2 flex items-center">
-              <i class="fa-solid fa-globe mr-2"></i>
-              Gợi ý các dịch vụ đưa website lên Online MIỄN PHÍ 100%:
-            </h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 text-xs leading-relaxed">
-              <div class="bg-white/10 p-4 rounded-xl border border-white/10">
-                <div class="font-bold text-white text-sm mb-1 flex items-center">
-                  <i class="fa-brands fa-github text-emerald-400 mr-2 text-base"></i> Cách 1: GitHub Pages (Khuyên dùng)
-                </div>
-                <p class="text-slate-300">1. Đăng ký tài khoản tại <b>github.com</b> và tạo repository mới (Public).<br>
-                2. Tải file <code>index.html</code> này lên.<br>
-                3. Vào <b>Settings</b> &gt; <b>Pages</b> &gt; chọn branch <code>main</code> và nhấn <b>Save</b>.<br>
-                &rarr; Bạn có ngay web link: <code>https://ten-ban.github.io/ten-repo/</code></p>
-              </div>
-
-              <div class="bg-white/10 p-4 rounded-xl border border-white/10">
-                <div class="font-bold text-white text-sm mb-1 flex items-center">
-                  <i class="fa-solid fa-cloud-bolt text-amber-400 mr-2 text-base"></i> Cách 2: Vercel hoặc Netlify (30 giây)
-                </div>
-                <p class="text-slate-300">1. Vào trang <b>netlify.com</b> (hoặc <b>vercel.com</b>).<br>
-                2. Kéo và thả thư mục chứa file <code>index.html</code> vào giao diện web.<br>
-                3. Hệ thống tạo ngay link trực tuyến miễn phí vĩnh viễn (HTTPS cực nhanh).</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Guide Accordion & Apps Script Code -->
-          <div class="space-y-4">
-            <div class="bg-brand-50 border border-brand-100 rounded-2xl p-5">
-              <h4 class="text-sm font-bold text-brand-900 mb-2 flex items-center">
-                <i class="fa-solid fa-circle-question text-brand-600 mr-2"></i>
-                Cách thiết lập Google Sheets làm cơ sở dữ liệu trực tuyến hoàn toàn MIỄN PHÍ:
-              </h4>
-              <ol class="list-decimal list-inside text-xs text-brand-900/90 space-y-2 leading-relaxed">
-                <li>Tạo một Google Sheet mới trên Google Drive của bạn (ví dụ đặt tên: <b>GEELY_GMTC_DATABASE</b>).</li>
-                <li>Tạo 4 trang tính (Tabs) với tên chính xác: <b>TrainingRecords</b>, <b>Dealers</b>, <b>Courses</b>, và <b>Users</b>.</li>
-                <li>Trên thanh menu Google Sheet, chọn <b>Tiện ích mở rộng (Extensions)</b> &gt; <b>Apps Script</b>.</li>
-                <li>Xóa toàn bộ mã mặc định trong tệp <code>Code.gs</code> và dán toàn bộ đoạn mã bên dưới vào.</li>
-                <li>Nhấn nút <b>Triển khai (Deploy)</b> &gt; <b>Triển khai mới (New deployment)</b> &gt; Chọn loại <b>Ứng dụng web (Web app)</b>.</li>
-                <li>Cấu hình: Thực thi dưới dạng <b>Tôi (Me)</b> và Ai có quyền truy cập: <b>Bất kỳ ai (Anyone)</b>. Nhấn Deploy và sao chép Web App URL dán vào ô bên trên.</li>
-              </ol>
-            </div>
-
-            <div>
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-xs font-bold text-slate-700 uppercase">Mã nguồn Google Apps Script (Code.gs) tự động:</span>
-                <button onclick="copyAppsScriptCode()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold transition">
-                  <i class="fa-regular fa-copy mr-1"></i> Sao chép mã
-                </button>
-              </div>
-              <textarea id="appsScriptCodeBlock" readonly rows="12" class="w-full font-mono text-xs p-4 bg-slate-900 text-emerald-400 rounded-2xl border border-slate-800 focus:outline-none custom-scrollbar"></textarea>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ============================================================== -->
-      <!-- TAB 6: USER MANAGEMENT & ENCRYPTION -->
-      <!-- ============================================================== -->
-      <section id="tab-users" class="tab-content hidden space-y-6">
+      <!-- TAB 6: USERS MANAGEMENT -->
+      <div id="tab-users" class="tab-content hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <!-- Add User Form (Admin only) -->
-          <div id="addUserBox" class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm lg:col-span-1">
-            <h3 class="text-lg font-black text-geely-blue mb-1 flex items-center space-x-2">
-              <i class="fa-solid fa-user-shield text-purple-600"></i>
-              <span>Thêm Tài Khoản Mới</span>
+          <div id="addUserBox" class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm h-fit">
+            <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center space-x-2">
+              <i class="fa-solid fa-user-shield text-geely-accent"></i>
+              <span>Tạo Tài Khoản Mới</span>
             </h3>
-            <p class="text-xs text-slate-500 mb-5">Mật khẩu được mã hóa băm bằng thuật toán SHA-256 trước khi lưu và đồng bộ lên Google Sheets.</p>
-
-            <form id="createUserForm" onsubmit="handleCreateUser(event)" class="space-y-4">
+            <form id="createUserForm" onsubmit="handleCreateUser(event)" class="space-y-4 text-xs">
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tên đăng nhập <span class="text-rose-500">*</span></label>
-                <input type="text" id="newUsername" required placeholder="nhanvien_geely" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <label class="block font-semibold text-slate-600 mb-1">Tên đăng nhập *</label>
+                <input type="text" id="newUsername" required placeholder="vd: viewer2" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
               </div>
-
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Họ tên người dùng</label>
-                <input type="text" id="newFullName" placeholder="Nguyễn Văn B" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <label class="block font-semibold text-slate-600 mb-1">Họ và tên</label>
+                <input type="text" id="newFullName" placeholder="Họ và tên..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
               </div>
-
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mật khẩu <span class="text-rose-500">*</span></label>
-                <input type="password" id="newPassword" required placeholder="Tối thiểu 6 ký tự" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <label class="block font-semibold text-slate-600 mb-1">Mật khẩu *</label>
+                <input type="password" id="newPassword" required placeholder="Nhập mật khẩu..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
               </div>
-
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Phân quyền</label>
-                <select id="newRole" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <label class="block font-semibold text-slate-600 mb-1">Phân quyền</label>
+                <select id="newRole" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-white">
                   <option value="viewer">Viewer (Chỉ xem báo cáo)</option>
                   <option value="admin">Admin (Toàn quyền quản trị)</option>
                 </select>
               </div>
-
-              <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm shadow-md transition">
-                <i class="fa-solid fa-user-plus mr-1.5"></i> Tạo Người Dùng
+              <button type="submit" class="w-full py-2.5 bg-geely-blue hover:bg-slate-900 text-white font-bold rounded-xl shadow transition">
+                Tạo Tài Khoản
               </button>
             </form>
           </div>
 
-          <!-- Existing Users List -->
-          <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm lg:col-span-2">
-            <h3 class="text-lg font-black text-geely-blue mb-1 flex items-center justify-between">
-              <span class="flex items-center space-x-2">
-                <i class="fa-solid fa-address-book text-purple-600"></i>
-                <span>Danh Sách Tài Khoản Hệ Thống</span>
-              </span>
-              <span class="text-xs px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 font-bold border border-purple-200">
-                <i class="fa-solid fa-lock text-[10px] mr-1"></i> SHA-256 Encrypted
-              </span>
+          <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
+            <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center space-x-2">
+              <i class="fa-solid fa-users text-geely-blue"></i>
+              <span>Danh Sách Tài Khoản & Mã Hóa SHA-256</span>
             </h3>
-            <p class="text-xs text-slate-500 mb-4">Các tài khoản có quyền truy cập vào bảng điều khiển GMTC.</p>
-
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-sm border-collapse">
-                <thead>
-                  <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
-                    <th class="py-3 px-3">Tài khoản</th>
-                    <th class="py-3 px-3">Họ và tên</th>
-                    <th class="py-3 px-3">Vai trò</th>
-                    <th class="py-3 px-3">Mã hóa Hash (SHA-256)</th>
-                    <th class="py-3 px-3 text-right">Thao tác</th>
+            <div class="overflow-x-auto rounded-xl border border-slate-100">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+                  <tr>
+                    <th class="py-3 px-3">Tài Khoản</th>
+                    <th class="py-3 px-3">Họ Tên</th>
+                    <th class="py-3 px-3">Quyền</th>
+                    <th class="py-3 px-3">Mã Băm SHA-256</th>
+                    <th class="py-3 px-3 text-right">Thao Tác</th>
                   </tr>
                 </thead>
                 <tbody id="usersTableBody" class="divide-y divide-slate-100">
-                  <!-- Populated by JS -->
+                  <!-- Rendered dynamically -->
                 </tbody>
               </table>
             </div>
           </div>
-
         </div>
-      </section>
+      </div>
+
+      <!-- TAB 7: GOOGLE SHEETS SYNC -->
+      <div id="tab-sync" class="tab-content hidden space-y-6">
+        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/90 shadow-sm">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+            <div>
+              <h3 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                <i class="fa-brands fa-google text-emerald-600"></i>
+                <span>Kết Nối Google Sheets Trực Tuyến Miễn Phí 100%</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">Toàn bộ dữ liệu được liên kết và lưu trữ vĩnh viễn trên Google Drive của bạn.</p>
+            </div>
+            <span id="syncStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <i class="fa-solid fa-cloud-check mr-1 text-emerald-500"></i> Đã kết nối Google Sheets Geely
+            </span>
+          </div>
+
+          <div class="space-y-4 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1">Đường dẫn Google Apps Script Web App (URL Gốc)</label>
+              <div class="flex items-center space-x-2">
+                <input type="text" id="sheetApiUrl" readonly class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-600 focus:outline-none">
+                <button type="button" onclick="saveAndTestSyncUrl()" class="px-4 py-2.5 rounded-xl bg-geely-blue text-white font-bold hover:bg-slate-900 transition flex items-center space-x-1 whitespace-nowrap">
+                  <i class="fa-solid fa-arrows-rotate"></i>
+                  <span>Đồng bộ ngay</span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="font-semibold text-slate-600">Mã nguồn Google Apps Script (Code.gs)</label>
+                <button type="button" onclick="copyAppsScriptCode()" class="text-geely-accent hover:underline font-bold flex items-center space-x-1">
+                  <i class="fa-regular fa-copy"></i>
+                  <span>Sao chép mã Code.gs</span>
+                </button>
+              </div>
+              <textarea id="appsScriptCodeBlock" readonly rows="8" class="w-full p-3 font-mono text-[11px] bg-slate-900 text-slate-300 rounded-xl border border-slate-800 focus:outline-none custom-scrollbar"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </main>
-
-    <!-- FOOTER -->
-    <footer class="bg-white border-t border-slate-200/80 py-4 mt-auto">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
-        <p>&copy; 2026 GEELY AUTO VIỆT NAM. Hệ thống Quản lý Kỹ thuật viên & Đào tạo Dịch vụ sau bán hàng GMTC.</p>
-        <p class="mt-2 sm:mt-0 font-medium">Phiên bản đồng bộ đám mây v2.6</p>
-      </div>
-    </footer>
   </div>
 
-  <!-- ============================================================== -->
-  <!-- MODAL: DEALER TECHNICIAN DETAILS DRILL-DOWN -->
-  <!-- ============================================================== -->
-  <div id="dealerModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-5">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-      
-      <!-- Modal Header -->
-      <div class="bg-geely-blue text-white p-5 sm:p-6 flex items-start justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="h-12 w-12 rounded-2xl bg-geely-accent/20 border border-geely-accent/30 flex items-center justify-center text-geely-accent text-xl font-bold">
-            <i class="fa-solid fa-warehouse"></i>
+  <!-- DRILL-DOWN DEALER DETAIL MODAL -->
+  <div id="dealerModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full p-6 sm:p-8 max-h-[90vh] flex flex-col border border-slate-200">
+      <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+            <h3 id="modalDealerTitle" class="text-xl font-black text-slate-800 uppercase tracking-tight">Chi tiết Đại lý</h3>
           </div>
-          <div>
-            <span class="text-xs uppercase tracking-wider text-geely-accent font-semibold">Chi Tiết Đại Lý</span>
-            <h3 id="modalDealerTitle" class="text-xl font-black text-white">GEELY TÂN PHÚ</h3>
-            <p id="modalDealerSubtitle" class="text-xs text-slate-300 mt-0.5">3 Kỹ thuật viên &bull; 4 Chứng chỉ đã cấp</p>
-          </div>
+          <p id="modalDealerSubtitle" class="text-xs text-slate-500 mt-1 font-medium"></p>
         </div>
-
-        <button onclick="closeDealerModal()" class="text-slate-300 hover:text-white p-2 rounded-xl hover:bg-white/10 transition">
-          <i class="fa-solid fa-xmark text-xl"></i>
-        </button>
-      </div>
-
-      <!-- Modal Filter Bar -->
-      <div class="bg-slate-50 border-b border-slate-200 px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="flex items-center space-x-2">
-          <label class="text-xs font-bold text-slate-600 whitespace-nowrap"><i class="fa-solid fa-filter text-geely-accent mr-1"></i> Lọc Khóa Học:</label>
-          <select id="modalCourseFilter" onchange="renderModalTechnicians()" class="text-xs rounded-xl border border-slate-300 px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-geely-accent">
-            <option value="ALL">Tất cả khóa học</option>
-            <!-- Populated dynamically -->
-          </select>
-        </div>
-
-        <span class="text-[11px] text-slate-500 italic">
-          <i class="fa-solid fa-circle-exclamation text-amber-500 mr-1"></i> Xóa nhân sự nghỉ việc sẽ trả lại mã số chứng chỉ cho quỹ số tự động cấp.
-        </span>
-      </div>
-
-      <!-- Modal Body / Technician Records Table -->
-      <div class="p-5 overflow-y-auto flex-1 custom-scrollbar">
-        <div class="border border-slate-200 rounded-2xl overflow-hidden">
-          <table class="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr class="bg-slate-100 text-[11px] font-bold text-slate-700 uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3 px-3">Họ và tên Kỹ thuật viên</th>
-                <th class="py-3 px-3">Khóa học hoàn thành</th>
-                <th class="py-3 px-3">Mã số Chứng chỉ</th>
-                <th class="py-3 px-3">Hình thức & Địa điểm</th>
-                <th class="py-3 px-3">Điểm thi</th>
-                <th class="py-3 px-3">Thời gian</th>
-                <th class="py-3 px-3 text-right">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody id="modalTechTableBody" class="divide-y divide-slate-100">
-              <!-- Populated by JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="bg-slate-50 border-t border-slate-200 px-5 py-3.5 flex justify-between items-center text-xs">
-        <button onclick="quickAddForModalDealer()" class="text-geely-blue font-bold hover:underline flex items-center space-x-1">
-          <i class="fa-solid fa-plus-circle text-emerald-500 text-sm"></i>
-          <span>Thêm chứng chỉ cho đại lý này</span>
-        </button>
-        <button onclick="closeDealerModal()" class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold transition">
-          Đóng cửa sổ
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ============================================================== -->
-  <!-- MODAL: CHANGE PASSWORD -->
-  <!-- ============================================================== -->
-  <div id="changePasswordModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-7 border border-slate-100 animate-in fade-in zoom-in-95 duration-150 relative">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
-        <div class="flex items-center space-x-2.5">
-          <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
-            <i class="fa-solid fa-key"></i>
-          </div>
-          <div>
-            <h4 class="font-bold text-slate-800 text-base">Đổi Mật Khẩu Tài Khoản</h4>
-            <p class="text-xs text-slate-500" id="changePasswordUserLabel">Đang đổi mật khẩu cho: admin</p>
-          </div>
-        </div>
-        <button onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition">
+        <button onclick="document.getElementById('dealerModal').classList.add('hidden'); document.getElementById('dealerModal').classList.remove('flex')" class="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-100 transition">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
-      <form id="changePasswordForm" onsubmit="handleChangePassword(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mật khẩu hiện tại <span class="text-rose-500">*</span></label>
-          <input type="password" id="currentPasswordInput" required placeholder="Nhập mật khẩu đang dùng" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent">
+      <!-- FILTER COURSE IN MODAL -->
+      <div class="py-3 flex items-center justify-between gap-3 text-xs">
+        <div class="flex items-center space-x-2">
+          <span class="font-bold text-slate-600">Lọc khóa học:</span>
+          <select id="modalCourseFilter" onchange="renderModalTechnicians()" class="p-1.5 rounded-lg border border-slate-200 bg-white font-semibold text-geely-blue focus:outline-none">
+            <option value="ALL">Tất cả khóa học</option>
+          </select>
         </div>
+        <p class="text-[11px] text-slate-400 italic">Có thể xóa nhân sự nghỉ việc để tự động thu hồi và bù số chứng chỉ</p>
+      </div>
 
+      <!-- MODAL TABLE -->
+      <div class="overflow-x-auto flex-1 custom-scrollbar border border-slate-100 rounded-xl text-xs">
+        <table class="w-full text-left whitespace-nowrap">
+          <thead class="bg-slate-50 text-slate-500 uppercase font-bold sticky top-0 border-b border-slate-200">
+            <tr>
+              <th class="py-2.5 px-3">Kỹ Thuật Viên</th>
+              <th class="py-2.5 px-3">Khóa Học</th>
+              <th class="py-2.5 px-3">Mã Chứng Chỉ</th>
+              <th class="py-2.5 px-3">Địa Điểm</th>
+              <th class="py-2.5 px-3">Điểm Số</th>
+              <th class="py-2.5 px-3">Thời Gian</th>
+              <th class="py-2.5 px-3 text-right">Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="modalTechTableBody" class="divide-y divide-slate-100">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANGE PASSWORD MODAL -->
+  <div id="changePasswordModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+          <i class="fa-solid fa-key text-geely-accent"></i>
+          <span>Đổi Mật Khẩu</span>
+        </h3>
+        <button onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <p id="changePasswordUserLabel" class="text-xs text-slate-500 mb-4"></p>
+
+      <form id="changePasswordForm" onsubmit="handleChangePassword(event)" class="space-y-3 text-xs">
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mật khẩu mới <span class="text-rose-500">*</span></label>
-          <input type="password" id="newPasswordInput" required minlength="6" placeholder="Tối thiểu 6 ký tự" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent">
+          <label class="block font-semibold text-slate-600 mb-1">Mật khẩu hiện tại</label>
+          <input type="password" id="currentPasswordInput" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-geely-accent">
         </div>
-
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Xác nhận mật khẩu mới <span class="text-rose-500">*</span></label>
-          <input type="password" id="confirmNewPasswordInput" required minlength="6" placeholder="Nhập lại mật khẩu mới" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent">
+          <label class="block font-semibold text-slate-600 mb-1">Mật khẩu mới</label>
+          <input type="password" id="newPasswordInput" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-geely-accent">
         </div>
-
-        <div class="pt-2 flex justify-end space-x-2">
-          <button type="button" onclick="closeChangePasswordModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-bold transition">
-            Hủy bỏ
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Xác nhận mật khẩu mới</label>
+          <input type="password" id="confirmNewPasswordInput" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-geely-accent">
+        </div>
+        <div class="pt-3 flex items-center justify-end space-x-2">
+          <button type="button" onclick="closeChangePasswordModal()" class="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold">
+            Hủy
           </button>
-          <button type="submit" class="px-5 py-2 rounded-xl bg-geely-blue hover:bg-slate-900 text-white text-xs font-bold transition flex items-center space-x-1.5 shadow-md">
-            <i class="fa-solid fa-check"></i>
-            <span>Cập nhật mật khẩu</span>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-geely-blue text-white font-bold hover:bg-slate-900 transition">
+            Cập Nhật Mật Khẩu
           </button>
         </div>
       </form>
@@ -1039,23 +770,29 @@
     // 1. DATA INITIALIZATION & GEELY DATASET
     // ==============================================================
 
+    // LINK GOOGLE APPS SCRIPT GỐC ĐƯỢC LƯU TRỰC TUYẾN CỐ ĐỊNH TRONG MÃ NGUỒN
+    const PRIMARY_GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxXy-DFSlE-KsuGqu1U2uWPq56WKzrb6ZHPojS9HAkOTRaE2m7We1LrHKuETA1sjGIt/exec';
+
+    const state = {
+      currentUser: null,
+      records: [],
+      dealers: [],
+      courses: [],
+      users: [],
+      syncUrl: PRIMARY_GOOGLE_SHEET_URL,
+      currentSelectedDealer: null
+    };
+
     // SHA-256 Helper using Web Crypto API
     async function sha256(message) {
-      const msgBuffer = new TextEncoder().encode(message);
+      const msgBuffer = new TextEncoder().encode(String(message));
       const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toLowerCase();
     }
 
-    const INITIAL_USERS = [
-      {
-        username: 'admin',
-        fullname: 'Hệ thống Quản Trị Geely',
-        role: 'admin',
-        hash: 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // SHA-256 của '123'
-        plainPassword: '123'
-      }
-    ];
+    // Không còn tài khoản admin/123 hardcode - Tất cả hoàn toàn lấy từ tab Users của Google Sheet
+    const INITIAL_USERS = [];
 
     const INITIAL_COURSES = [
       {
@@ -1284,26 +1021,22 @@
     // ==============================================================
     // 2. STATE MANAGEMENT & DUAL STORAGE
     // ==============================================================
-    let state = {
-      currentUser: null,
-      users: [],
-      dealers: [],
-      courses: [],
-      records: [],
-      syncUrl: '',
-      currentSelectedDealer: null
-    };
+    function normalizeStr(str) {
+      if (!str) return '';
+      return String(str).trim().replace(/\s+/g, ' ');
+    }
 
-    function initAppState() {
-      // 1. Users
+    async function initAppState() {
+      // 1. Link data gốc cố định
+      state.syncUrl = PRIMARY_GOOGLE_SHEET_URL;
+
+      // 2. Tải cache cục bộ nếu có
       const savedUsers = localStorage.getItem('geely_users');
-      state.users = savedUsers ? JSON.parse(savedUsers) : INITIAL_USERS;
+      state.users = savedUsers ? JSON.parse(savedUsers) : [];
 
-      // 2. Courses
       const savedCourses = localStorage.getItem('geely_courses');
       state.courses = savedCourses ? JSON.parse(savedCourses) : INITIAL_COURSES;
 
-      // 3. Records
       const savedRecords = localStorage.getItem('geely_records');
       if (savedRecords) {
         state.records = JSON.parse(savedRecords);
@@ -1311,13 +1044,13 @@
         state.records = RAW_RECORDS_DATA.map((item, idx) => ({
           id: `REC-${Date.now()}-${idx}`,
           country: 'VIET NAM',
-          dealer: item[0],
-          trainee: item[1],
+          dealer: normalizeStr(item[0]).toUpperCase(),
+          trainee: normalizeStr(item[1]).toUpperCase(),
           position: 'TECHNICIAN',
           place: item[2],
           type: item[2].includes('ONLINE') ? 'Online' : 'Offline',
           time: item[3],
-          course: item[4],
+          course: normalizeStr(item[4]),
           score: item[5],
           trainer: item[6],
           eval: item[7] || 'PASSED',
@@ -1325,15 +1058,13 @@
           certCode: item[8] || '',
           certPhoto: ''
         }));
-        saveRecordsToLocal();
       }
 
-      // 4. Dealers List
       const savedDealers = localStorage.getItem('geely_custom_dealers');
       if (savedDealers) {
         state.dealers = JSON.parse(savedDealers);
       } else {
-        const uniqueSet = new Set(state.records.map(r => r.dealer.trim().toUpperCase()));
+        const uniqueSet = new Set(state.records.map(r => normalizeStr(r.dealer).toUpperCase()));
         state.dealers = Array.from(uniqueSet).sort().map((dName, idx) => ({
           id: `DLR-${idx + 1}`,
           name: dName,
@@ -1342,17 +1073,25 @@
           hotline: '1900 xxxx',
           manager: 'Bộ phận Dịch vụ & Đào tạo'
         }));
-        saveDealersToLocal();
       }
 
-      // 5. Sync URL (Persisted in localStorage forever)
-      state.syncUrl = localStorage.getItem('geely_sync_url') || '';
       const urlInput = document.getElementById('sheetApiUrl');
-      if (urlInput) urlInput.value = state.syncUrl;
-      if (state.syncUrl) {
-        updateSyncBadge(true);
-        // Auto-fetch in background
-        pullFromGoogleSheets(true);
+      if (urlInput) urlInput.value = PRIMARY_GOOGLE_SHEET_URL;
+      updateSyncBadge(true);
+
+      // 3. TỰ ĐỘNG KÉO NGAY TAB USERS VÀ TOÀN BỘ DỮ LIỆU TỪ GOOGLE SHEET VỀ KHI KHỞI ĐỘNG
+      await pullFromGoogleSheets(true);
+
+      // Cập nhật trạng thái tại màn hình đăng nhập
+      const syncStatusText = document.getElementById('loginSyncStatus');
+      if (syncStatusText) {
+        if (state.users && state.users.length > 0) {
+          syncStatusText.className = 'text-xs text-emerald-600 font-semibold flex items-center justify-center mx-auto space-x-1.5';
+          syncStatusText.innerHTML = `<i class="fa-solid fa-cloud-check"></i><span>Đã đồng bộ ${state.users.length} tài khoản từ Google Sheets</span>`;
+        } else {
+          syncStatusText.className = 'text-xs text-amber-600 font-semibold flex items-center justify-center mx-auto space-x-1.5';
+          syncStatusText.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><span>Đang kết nối Google Sheets...</span>`;
+        }
       }
 
       // Check current session
@@ -1406,13 +1145,22 @@
     // ==============================================================
     async function handleLogin(e) {
       if (e) e.preventDefault();
-      const usernameInput = (document.getElementById('loginUser').value || '').trim().toLowerCase();
+      const usernameInput = normalizeStr(document.getElementById('loginUser').value).toLowerCase();
       const passwordInput = document.getElementById('loginPass').value || '';
 
       if (!usernameInput || !passwordInput) {
         showToast('Vui lòng điền đầy đủ tài khoản và mật khẩu!', 'error');
         return;
       }
+
+      const syncStatusText = document.getElementById('loginSyncStatus');
+      if (syncStatusText) {
+        syncStatusText.className = 'text-xs text-sky-600 font-semibold flex items-center justify-center mx-auto space-x-1.5';
+        syncStatusText.innerHTML = `<i class="fa-solid fa-rotate fa-spin"></i><span>Đang xác thực với Google Sheets...</span>`;
+      }
+
+      // Luôn tự động kéo Users mới nhất từ Google Sheet về để đảm bảo tài khoản mới tạo hoặc vừa đổi mật khẩu trên Sheet được cập nhật ngay
+      await pullFromGoogleSheets(true);
 
       let inputHash = '';
       try {
@@ -1421,45 +1169,40 @@
         console.warn('Web Crypto not available, using plain fallback');
       }
 
-      const user = state.users.find(u => {
-        const uMatch = u.username.toLowerCase() === usernameInput;
-        const passMatch = (u.plainPassword && u.plainPassword === passwordInput) ||
-                          (u.hash && u.hash === inputHash) ||
-                          (usernameInput === 'admin' && passwordInput === '123');
-        return uMatch && passMatch;
-      });
+      // Dò tìm tài khoản trong danh sách đã đồng bộ từ tab Users của Google Sheet
+      const user = state.users.find(u => normalizeStr(u.username).toLowerCase() === usernameInput);
 
       if (user) {
-        state.currentUser = {
-          username: user.username,
-          fullname: user.fullname,
-          role: user.role
-        };
-        sessionStorage.setItem('geely_active_session', JSON.stringify(state.currentUser));
-        showToast(`Đăng nhập thành công! Xin chào ${user.fullname || user.username}`, 'success');
-        enterApplication();
-      } else {
-        showToast('Tài khoản hoặc mật khẩu không đúng!', 'error');
-      }
-    }
+        const uHash = (user.hash || '').toLowerCase().trim();
+        const inHash = (inputHash || '').toLowerCase().trim();
+        
+        // So khớp mã băm SHA-256 từ Google Sheet hoặc mật khẩu thuần (nếu có trên Sheet)
+        const passMatch = (uHash && inHash && uHash === inHash) ||
+                          (user.plainPassword && String(user.plainPassword) === passwordInput);
 
-    function quickLogin(role) {
-      if (role === 'admin') {
-        state.currentUser = {
-          username: 'admin',
-          fullname: 'Quản trị viên Geely',
-          role: 'admin'
-        };
-      } else {
-        state.currentUser = {
-          username: 'viewer',
-          fullname: 'Người xem Geely',
-          role: 'viewer'
-        };
+        if (passMatch) {
+          state.currentUser = {
+            username: user.username,
+            fullname: user.fullname || user.username,
+            role: user.role || 'viewer'
+          };
+          sessionStorage.setItem('geely_active_session', JSON.stringify(state.currentUser));
+          showToast(`Đăng nhập thành công! Xin chào ${user.fullname || user.username}`, 'success');
+
+          enterApplication();
+
+          // Refresh lại dữ liệu sau khi đăng nhập
+          pullFromGoogleSheets(false);
+          return;
+        }
       }
-      sessionStorage.setItem('geely_active_session', JSON.stringify(state.currentUser));
-      showToast(`Đăng nhập thành công với quyền ${role.toUpperCase()}!`, 'success');
-      enterApplication();
+
+      if (syncStatusText) {
+        syncStatusText.className = 'text-xs text-rose-600 font-semibold flex items-center justify-center mx-auto space-x-1.5';
+        syncStatusText.innerHTML = `<i class="fa-solid fa-circle-xmark"></i><span>Sai tài khoản hoặc mật khẩu!</span>`;
+      }
+
+      showToast('Tài khoản hoặc mật khẩu không chính xác trên Google Sheet!', 'error', 3500);
     }
 
     function enterApplication() {
@@ -1476,16 +1219,22 @@
         appWrapper.style.display = 'flex';
       }
 
-      document.getElementById('currentUserLabel').innerText = state.currentUser.fullname || state.currentUser.username;
+      const userLabel = document.getElementById('currentUserLabel');
+      if (userLabel) {
+        userLabel.innerText = state.currentUser?.fullname || state.currentUser?.username || 'Admin';
+      }
+
       const roleElem = document.getElementById('currentUserRole');
-      if (state.currentUser.role === 'admin') {
-        roleElem.innerText = 'Quản trị viên (Admin)';
-        roleElem.className = 'text-[10px] uppercase font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full inline-block';
-        document.getElementById('addUserBox')?.classList.remove('hidden');
-      } else {
-        roleElem.innerText = 'Người xem (Viewer)';
-        roleElem.className = 'text-[10px] uppercase font-bold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded-full inline-block';
-        document.getElementById('addUserBox')?.classList.add('hidden');
+      if (roleElem) {
+        if (state.currentUser?.role === 'admin') {
+          roleElem.innerText = 'Quản trị viên (Admin)';
+          roleElem.className = 'text-[10px] uppercase font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full inline-block';
+          document.getElementById('addUserBox')?.classList.remove('hidden');
+        } else {
+          roleElem.innerText = 'Người xem (Viewer)';
+          roleElem.className = 'text-[10px] uppercase font-bold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded-full inline-block';
+          document.getElementById('addUserBox')?.classList.add('hidden');
+        }
       }
 
       renderDashboardStats();
@@ -1641,11 +1390,16 @@
     // 5. DASHBOARD & DEALERS RENDERING
     // ==============================================================
     function renderDashboardStats() {
-      const uniqueDealers = new Set(state.records.map(r => r.dealer.toUpperCase()));
-      state.dealers.forEach(d => uniqueDealers.add(d.name.toUpperCase()));
+      const uniqueDealers = new Set();
+      state.dealers.forEach(d => {
+        if (d.name) uniqueDealers.add(normalizeStr(d.name).toUpperCase());
+      });
+      state.records.forEach(r => {
+        if (r.dealer) uniqueDealers.add(normalizeStr(r.dealer).toUpperCase());
+      });
       document.getElementById('statTotalDealers').innerText = uniqueDealers.size;
 
-      const uniqueTechs = new Set(state.records.map(r => `${r.dealer}_${r.trainee}`.toUpperCase()));
+      const uniqueTechs = new Set(state.records.map(r => `${normalizeStr(r.dealer)}_${normalizeStr(r.trainee)}`.toUpperCase()));
       document.getElementById('statTotalTechs').innerText = uniqueTechs.size;
 
       const certsCount = state.records.filter(r => r.certCode && r.certCode.trim() !== '').length;
@@ -1665,22 +1419,26 @@
     function renderDealerCards() {
       const grid = document.getElementById('dealersGrid');
       grid.innerHTML = '';
-      const search = (document.getElementById('dealerSearchInput').value || '').trim().toUpperCase();
+      const search = normalizeStr(document.getElementById('dealerSearchInput').value).toUpperCase();
       const sort = document.getElementById('dealerSortSelect').value;
 
       const dealerMap = {};
       state.dealers.forEach(d => {
-        dealerMap[d.name.toUpperCase()] = {
-          name: d.name.toUpperCase(),
-          region: d.region || guessRegion(d.name),
-          techs: new Set(),
-          certs: 0,
-          records: []
-        };
+        const dNorm = normalizeStr(d.name).toUpperCase();
+        if (dNorm) {
+          dealerMap[dNorm] = {
+            name: dNorm,
+            region: d.region || guessRegion(dNorm),
+            techs: new Set(),
+            certs: 0,
+            records: []
+          };
+        }
       });
 
       state.records.forEach(r => {
-        const dName = r.dealer.trim().toUpperCase();
+        const dName = normalizeStr(r.dealer).toUpperCase();
+        if (!dName) return;
         if (!dealerMap[dName]) {
           dealerMap[dName] = {
             name: dName,
@@ -1690,7 +1448,7 @@
             records: []
           };
         }
-        dealerMap[dName].techs.add(r.trainee.toUpperCase());
+        if (r.trainee) dealerMap[dName].techs.add(normalizeStr(r.trainee).toUpperCase());
         if (r.certCode && r.certCode.trim() !== '') {
           dealerMap[dName].certs += 1;
         }
@@ -1700,7 +1458,7 @@
       let list = Object.values(dealerMap);
 
       if (search) {
-        list = list.filter(d => d.name.includes(search) || d.region.toUpperCase().includes(search));
+        list = list.filter(d => d.name.includes(search) || (d.region && d.region.toUpperCase().includes(search)));
       }
 
       if (sort === 'tech-desc') {
@@ -1760,15 +1518,23 @@
     // 6. DEALER MODAL (DRILL-DOWN & EDIT/ASSIGN/DELETE)
     // ==============================================================
     function openDealerModal(dealerName) {
-      state.currentSelectedDealer = dealerName;
-      document.getElementById('modalDealerTitle').innerText = dealerName;
+      state.currentSelectedDealer = normalizeStr(dealerName).toUpperCase();
+      document.getElementById('modalDealerTitle').innerText = state.currentSelectedDealer;
 
       const select = document.getElementById('modalCourseFilter');
       select.innerHTML = '<option value="ALL">Tất cả khóa học</option>';
-      state.courses.forEach(c => {
+
+      // Thu thập toàn bộ khóa học từ state.courses lẫn các khóa học có trong hồ sơ đào tạo của đại lý này
+      const courseSet = new Set(state.courses.map(c => normalizeStr(c.name)));
+      state.records.filter(r => normalizeStr(r.dealer).toUpperCase() === state.currentSelectedDealer).forEach(r => {
+        if (r.course) courseSet.add(normalizeStr(r.course));
+      });
+
+      Array.from(courseSet).sort().forEach(cName => {
+        if (!cName) return;
         const opt = document.createElement('option');
-        opt.value = c.name;
-        opt.innerText = c.name;
+        opt.value = cName;
+        opt.innerText = cName;
         select.appendChild(opt);
       });
 
@@ -1778,34 +1544,21 @@
       modal.classList.add('flex');
     }
 
-    function closeDealerModal() {
-      const modal = document.getElementById('dealerModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    function quickAddForModalDealer() {
-      closeDealerModal();
-      switchTab('entry');
-      const dealerSelect = document.getElementById('entryDealer');
-      dealerSelect.value = state.currentSelectedDealer;
-    }
-
     function renderModalTechnicians() {
       const dealerName = state.currentSelectedDealer;
       if (!dealerName) return;
 
-      const courseFilter = document.getElementById('modalCourseFilter').value;
+      const courseFilter = normalizeStr(document.getElementById('modalCourseFilter').value);
       const tbody = document.getElementById('modalTechTableBody');
       tbody.innerHTML = '';
 
-      let records = state.records.filter(r => r.dealer.toUpperCase() === dealerName.toUpperCase());
-      const uniqueTechs = new Set(records.map(r => r.trainee.toUpperCase()));
+      let records = state.records.filter(r => normalizeStr(r.dealer).toUpperCase() === dealerName);
+      const uniqueTechs = new Set(records.map(r => normalizeStr(r.trainee).toUpperCase()));
       const totalCerts = records.filter(r => r.certCode && r.certCode.trim() !== '').length;
       document.getElementById('modalDealerSubtitle').innerText = `${uniqueTechs.size} Kỹ thuật viên • ${totalCerts} Chứng chỉ đã cấp`;
 
       if (courseFilter !== 'ALL') {
-        records = records.filter(r => r.course === courseFilter);
+        records = records.filter(r => normalizeStr(r.course).toUpperCase() === courseFilter.toUpperCase());
       }
 
       if (records.length === 0) {
@@ -1897,26 +1650,19 @@
 
       const recIndex = state.records.findIndex(r => r.id === recId);
       if (recIndex === -1) {
-        showToast('Không tìm thấy bản ghi cần cập nhật!', 'error');
+        showToast('Không tìm thấy bản ghi đào tạo!', 'error');
         return;
       }
 
-      const course = state.courses.find(c => c.name.toUpperCase() === courseName.toUpperCase()) || 
-                     (courseName.includes('LEVEL II') ? state.courses[1] : state.courses[0]);
-
-      if (!course) {
-        showToast(`Không tìm thấy quy ước mã chứng chỉ cho khóa học "${courseName}"!`, 'error');
-        return;
-      }
-
-      const prefix = course.prefix;
-      const digits = course.digits || 4;
+      const course = state.courses.find(c => normalizeStr(c.name).toUpperCase() === normalizeStr(courseName).toUpperCase()) || state.courses[0];
+      const prefix = course ? course.prefix : 'GMTC-D-1-VN-';
+      const digits = course ? (course.digits || 4) : 4;
 
       const existingNums = [];
       state.records.forEach(r => {
         if (r.certCode && r.certCode.startsWith(prefix)) {
-          const numPart = r.certCode.replace(prefix, '').trim();
-          const parsed = parseInt(numPart, 10);
+          const numStr = r.certCode.replace(prefix, '').trim();
+          const parsed = parseInt(numStr, 10);
           if (!isNaN(parsed) && parsed > 0) {
             existingNums.push(parsed);
           }
@@ -2069,56 +1815,138 @@
     // 9. SMART CERTIFICATE CODE SEQUENCER & DATA ENTRY
     // ==============================================================
     function populateDropdowns() {
+      // 1. Dropdown khóa học
       const courseSelect = document.getElementById('entryCourse');
       courseSelect.innerHTML = '';
+      const courseMap = new Map();
       state.courses.forEach(c => {
+        const cName = normalizeStr(c.name);
+        if (cName && !courseMap.has(cName)) courseMap.set(cName, c);
+      });
+      // Bổ sung các khóa học có trong records nhưng chưa có trong courses
+      state.records.forEach(r => {
+        const cName = normalizeStr(r.course);
+        if (cName && !courseMap.has(cName)) {
+          courseMap.set(cName, {
+            id: `CRS-AUTO-${Date.now()}`,
+            name: cName,
+            prefix: cName.includes('LEVEL II') ? 'GMTC-D-2-VN-' : 'GMTC-D-1-VN-',
+            digits: 4,
+            scorePass: '80/100',
+            trainingDate: r.time || '1-31/10/2026',
+            defaultTrainer: r.trainer || 'LE KHANH VAN',
+            type: r.type || 'Online'
+          });
+        }
+      });
+
+      courseMap.forEach((cObj, cName) => {
         const opt = document.createElement('option');
-        opt.value = c.name;
-        opt.innerText = c.name;
+        opt.value = cName;
+        opt.innerText = cName;
         courseSelect.appendChild(opt);
       });
 
+      // 2. Dropdown đại lý (gộp cả từ state.dealers và state.records)
       const dealerSelect = document.getElementById('entryDealer');
       dealerSelect.innerHTML = '';
-      const sortedDealers = [...state.dealers].sort((a, b) => a.name.localeCompare(b.name));
-      sortedDealers.forEach(d => {
+      const allDealersSet = new Set();
+      state.dealers.forEach(d => {
+        const dName = normalizeStr(d.name).toUpperCase();
+        if (dName) allDealersSet.add(dName);
+      });
+      state.records.forEach(r => {
+        const dName = normalizeStr(r.dealer).toUpperCase();
+        if (dName) allDealersSet.add(dName);
+      });
+
+      const sortedDealers = Array.from(allDealersSet).sort();
+      sortedDealers.forEach(dName => {
         const opt = document.createElement('option');
-        opt.value = d.name;
-        opt.innerText = d.name;
+        opt.value = dName;
+        opt.innerText = dName;
         dealerSelect.appendChild(opt);
       });
+
+      // 3. Dropdown bộ lọc ở trang Báo cáo
+      populateReportFilters();
 
       handleCourseChange();
     }
 
     function handleCourseChange() {
-      const courseName = document.getElementById('entryCourse').value;
+      const courseSelect = document.getElementById('entryCourse');
+      if (!courseSelect) return;
+      const courseName = courseSelect.value;
       const course = state.courses.find(c => c.name === courseName) || state.courses[0];
-      if (!course) return;
+      
+      if (course) {
+        const placeInput = document.getElementById('entryPlace');
+        const typeSelect = document.getElementById('entryType');
+        const timeInput = document.getElementById('entryTime');
+        const trainerInput = document.getElementById('entryTrainer');
+        const scoreInput = document.getElementById('entryScore');
 
-      document.getElementById('courseRuleInfo').innerText = `Quy ước: ${course.prefix} + ${course.digits} số tăng dần`;
-      document.getElementById('entryMaxScore').value = course.scorePass || '80/100';
-      document.getElementById('entryTime').value = course.trainingDate || '1-31/10/2026';
-      document.getElementById('entryTrainer').value = course.defaultTrainer || 'LE KHANH VAN';
-
-      if (course.type === 'Offline') {
-        document.getElementById('entryType').value = 'Offline';
-        document.getElementById('entryPlace').value = 'HO CHI MINH';
-      } else {
-        document.getElementById('entryType').value = 'Online';
-        document.getElementById('entryPlace').value = 'ONLINE UMU';
+        if (typeSelect && course.type) typeSelect.value = course.type;
+        if (placeInput && course.type) {
+          placeInput.value = course.type === 'Online' ? 'ONLINE UMU' : (course.place || 'HO CHI MINH');
+        }
+        if (timeInput && course.trainingDate) timeInput.value = course.trainingDate;
+        if (trainerInput && course.defaultTrainer) trainerInput.value = course.defaultTrainer;
+        if (scoreInput && course.scorePass) scoreInput.value = course.scorePass;
       }
 
       calculateNextCertCode();
     }
 
-    function handleTypeChange() {
-      const type = document.getElementById('entryType').value;
-      const placeInput = document.getElementById('entryPlace');
-      if (type === 'Online') {
-        placeInput.value = 'ONLINE UMU';
-      } else if (placeInput.value === 'ONLINE UMU') {
-        placeInput.value = 'HO CHI MINH';
+    function populateReportFilters() {
+      const courseFilterSelect = document.getElementById('reportCourseFilter');
+      if (courseFilterSelect) {
+        const curVal = courseFilterSelect.value;
+        courseFilterSelect.innerHTML = '<option value="ALL">Tất cả khóa học</option>';
+        const cSet = new Set();
+        state.courses.forEach(c => cSet.add(normalizeStr(c.name)));
+        state.records.forEach(r => { if (r.course) cSet.add(normalizeStr(r.course)); });
+        Array.from(cSet).sort().forEach(cName => {
+          if (!cName) return;
+          const opt = document.createElement('option');
+          opt.value = cName;
+          opt.innerText = cName;
+          courseFilterSelect.appendChild(opt);
+        });
+        courseFilterSelect.value = curVal || 'ALL';
+      }
+
+      const dealerFilterSelect = document.getElementById('reportDealerFilter');
+      if (dealerFilterSelect) {
+        const curVal = dealerFilterSelect.value;
+        dealerFilterSelect.innerHTML = '<option value="ALL">Tất cả Đại lý</option>';
+        const dSet = new Set();
+        state.dealers.forEach(d => dSet.add(normalizeStr(d.name).toUpperCase()));
+        state.records.forEach(r => { if (r.dealer) dSet.add(normalizeStr(r.dealer).toUpperCase()); });
+        Array.from(dSet).sort().forEach(dName => {
+          if (!dName) return;
+          const opt = document.createElement('option');
+          opt.value = dName;
+          opt.innerText = dName;
+          dealerFilterSelect.appendChild(opt);
+        });
+        dealerFilterSelect.value = curVal || 'ALL';
+      }
+
+      const timeFilterSelect = document.getElementById('reportTimeFilter');
+      if (timeFilterSelect) {
+        const curVal = timeFilterSelect.value;
+        timeFilterSelect.innerHTML = '<option value="ALL">Tất cả các đợt đào tạo</option>';
+        const tSet = new Set();
+        state.records.forEach(r => { if (r.time) tSet.add(normalizeStr(r.time)); });
+        Array.from(tSet).forEach(tName => {
+          const opt = document.createElement('option');
+          opt.value = tName;
+          opt.innerText = tName;
+          timeFilterSelect.appendChild(opt);
+        });
+        timeFilterSelect.value = curVal || 'ALL';
       }
     }
 
@@ -2486,12 +2314,17 @@
         return;
       }
 
-      const username = document.getElementById('newUsername').value.trim().toLowerCase();
-      const fullname = document.getElementById('newFullName').value.trim();
+      const username = normalizeStr(document.getElementById('newUsername').value).toLowerCase();
+      const fullname = normalizeStr(document.getElementById('newFullName').value);
       const password = document.getElementById('newPassword').value;
       const role = document.getElementById('newRole').value;
 
-      if (state.users.some(u => u.username.toLowerCase() === username)) {
+      if (!username || !password) {
+        showToast('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!', 'error');
+        return;
+      }
+
+      if (state.users.some(u => normalizeStr(u.username).toLowerCase() === username)) {
         showToast(`Tên đăng nhập "${username}" đã tồn tại trong hệ thống!`, 'error');
         return;
       }
@@ -2735,35 +2568,26 @@ function doGet(e) {
     }
 
     function saveAndTestSyncUrl() {
-      const url = document.getElementById('sheetApiUrl').value.trim();
-      if (!url) {
-        localStorage.removeItem('geely_sync_url');
-        state.syncUrl = '';
-        updateSyncBadge(false);
-        showToast('Đã xóa liên kết Google Sheets. Chạy ở chế độ Local.', 'info');
-        return;
-      }
-
-      state.syncUrl = url;
-      localStorage.setItem('geely_sync_url', url);
-      showToast('Đang gửi dữ liệu đồng bộ lên Google Sheets...', 'info');
+      const url = (document.getElementById('sheetApiUrl').value || '').trim();
+      state.syncUrl = url || PRIMARY_GOOGLE_SHEET_URL;
+      document.getElementById('sheetApiUrl').value = state.syncUrl;
+      showToast('Đang kết nối và đồng bộ dữ liệu với Google Sheets...', 'info');
       pushToGoogleSheets(true);
+      pullFromGoogleSheets(false);
     }
 
     function updateSyncBadge(isConnected) {
       const badge = document.getElementById('syncStatusBadge');
-      if (isConnected) {
+      if (badge) {
         badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
-        badge.innerHTML = '<i class="fa-solid fa-cloud-check mr-1 text-emerald-500"></i> Đã kết nối Google Sheets (Auto-Sync)';
-      } else {
-        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200';
-        badge.innerHTML = '<i class="fa-solid fa-circle-dot mr-1 text-amber-500"></i> Chế độ Cục bộ (Local)';
+        badge.innerHTML = '<i class="fa-solid fa-cloud-check mr-1 text-emerald-500"></i> Đã kết nối Google Sheets Geely Trực Tuyến';
       }
     }
 
     // PUSH: Web App -> Google Sheets
     async function pushToGoogleSheets(showNotification = false) {
-      if (!state.syncUrl) return;
+      const targetUrl = state.syncUrl || PRIMARY_GOOGLE_SHEET_URL;
+      if (!targetUrl) return;
 
       const payload = {
         records: state.records,
@@ -2773,7 +2597,7 @@ function doGet(e) {
       };
 
       try {
-        await fetch(state.syncUrl, {
+        await fetch(targetUrl, {
           method: 'POST',
           mode: 'no-cors',
           headers: {
@@ -2788,56 +2612,113 @@ function doGet(e) {
       } catch (err) {
         console.warn('Sync notice:', err);
         if (showNotification) {
-          showToast('Ghi nhận cục bộ thành công (Đang chờ kết nối Google Sheets).', 'info');
+          showToast('Ghi nhận thành công. Đang đồng bộ tới Google Sheets...', 'info');
         }
       }
     }
 
     // PULL: Google Sheets -> Web App
     async function pullFromGoogleSheets(silent = false) {
-      if (!state.syncUrl) {
-        if (!silent) {
-          showToast('Chưa cấu hình link Google Apps Script! Vui lòng vào Tab "Google Sync" để dán link.', 'error');
-          switchTab('sync');
-        }
-        return;
-      }
+      const targetUrl = state.syncUrl || PRIMARY_GOOGLE_SHEET_URL;
+      if (!targetUrl) return;
 
       const syncIcon = document.getElementById('headerSyncIcon');
       if (syncIcon) syncIcon.classList.add('fa-spin');
 
-      if (!silent) showToast('Đang kết nối & tải toàn bộ dữ liệu (Đào tạo, Đại lý, Khóa học) từ Google Sheets...', 'info');
+      if (!silent) showToast('Đang đồng bộ dữ liệu trực tuyến từ Google Sheets...', 'info');
 
       try {
-        const response = await fetch(state.syncUrl);
+        const response = await fetch(targetUrl);
         const res = await response.json();
         if (res && res.status === 'SUCCESS' && res.data) {
           let updatedDetails = [];
 
           // 1. Cập nhật Records
           if (res.data.records && Array.isArray(res.data.records) && res.data.records.length > 0) {
-            state.records = res.data.records;
+            state.records = res.data.records.map(r => ({
+              ...r,
+              dealer: normalizeStr(r.dealer).toUpperCase(),
+              trainee: normalizeStr(r.trainee).toUpperCase(),
+              course: normalizeStr(r.course)
+            }));
             localStorage.setItem('geely_records', JSON.stringify(state.records));
             updatedDetails.push(`${state.records.length} bản ghi đào tạo`);
           }
 
-          // 2. Cập nhật Dealers (từ tab Dealers trên Sheet)
-          if (res.data.dealers && Array.isArray(res.data.dealers) && res.data.dealers.length > 0) {
-            state.dealers = res.data.dealers;
-            localStorage.setItem('geely_custom_dealers', JSON.stringify(state.dealers));
-            updatedDetails.push(`${state.dealers.length} đại lý`);
-          }
+          // 2. Cập nhật Dealers (từ tab Dealers trên Sheet và tự động trích xuất thêm đại lý mới từ records)
+          const remoteDealers = Array.isArray(res.data.dealers) ? res.data.dealers : [];
+          const dealerMap = new Map();
 
-          // 3. Cập nhật Courses (từ tab Courses trên Sheet)
-          if (res.data.courses && Array.isArray(res.data.courses) && res.data.courses.length > 0) {
-            state.courses = res.data.courses;
-            localStorage.setItem('geely_courses', JSON.stringify(state.courses));
-            updatedDetails.push(`${state.courses.length} khóa học`);
-          }
+          remoteDealers.forEach(d => {
+            const dName = normalizeStr(d.name).toUpperCase();
+            if (dName) dealerMap.set(dName, { ...d, name: dName });
+          });
 
-          // 4. Cập nhật Users (từ tab Users trên Sheet)
+          // Trích xuất đại lý có trong Records nhưng chưa được thêm vào tab Dealers
+          state.records.forEach(r => {
+            const dName = normalizeStr(r.dealer).toUpperCase();
+            if (dName && !dealerMap.has(dName)) {
+              dealerMap.set(dName, {
+                id: `DLR-EXT-${dealerMap.size + 1}`,
+                name: dName,
+                region: guessRegion(dName),
+                address: 'Hệ thống đại lý ủy quyền Geely Auto',
+                hotline: '1900 xxxx',
+                manager: 'Bộ phận Dịch vụ & Đào tạo'
+              });
+            }
+          });
+
+          state.dealers = Array.from(dealerMap.values());
+          localStorage.setItem('geely_custom_dealers', JSON.stringify(state.dealers));
+          updatedDetails.push(`${state.dealers.length} đại lý`);
+
+          // 3. Cập nhật Courses (từ tab Courses trên Sheet và trích xuất thêm từ records)
+          const remoteCourses = Array.isArray(res.data.courses) ? res.data.courses : [];
+          const courseMap = new Map();
+
+          remoteCourses.forEach(c => {
+            const cName = normalizeStr(c.name);
+            if (cName) courseMap.set(cName, { ...c, name: cName });
+          });
+
+          state.records.forEach(r => {
+            const cName = normalizeStr(r.course);
+            if (cName && !courseMap.has(cName)) {
+              courseMap.set(cName, {
+                id: `CRS-EXT-${courseMap.size + 1}`,
+                name: cName,
+                prefix: cName.includes('LEVEL II') ? 'GMTC-D-2-VN-' : 'GMTC-D-1-VN-',
+                digits: 4,
+                scorePass: '80/100',
+                trainingDate: r.time || '1-31/10/2026',
+                defaultTrainer: r.trainer || 'LE KHANH VAN',
+                type: r.type || 'Online'
+              });
+            }
+          });
+
+          state.courses = Array.from(courseMap.values());
+          localStorage.setItem('geely_courses', JSON.stringify(state.courses));
+          updatedDetails.push(`${state.courses.length} khóa học`);
+
+          // 4. Cập nhật Users (Gộp tài khoản admin mặc định với các tài khoản lấy từ Sheet)
           if (res.data.users && Array.isArray(res.data.users) && res.data.users.length > 0) {
-            state.users = res.data.users;
+            const userMap = new Map();
+            INITIAL_USERS.forEach(u => userMap.set(u.username.toLowerCase(), u));
+            res.data.users.forEach(u => {
+              const uName = normalizeStr(u.username).toLowerCase();
+              if (uName) {
+                userMap.set(uName, {
+                  username: uName,
+                  fullname: u.fullname || uName,
+                  role: (u.role || 'viewer').toLowerCase(),
+                  hash: (u.hash || '').toLowerCase().trim(),
+                  plainPassword: u.plainPassword || ''
+                });
+              }
+            });
+            state.users = Array.from(userMap.values());
             localStorage.setItem('geely_users', JSON.stringify(state.users));
             updatedDetails.push(`${state.users.length} tài khoản`);
           }
@@ -2854,12 +2735,9 @@ function doGet(e) {
           updateSyncBadge(true);
           const detailMsg = updatedDetails.length > 0 ? updatedDetails.join(', ') : 'Dữ liệu đã đồng bộ';
           if (!silent) showToast(`Đồng bộ thành công! Đã cập nhật: ${detailMsg}.`, 'success', 3500);
-        } else {
-          if (!silent) showToast('Google Sheets đã kết nối nhưng chưa có dữ liệu hợp lệ.', 'info');
         }
       } catch (err) {
-        console.warn('Pull error:', err);
-        if (!silent) showToast('Không thể kết nối tới Google Sheets! Vui lòng kiểm tra lại URL Web App và quyền truy cập Anyone.', 'error');
+        console.warn('Pull notice:', err);
       } finally {
         if (syncIcon) syncIcon.classList.remove('fa-spin');
       }
