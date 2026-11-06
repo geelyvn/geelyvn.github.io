@@ -1,0 +1,2506 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEELY VIETNAM - Hệ Thống Quản Lý Đào Tạo & Chứng Chỉ GMTC</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              800: '#0c4a6e',
+              900: '#082f49'
+            },
+            geely: {
+              blue: '#002B49',
+              accent: '#00A3E0',
+              gold: '#D4AF37',
+              dark: '#0B132B'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- FontAwesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SheetJS CDN for direct Excel export matching template -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- NOTIFICATION TOAST -->
+  <div id="toast" class="fixed top-5 right-5 z-50 transform transition-all duration-300 translate-y-[-120%] opacity-0 pointer-events-none flex items-center justify-between p-4 rounded-xl shadow-2xl text-white font-medium max-w-md">
+    <div class="flex items-center">
+      <i id="toastIcon" class="mr-3 text-xl"></i>
+      <span id="toastMsg" class="text-sm"></span>
+    </div>
+    <button type="button" onclick="hideToast()" class="ml-4 text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition">
+      <i class="fa-solid fa-xmark text-sm"></i>
+    </button>
+  </div>
+
+  <!-- AUTH / LOGIN MODAL (OVERLAY) -->
+  <div id="loginScreen" class="fixed inset-0 z-40 bg-geely-dark/95 backdrop-blur-md flex items-center justify-center p-4" style="display: flex;">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100 relative overflow-hidden">
+      <div class="absolute -top-12 -right-12 w-40 h-40 bg-geely-accent/15 rounded-full blur-2xl"></div>
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white shadow-md p-2 mb-4 border border-slate-200">
+          <img src="logo.png" alt="GEELY Logo" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Geely_wordmark_and_logo_2023.svg/512px-Geely_wordmark_and_logo_2023.svg.png';">
+        </div>
+        <h2 class="text-2xl font-bold tracking-tight text-geely-blue uppercase">GEELY AUTO VIỆT NAM</h2>
+        <p class="text-sm text-slate-500 mt-1 font-medium">Hệ Thống Đào Tạo & Cấp Chứng Chỉ GMTC</p>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Tên đăng nhập</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <i class="fa-regular fa-user"></i>
+            </span>
+            <input type="text" id="loginUser" required placeholder="Nhập tài khoản" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-geely-accent focus:border-transparent text-sm transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Mật khẩu</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <i class="fa-solid fa-lock"></i>
+            </span>
+            <input type="password" id="loginPass" required placeholder="Nhập mật khẩu" class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-geely-accent focus:border-transparent text-sm transition">
+            <button type="button" onclick="togglePassVisibility('loginPass', 'eyeIcon')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+              <i id="eyeIcon" class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="loginSubmitBtn" class="w-full py-3 px-4 bg-geely-blue hover:bg-slate-900 text-white font-semibold rounded-xl shadow-lg shadow-geely-blue/25 hover:shadow-xl transition-all duration-200 flex items-center justify-center space-x-2">
+          <span id="loginBtnText">Đăng nhập hệ thống</span>
+          <i id="loginBtnIcon" class="fa-solid fa-arrow-right-to-bracket text-sm"></i>
+        </button>
+
+        <div class="pt-3 border-t border-slate-100 text-center">
+          <p id="loginSyncStatus" class="text-xs text-slate-400 font-medium flex items-center justify-center mx-auto space-x-1.5">
+            <span>Hệ thống xác thực trực tuyến qua Google Sheets</span>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN APP CONTAINER -->
+  <div id="appContainer" class="hidden flex-col flex-1 min-h-screen">
+    <!-- TOP NAVIGATION HEADER -->
+    <header class="bg-geely-blue text-white shadow-xl sticky top-0 z-30 border-b border-white/10">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center space-x-3">
+            <div class="h-10 px-2 rounded-xl bg-white flex items-center justify-center shadow-sm border border-white/20">
+              <img src="logo.png" alt="GEELY" class="h-7 w-auto object-contain" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Geely_wordmark_and_logo_2023.svg/512px-Geely_wordmark_and_logo_2023.svg.png';">
+            </div>
+            <div>
+              <h1 class="font-bold text-base sm:text-lg tracking-tight uppercase leading-none">GEELY VIETNAM</h1>
+              <p class="text-[11px] text-slate-300 font-medium">Hệ Thống Quản Lý Đào Tạo & Chứng Chỉ GMTC</p>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2 sm:space-x-3">
+            <!-- NÚT BÁO CÁO GMTC (BÊN TRÁI NÚT ĐỒNG BỘ) -->
+            <button id="headerReportBtn" onclick="switchTab('report')" class="hidden items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-2.5 sm:px-3 py-2 rounded-xl transition shadow-sm" title="Tùy chọn báo cáo GMTC">
+              <i class="fa-solid fa-file-excel"></i>
+              <span class="hidden sm:inline">Báo cáo GMTC</span>
+            </button>
+
+            <!-- NÚT ĐỒNG BỘ DỮ LIỆU SHEET -->
+            <button onclick="pullFromGoogleSheets(false)" class="flex items-center space-x-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-2.5 sm:px-3 py-2 rounded-xl transition border border-white/10" title="Đồng bộ lại từ Google Sheets">
+              <i id="headerSyncIcon" class="fa-solid fa-rotate text-geely-accent"></i>
+              <span class="hidden sm:inline">Đồng bộ dữ liệu sheet</span>
+            </button>
+
+            <!-- USER INFO & LOGOUT -->
+            <div class="flex items-center space-x-2 pl-2 sm:pl-3 border-l border-white/10">
+              <div class="text-right hidden sm:block">
+                <div id="currentUserLabel" class="text-xs font-bold leading-tight">Admin</div>
+                <div id="currentUserRole" class="text-[10px] text-slate-300">Quản trị viên</div>
+              </div>
+              <button onclick="openChangePasswordModal()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 transition" title="Đổi mật khẩu">
+                <i class="fa-solid fa-key text-xs"></i>
+              </button>
+              <button onclick="handleLogout()" class="p-2 rounded-xl bg-rose-500/20 hover:bg-rose-500 text-rose-200 hover:text-white transition" title="Đăng xuất">
+                <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAVIGATION TABS -->
+      <div class="bg-slate-900/40 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto space-x-1 py-1 custom-scrollbar text-xs">
+          <button id="nav-dashboard" onclick="switchTab('dashboard')" class="tab-btn px-3.5 py-2 rounded-lg font-semibold text-white bg-white/10 flex items-center space-x-2 whitespace-nowrap transition">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Tổng quan Đại lý</span>
+          </button>
+          <button id="nav-dealers-courses" onclick="switchTab('dealers-courses')" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 whitespace-nowrap transition">
+            <i class="fa-solid fa-store"></i>
+            <span>Quản lý Đại lý & Khóa học</span>
+          </button>
+          <button id="nav-entry" onclick="switchTab('entry')" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 whitespace-nowrap transition">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Nhập liệu Đào tạo</span>
+          </button>
+          <button id="nav-queue" onclick="switchTab('queue')" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 whitespace-nowrap transition">
+            <i class="fa-solid fa-recycle text-amber-400"></i>
+            <span>Chứng Chỉ Chờ</span>
+            <span id="queueBadgeCount" class="ml-1 bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
+            <span id="duplicateBadgeCount" class="ml-1 bg-rose-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold hidden">0 trùng</span>
+          </button>
+          <button id="nav-users" onclick="switchTab('users')" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 whitespace-nowrap transition">
+            <i class="fa-solid fa-users-gear"></i>
+            <span>Quản trị & Google Sync</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN BODY CONTENT AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+      
+      <!-- TAB 1: DASHBOARD (KÈM BẢN ĐỒ VIỆT NAM TRỰC QUAN) -->
+      <div id="tab-dashboard" class="tab-content block space-y-6">
+        <!-- KPI METRICS -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-store"></i>
+            </div>
+            <div>
+              <p class="text-xs uppercase font-bold text-slate-500">Tổng Đại lý</p>
+              <h3 id="statTotalDealers" class="text-2xl font-black text-slate-800 leading-tight">66</h3>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border-2 border-emerald-300 bg-gradient-to-br from-white to-emerald-50/30 shadow-sm flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl shadow-md shadow-emerald-500/25">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+              <p class="text-xs uppercase font-extrabold text-emerald-700">Kỹ thuật viên</p>
+              <h3 id="statTotalTechs" class="text-2xl font-black text-emerald-800 leading-tight">165</h3>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-certificate"></i>
+            </div>
+            <div>
+              <p class="text-xs uppercase font-bold text-slate-500">Đã cấp chứng chỉ</p>
+              <h3 id="statTotalCerts" class="text-2xl font-black text-slate-800 leading-tight">168</h3>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+              <p class="text-xs uppercase font-bold text-slate-500">Tỷ lệ đạt chuẩn</p>
+              <h3 id="statPassRate" class="text-2xl font-black text-slate-800 leading-tight">100%</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEARCH & FILTER TOOLBAR -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-300 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div class="relative w-full sm:w-96">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+            <input type="text" id="dealerSearchInput" oninput="renderDashboardView()" placeholder="Tìm tên đại lý, khu vực hoặc tên kỹ thuật viên..." class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent focus:border-transparent">
+          </div>
+          <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+            <select id="dealerSortSelect" onchange="renderDashboardView()" class="px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-geely-accent font-medium">
+              <option value="tech-desc">Sắp xếp: Kỹ thuật viên (Cao -> Thấp)</option>
+              <option value="tech-asc">Sắp xếp: Kỹ thuật viên (Thấp -> Cao)</option>
+              <option value="cert-desc">Sắp xếp: Chứng chỉ (Cao -> Thấp)</option>
+              <option value="name-asc">Sắp xếp: Tên đại lý (A -> Z)</option>
+            </select>
+            <span id="filteredDealerCount" class="text-xs font-semibold text-slate-500 whitespace-nowrap">Hiển thị 66 đại lý</span>
+          </div>
+        </div>
+
+        <!-- LAYOUT 2 CỘT: DANH SÁCH ĐẠI LÝ (TRÁI) & BẢN ĐỒ VIỆT NAM (PHẢI) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <!-- DANH SÁCH THẺ ĐẠI LÝ -->
+          <div class="lg:col-span-8">
+            <div id="dealersGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- BẢN ĐỒ VIỆT NAM ĐỊNH VỊ (DESKTOP STICKY) -->
+          <div class="lg:col-span-4 sticky top-20 hidden lg:block">
+            <div class="bg-white p-4 rounded-3xl border border-slate-300 shadow-xl relative overflow-hidden">
+              <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+                <h4 class="font-bold text-slate-800 text-xs flex items-center space-x-1.5 uppercase tracking-wider">
+                  <i class="fa-solid fa-map-location-dot text-geely-accent"></i>
+                  <span>Bản Đồ Phân Bố Đại Lý Toàn Quốc</span>
+                </h4>
+                <span id="mapPinCountBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">0 điểm</span>
+              </div>
+
+              <!-- CONTAINER BẢN ĐỒ - THU NHỎ LẠI VỪA KHUNG HÌNH (aspect-[1/1.5]) -->
+              <div id="vietnamMapContainer" class="relative w-full aspect-[1/1.5] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-inner group">
+                <img src="Vietnam_location_map.png" alt="Vietnam Map" class="w-full h-full object-fill select-none pointer-events-none" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Vietnam_location_map.svg/512px-Vietnam_location_map.svg.png';">
+                
+                <!-- LỚP MARKER CHẤM ĐẠI LÝ -->
+                <div id="mapMarkersLayer" class="absolute inset-0 pointer-events-auto">
+                  <!-- Rendered dynamically -->
+                </div>
+
+                <!-- TOOLTIP KHI RÊ CHUỘT VÀO CHẤM TRÊN BẢN ĐỒ -->
+                <div id="mapTooltip" class="absolute hidden z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full mb-2 w-48 bg-slate-900/95 text-white p-3 rounded-xl shadow-2xl backdrop-blur-md border border-white/10 text-xs transition-all duration-150">
+                  <p id="tooltipDealerName" class="font-black text-geely-accent uppercase mb-0.5 tracking-tight"></p>
+                  <p id="tooltipRegion" class="text-[10px] text-slate-300 mb-1.5 font-medium"></p>
+                  <div class="pt-1.5 border-t border-white/10 flex items-center justify-between font-bold text-[11px]">
+                    <span class="text-emerald-400">KTV: <span id="tooltipTechs">0</span></span>
+                    <span class="text-amber-400">Chứng chỉ: <span id="tooltipCerts">0</span></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-700 inline-block"></span><span>Đại lý</span></span>
+                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping inline-block"></span><span>Đang soi</span></span>
+                <span class="font-bold text-emerald-600"><i class="fa-solid fa-location-dot mr-1"></i><span id="totalActivePins">0</span> Điểm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: QUẢN LÝ ĐẠI LÝ & KHÓA HỌC (GỢP CHUNG 2 SUB-TAB) -->
+      <div id="tab-dealers-courses" class="tab-content hidden space-y-6">
+        <!-- SUB-TAB HEADER SELECTOR -->
+        <div class="flex items-center space-x-2 border-b border-slate-200 pb-3">
+          <button id="subtab-btn-dealers" onclick="switchDealersCoursesSubTab('dealers')" class="px-5 py-2.5 rounded-xl font-bold bg-geely-blue text-white shadow-md flex items-center space-x-2 transition text-xs">
+            <i class="fa-solid fa-store"></i>
+            <span>Quản lý Đại lý</span>
+          </button>
+          <button id="subtab-btn-courses" onclick="switchDealersCoursesSubTab('courses')" class="px-5 py-2.5 rounded-xl font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition text-xs">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>Quản lý Khóa học</span>
+          </button>
+        </div>
+
+        <!-- SUB-TAB 1: DEALERS -->
+        <div id="subtab-content-dealers" class="block">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div id="createDealerFormBox" class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm h-fit">
+              <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center space-x-2">
+                <i class="fa-solid fa-plus-circle text-geely-accent"></i>
+                <span>Thêm Đại Lý Mới</span>
+              </h3>
+              <form id="createDealerForm" onsubmit="handleCreateDealer(event)" class="space-y-4 text-xs">
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Tên Đại lý (Tự động thêm GEELY)</label>
+                  <input type="text" id="dealerNameInput" required placeholder="Ví dụ: TÂY HỒ" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase">
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Khu vực</label>
+                  <select id="dealerRegionInput" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-white">
+                    <option value="Miền Bắc">Miền Bắc</option>
+                    <option value="Miền Trung & Tây Nguyên">Miền Trung & Tây Nguyên</option>
+                    <option value="Miền Nam">Miền Nam</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Địa chỉ</label>
+                  <input type="text" id="dealerAddressInput" placeholder="Địa chỉ đại lý..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Hotline Dịch vụ</label>
+                  <input type="text" id="dealerPhoneInput" placeholder="Ví dụ: 1900 xxxx" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Người phụ trách đào tạo</label>
+                  <input type="text" id="dealerContactInput" placeholder="Họ tên người phụ trách..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+                </div>
+
+                <!-- BẢN ĐỒ CHẤM VỊ TRÍ KHI THÊM ĐẠI LÝ (ẨN ĐỐI VỚI VIEWER) -->
+                <div id="newDealerMapSection">
+                  <label class="block font-semibold text-slate-600 mb-1">Ghim vị trí trên bản đồ (Bấm vào bản đồ để chọn tọa độ)</label>
+                  <div id="newDealerMap" class="relative w-full aspect-[1/1.5] rounded-xl overflow-hidden bg-slate-100 border border-slate-200 cursor-crosshair" onclick="handleNewDealerMapClick(event)">
+                    <img src="Vietnam_location_map.png" alt="Map" class="w-full h-full object-fill pointer-events-none select-none" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Vietnam_location_map.svg/512px-Vietnam_location_map.svg.png';">
+                    <div id="newDealerPinDot" class="absolute w-4 h-4 bg-rose-600 border-2 border-white rounded-full shadow-lg transform -translate-x-1/2 -translate-y-1/2 hidden transition-all"></div>
+                  </div>
+                  <div class="mt-1 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                    <span id="newDealerCoordBadge">Chưa ghim tọa độ</span>
+                    <input type="hidden" id="entryMapX">
+                    <input type="hidden" id="entryMapY">
+                  </div>
+                </div>
+
+                <button type="submit" id="btnSaveDealer" class="w-full py-2.5 bg-geely-blue hover:bg-slate-900 text-white font-bold rounded-xl shadow transition">
+                  Lưu Đại Lý
+                </button>
+              </form>
+            </div>
+
+            <div id="dealersManagerTableCard" class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+                  <i class="fa-solid fa-list-check text-emerald-600"></i>
+                  <span>Danh Mục Đại Lý Toàn Quốc</span>
+                </h3>
+                <div class="flex items-center space-x-2">
+                  <input type="text" id="dealerTabSearch" oninput="renderDealersManagerTable()" placeholder="Lọc đại lý..." class="px-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none">
+                  <span id="dealerCountBadge" class="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">66 Đại lý</span>
+                </div>
+              </div>
+              <div class="overflow-x-auto max-h-[550px] custom-scrollbar border border-slate-100 rounded-xl">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider sticky top-0 border-b border-slate-200">
+                    <tr>
+                      <th class="py-2.5 px-3">STT</th>
+                      <th class="py-2.5 px-3">Tên Đại Lý</th>
+                      <th class="py-2.5 px-3">Khu Vực</th>
+                      <th class="py-2.5 px-3 text-center">KTV</th>
+                      <th class="py-2.5 px-3 text-center">Chứng chỉ</th>
+                      <th class="py-2.5 px-3 text-center">Map GPS</th>
+                      <th class="py-2.5 px-3 text-right" id="dealerActionHeaderCol">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dealersManagerTableBody" class="divide-y divide-slate-100">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-TAB 2: COURSES -->
+        <div id="subtab-content-courses" class="hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div id="createCourseFormBox" class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm h-fit">
+              <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center space-x-2">
+                <i class="fa-solid fa-folder-plus text-geely-accent"></i>
+                <span>Thêm Khóa Học Mới</span>
+              </h3>
+              <form id="createCourseForm" onsubmit="handleCreateCourse(event)" class="space-y-4 text-xs">
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Tên khóa học *</label>
+                  <input type="text" id="courseNameInput" required placeholder="Ví dụ: GMTC LEVEL 3" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase">
+                </div>
+
+                <!-- CHECKBOX CHỨNG CHỈ TỰ ĐIỀN TAY -->
+                <div class="p-3 bg-amber-50/70 border border-amber-200 rounded-xl">
+                  <label class="inline-flex items-center space-x-2 cursor-pointer w-full">
+                    <input type="checkbox" id="courseIsManualCert" onchange="toggleManualCourseFields()" class="w-4 h-4 text-amber-600 rounded focus:ring-amber-500">
+                    <span class="font-bold text-amber-900">Chứng chỉ tự điền (Điền tay)</span>
+                  </label>
+                  <p class="text-[11px] text-amber-700 mt-1">Không chạy số tự động. Khi nhập có thể để trống lưu trước và điền sau.</p>
+                </div>
+
+                <div id="coursePrefixContainer">
+                  <label class="block font-semibold text-slate-600 mb-1">Tiền tố quy ước chứng chỉ (Prefix) *</label>
+                  <input type="text" id="coursePrefixInput" placeholder="Ví dụ: GMTC-D-3-VN-" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase font-mono">
+                </div>
+                <div id="courseDigitsContainer">
+                  <label class="block font-semibold text-slate-600 mb-1">Số chữ số thứ tự</label>
+                  <input type="number" id="courseDigitsInput" value="4" min="3" max="6" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Điểm chuẩn đạt</label>
+                  <input type="text" id="courseScoreInput" placeholder="Ví dụ: 80/100" value="80/100" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Thời gian đào tạo điền tay (Text)</label>
+                  <input type="text" id="courseDateInput" placeholder="Ví dụ: 1-30/11/2026" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Giảng viên mặc định</label>
+                  <input type="text" id="courseTrainerInput" value="LE KHANH VAN" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase">
+                </div>
+                <button type="submit" id="btnSaveCourse" class="w-full py-2.5 bg-geely-blue hover:bg-slate-900 text-white font-bold rounded-xl shadow transition">
+                  Tạo Khóa Học
+                </button>
+              </form>
+            </div>
+
+            <div id="courseTableCard" class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+                  <i class="fa-solid fa-graduation-cap text-geely-blue"></i>
+                  <span>Danh Sách Khóa Học & Quy Ước Mã</span>
+                </h3>
+                <span id="totalCoursesBadge" class="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">0 khóa học</span>
+              </div>
+              <div class="overflow-x-auto rounded-xl border border-slate-100">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+                    <tr>
+                      <th class="py-3 px-3">Tên Khóa Học</th>
+                      <th class="py-3 px-3">Quy Ước / Loại Mã</th>
+                      <th class="py-3 px-3">Điểm Đạt</th>
+                      <th class="py-3 px-3">Thời Gian</th>
+                      <th class="py-3 px-3">Đã Cấp</th>
+                      <th class="py-3 px-3 text-right" id="courseActionHeaderCol">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="courseTableBody" class="divide-y divide-slate-100">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: DATA ENTRY -->
+      <div id="tab-entry" class="tab-content hidden space-y-6">
+        <div class="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/90 shadow-sm">
+          <div class="mb-6 border-b border-slate-100 pb-4">
+            <h3 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+              <i class="fa-solid fa-file-circle-plus text-geely-accent"></i>
+              <span>Nhập Liệu Đào Tạo & Cấp Mã Chứng Chỉ Tự Động</span>
+            </h3>
+            <p class="text-xs text-slate-500 mt-1">Hệ thống tự động phát hiện số thứ tự còn thiếu (nếu có nhân sự nghỉ việc bị xóa) hoặc tự động tăng số kế tiếp.</p>
+          </div>
+
+          <form id="recordEntryForm" onsubmit="handleSaveRecord(event)" class="space-y-4 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Đại lý áp dụng *</label>
+                <select id="entryDealer" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-white">
+                  <!-- Rendered dynamically -->
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Họ và tên Kỹ thuật viên *</label>
+                <input type="text" id="entryTrainee" required placeholder="Nhập họ và tên..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Khóa đào tạo *</label>
+                <select id="entryCourse" onchange="handleCourseChange()" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-white font-semibold text-geely-blue">
+                  <!-- Rendered dynamically -->
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1 flex items-center justify-between">
+                  <span id="entryCertLabel">Mã số Chứng chỉ (Tự động tính)</span>
+                  <span id="certGapsNotice" class="text-[10px] text-amber-600 font-bold hidden"></span>
+                </label>
+                <div class="flex items-center space-x-2">
+                  <input type="text" id="entryCertCode" class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono font-bold text-amber-700 focus:ring-2 focus:ring-geely-accent focus:outline-none whitespace-nowrap">
+                  <button type="button" id="btnRefreshCert" onclick="calculateNextCertCode()" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition" title="Tính lại số chứng chỉ">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                  </button>
+                </div>
+                <p id="certExplanation" class="text-[10px] text-slate-400 mt-1 italic"></p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Hình thức</label>
+                <select id="entryType" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-white">
+                  <option value="Online">Online</option>
+                  <option value="Offline">Offline</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Thời gian đào tạo (Text)</label>
+                <input type="text" id="entryTime" value="1-31/10/2026" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none font-medium">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1 flex items-center justify-between">
+                  <span>Ngày nhập (Tự động) *</span>
+                  <span class="text-[10px] text-emerald-600 font-bold">Ngày hệ thống</span>
+                </label>
+                <input type="date" id="entryInputDate" required class="w-full p-2.5 rounded-xl border border-slate-200 bg-emerald-50/50 focus:ring-2 focus:ring-geely-accent focus:outline-none font-semibold text-slate-800">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Ngày cấp (Issued Date) *</label>
+                <input type="date" id="entryIssuedDate" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none font-semibold text-slate-800">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Số điểm đạt được</label>
+                <input type="number" step="0.1" id="entryScore" placeholder="Ví dụ: 85" value="85" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none font-bold text-emerald-600">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Giảng viên phụ trách</label>
+                <input type="text" id="entryTrainer" value="LE KHANH VAN" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase">
+              </div>
+              <div class="pt-5">
+                <label class="inline-flex items-center space-x-2 cursor-pointer bg-slate-50 p-2.5 rounded-xl border border-slate-200 w-full">
+                  <input type="checkbox" id="entryPassed" checked class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
+                  <span class="font-bold text-slate-700">Đạt chuẩn (PASSED)</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
+              <button type="button" onclick="resetEntryForm()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold transition">
+                Làm mới
+              </button>
+              <button type="submit" id="btnSaveRecord" class="px-6 py-2.5 rounded-xl bg-geely-blue hover:bg-slate-900 text-white font-bold shadow-lg shadow-geely-blue/20 transition">
+                Lưu Hồ Sơ & Chuẩn Bị Chứng Chỉ
+              </button>
+            </div>
+          </form>
+
+          <!-- TODAY CREATED CANDIDATES -->
+          <div class="mt-8 pt-6 border-t border-slate-200">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h4 class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+                  <i class="fa-solid fa-clock-rotate-left text-geely-accent"></i>
+                  <span>Danh Sách Ứng Viên Vừa Tạo Trong Ngày / Phiên Làm Việc</span>
+                </h4>
+                <p class="text-[11px] text-slate-500">Xem lại các học viên vừa được ghi nhận trong phiên làm việc hiện tại.</p>
+              </div>
+              <span id="recentCandidatesBadge" class="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">0 ứng viên</span>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-slate-100 max-h-80 custom-scrollbar">
+              <table class="w-full text-left text-xs whitespace-nowrap">
+                <thead class="bg-slate-50 text-slate-500 uppercase font-bold sticky top-0 border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-3">Ngày Nhập</th>
+                    <th class="py-2.5 px-3">Học Viên</th>
+                    <th class="py-2.5 px-3">Đại Lý</th>
+                    <th class="py-2.5 px-3">Khóa Học</th>
+                    <th class="py-2.5 px-3">Mã Chứng Chỉ</th>
+                    <th class="py-2.5 px-3">Ngày Cấp</th>
+                    <th class="py-2.5 px-3">Thời Gian Học</th>
+                    <th class="py-2.5 px-3 text-right">Trạng Thái</th>
+                  </tr>
+                </thead>
+                <tbody id="recentCandidatesTableBody" class="divide-y divide-slate-100">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: GAP QUEUE (CHỨNG CHỈ CHỜ CẤP LẠI - GOM THEO QUY ƯỚC) -->
+      <div id="tab-queue" class="tab-content hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <h3 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                <i class="fa-solid fa-shield-halved text-geely-accent"></i>
+                <span>Kiểm Soát & Quản Lý Mã Số Chứng Chỉ</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">Tổng hợp số chứng chỉ khuyết chờ cấp bù và tự động rà soát phát hiện các mã chứng chỉ bị trùng lặp.</p>
+            </div>
+            <button onclick="renderGapQueueTable()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs flex items-center space-x-1.5 transition">
+              <i class="fa-solid fa-arrows-rotate"></i>
+              <span>Quét lại toàn bộ</span>
+            </button>
+          </div>
+
+          <!-- SUB-TABS SELECTOR INSIDE QUEUE TAB -->
+          <div class="flex items-center space-x-2 border-b border-slate-200 pt-3 text-xs">
+            <button id="subtab-btn-gaps" onclick="switchQueueSubTab('gaps')" class="px-4 py-2 font-bold border-b-2 border-geely-blue text-geely-blue flex items-center space-x-2 transition">
+              <i class="fa-solid fa-recycle text-amber-500"></i>
+              <span>Số Chứng Chỉ Chờ Cấp Bù</span>
+              <span id="subtabGapsCount" class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full font-bold ml-1">0</span>
+            </button>
+            <button id="subtab-btn-duplicates" onclick="switchQueueSubTab('duplicates')" class="px-4 py-2 font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center space-x-2 transition">
+              <i class="fa-solid fa-triangle-exclamation text-rose-500"></i>
+              <span>Danh Sách Bị Trùng Số Chứng Chỉ</span>
+              <span id="subtabDuplicatesCount" class="bg-rose-100 text-rose-800 text-[10px] px-2 py-0.5 rounded-full font-bold ml-1">0</span>
+            </button>
+          </div>
+
+          <!-- SUB-TAB 1: GAPS QUEUE TABLE -->
+          <div id="subtab-content-gaps" class="block">
+            <div class="overflow-x-auto max-h-[500px] custom-scrollbar border border-slate-100 rounded-xl mt-4 text-xs">
+              <table class="w-full text-left whitespace-nowrap">
+                <thead class="bg-slate-50 text-slate-500 uppercase font-bold sticky top-0 border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-3">STT</th>
+                    <th class="py-2.5 px-3">Quy Ước Tiền Tố (Prefix)</th>
+                    <th class="py-2.5 px-3">Mã Bị Khuyết / Chờ Cấp</th>
+                    <th class="py-2.5 px-3">Số Thứ Tự</th>
+                    <th class="py-2.5 px-3">Trạng Thái</th>
+                  </tr>
+                </thead>
+                <tbody id="gapQueueTableBody" class="divide-y divide-slate-100">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SUB-TAB 2: DUPLICATES WARNING TABLE -->
+          <div id="subtab-content-duplicates" class="hidden space-y-4 pt-4">
+            <div id="duplicateAlertBox" class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start space-x-3 text-xs text-rose-800">
+              <i class="fa-solid fa-triangle-exclamation text-rose-600 text-lg mt-0.5"></i>
+              <div>
+                <p class="font-bold">Cảnh báo mã số chứng chỉ bị trùng lặp dữ liệu!</p>
+                <p class="text-[11px] text-rose-700 mt-0.5 leading-relaxed">
+                  Dưới đây là các mã chứng chỉ đang được gán cho nhiều học viên hoặc xuất hiện từ 2 lần trở lên. Bạn có thể kiểm tra trực tiếp và xóa/điều chỉnh hồ sơ bị trùng.
+                </p>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto max-h-[500px] custom-scrollbar border border-slate-100 rounded-xl text-xs">
+              <table class="w-full text-left whitespace-nowrap">
+                <thead class="bg-slate-50 text-slate-500 uppercase font-bold sticky top-0 border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-3 text-center">STT</th>
+                    <th class="py-2.5 px-3">Mã Chứng Chỉ Bị Trùng</th>
+                    <th class="py-2.5 px-3 text-center">Số Lần Xuất Hiện</th>
+                    <th class="py-2.5 px-3">Chi Tiết Các Học Viên & Đại Lý Bị Trùng</th>
+                    <th class="py-2.5 px-3 text-right">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody id="duplicatesTableBody" class="divide-y divide-slate-100">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: QUẢN TRỊ & GOOGLE SYNC (GỢP CHUNG 2 SUB-TAB) -->
+      <div id="tab-users" class="tab-content hidden space-y-6">
+        <!-- SUB-TAB HEADER SELECTOR -->
+        <div class="flex items-center space-x-2 border-b border-slate-200 pb-3">
+          <button id="subtab-btn-accounts" onclick="switchUsersSyncSubTab('accounts')" class="px-5 py-2.5 rounded-xl font-bold bg-geely-blue text-white shadow-md flex items-center space-x-2 transition text-xs">
+            <i class="fa-solid fa-users-gear"></i>
+            <span>Quản trị Tài khoản</span>
+          </button>
+          <button id="subtab-btn-googlesync" onclick="switchUsersSyncSubTab('googlesync')" class="px-5 py-2.5 rounded-xl font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition text-xs">
+            <i class="fa-brands fa-google"></i>
+            <span>Google Sync & Apps Script</span>
+          </button>
+        </div>
+
+        <!-- SUB-TAB 1: USERS -->
+        <div id="subtab-content-accounts" class="block">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div id="addUserBox" class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm h-fit">
+              <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center space-x-2">
+                <i class="fa-solid fa-user-shield text-geely-accent"></i>
+                <span>Tạo Tài Khoản Mới</span>
+              </h3>
+              <form id="createUserForm" onsubmit="handleCreateUser(event)" class="space-y-4 text-xs">
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Tên đăng nhập *</label>
+                  <input type="text" id="newUsername" required placeholder="vd: viewer2" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Họ và tên</label>
+                  <input type="text" id="newFullName" placeholder="Họ và tên..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Mật khẩu *</label>
+                  <input type="password" id="newPassword" required placeholder="Nhập mật khẩu..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-600 mb-1">Phân quyền</label>
+                  <select id="newRole" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-white">
+                    <option value="viewer">Viewer (Chỉ xem báo cáo)</option>
+                    <option value="admin">Admin (Toàn quyền quản trị)</option>
+                  </select>
+                </div>
+                <button type="submit" id="btnCreateUser" class="w-full py-2.5 bg-geely-blue hover:bg-slate-900 text-white font-bold rounded-xl shadow transition">
+                  Tạo Tài Khoản
+                </button>
+              </form>
+            </div>
+
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
+              <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center space-x-2">
+                <i class="fa-solid fa-users text-geely-blue"></i>
+                <span>Danh Sách Tài Khoản & Mã Hóa SHA-256</span>
+              </h3>
+              <div class="overflow-x-auto rounded-xl border border-slate-100">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+                    <tr>
+                      <th class="py-3 px-3">Tài Khoản</th>
+                      <th class="py-3 px-3">Họ Tên</th>
+                      <th class="py-3 px-3">Quyền</th>
+                      <th class="py-3 px-3">Mã Băm SHA-256</th>
+                      <th class="py-3 px-3 text-right">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersTableBody" class="divide-y divide-slate-100">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-TAB 2: GOOGLE APPS SCRIPT SYNC -->
+        <div id="subtab-content-googlesync" class="hidden">
+          <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/90 shadow-sm">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+              <div>
+                <h3 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                  <i class="fa-brands fa-google text-emerald-600"></i>
+                  <span>Kết Nối Google Sheets Trực Tuyến Miễn Phí 100%</span>
+                </h3>
+                <p class="text-xs text-slate-500 mt-1">Toàn bộ dữ liệu được liên kết và lưu trữ vĩnh viễn trên Google Drive của bạn.</p>
+              </div>
+              <span id="syncStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <i class="fa-solid fa-cloud-check mr-1 text-emerald-500"></i> Đã kết nối Google Sheets Geely
+              </span>
+            </div>
+
+            <div class="space-y-4 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Đường dẫn Google Apps Script Web App (URL Gốc)</label>
+                <div class="flex items-center space-x-2">
+                  <input type="text" id="sheetApiUrl" readonly class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-600 focus:outline-none">
+                  <button type="button" onclick="saveAndTestSyncUrl()" class="px-4 py-2.5 rounded-xl bg-geely-blue text-white font-bold hover:bg-slate-900 transition flex items-center space-x-1 whitespace-nowrap">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>Đồng bộ ngay</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="font-semibold text-slate-600">Mã nguồn Google Apps Script (Code.gs)</label>
+                  <button type="button" onclick="copyAppsScriptCode()" class="text-geely-accent hover:underline font-bold flex items-center space-x-1">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>Sao chép mã Code.gs</span>
+                  </button>
+                </div>
+                <textarea id="appsScriptCodeBlock" readonly rows="8" class="w-full p-3 rounded-xl border border-slate-200 bg-slate-900 text-slate-200 font-mono text-[11px] leading-relaxed custom-scrollbar focus:outline-none"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: REPORT & EXCEL EXPORT (CHỈ ADMIN) -->
+      <div id="tab-report" class="tab-content hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
+          <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+            <div>
+              <h3 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                <i class="fa-solid fa-file-excel text-emerald-600"></i>
+                <span>Báo Cáo Đào Tạo Chuẩn Mẫu Geely</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">Xuất trực tiếp file Microsoft Excel (.xlsx) khớp hoàn toàn với mẫu file thực tế.</p>
+            </div>
+            <button onclick="exportToExcel()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 text-xs flex items-center space-x-2 transition">
+              <i class="fa-solid fa-download"></i>
+              <span>Tải File Excel (.xlsx)</span>
+            </button>
+          </div>
+
+          <!-- REPORT FILTERS -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 py-4 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1">Lọc theo Đợt / Thời gian học</label>
+              <select id="reportTimeFilter" onchange="filterReportRecords()" class="w-full p-2 rounded-xl border border-slate-200 bg-white">
+                <option value="ALL">Tất cả các đợt đào tạo</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1">Lọc theo Khóa học</label>
+              <select id="reportCourseFilter" onchange="filterReportRecords()" class="w-full p-2 rounded-xl border border-slate-200 bg-white">
+                <option value="ALL">Tất cả khóa học</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1">Lọc theo Đại lý</label>
+              <select id="reportDealerFilter" onchange="filterReportRecords()" class="w-full p-2 rounded-xl border border-slate-200 bg-white">
+                <option value="ALL">Tất cả Đại lý</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1">Ngày nhập (Từ - Đến)</label>
+              <div class="flex items-center space-x-1">
+                <input type="date" id="reportEntryDateFrom" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]" title="Từ ngày nhập">
+                <input type="date" id="reportEntryDateTo" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]" title="Đến ngày nhập">
+              </div>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1 flex items-center justify-between">
+                <span>Ngày cấp (Từ - Đến)</span>
+                <span id="reportCountLabel" class="text-[10px] text-slate-400 font-bold">0 bản ghi</span>
+              </label>
+              <div class="flex items-center space-x-1">
+                <input type="date" id="reportDateFrom" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]" title="Từ ngày cấp">
+                <input type="date" id="reportDateTo" onchange="filterReportRecords()" class="w-1/2 p-2 rounded-xl border border-slate-200 bg-white text-[11px]" title="Đến ngày cấp">
+              </div>
+            </div>
+          </div>
+
+          <!-- PREVIEW TABLE -->
+          <div class="overflow-x-auto max-h-[600px] custom-scrollbar border border-slate-200 rounded-xl text-[11px]">
+            <table class="w-full text-left whitespace-nowrap border-collapse">
+              <thead class="bg-geely-blue text-white uppercase text-[10px] sticky top-0 font-bold tracking-wider">
+                <tr>
+                  <th class="py-2.5 px-3 border-r border-white/10 text-center">No.</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Ngày Nhập</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Country</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Dealer Name</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Trainee Name</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Position</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Training Time</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Training Course</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Exam Score</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Trainer</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Evaluation</th>
+                  <th class="py-2.5 px-3 text-right">Certificate Code</th>
+                </tr>
+              </thead>
+              <tbody id="reportTableBody" class="divide-y divide-slate-100">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- DRILL-DOWN DEALER DETAIL MODAL -->
+  <div id="dealerModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full p-6 sm:p-8 max-h-[90vh] flex flex-col border border-slate-200">
+      <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+            <h3 id="modalDealerTitle" class="text-xl font-black text-slate-800 uppercase tracking-tight">Chi tiết Đại lý</h3>
+          </div>
+          <p id="modalDealerSubtitle" class="text-xs text-slate-500 mt-1 font-medium"></p>
+        </div>
+        <button onclick="closeDealerModal()" class="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-100 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- FILTER & BATCH ACTION BAR IN MODAL -->
+      <div class="py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center space-x-2">
+          <span class="font-bold text-slate-600">Lọc khóa học:</span>
+          <select id="modalCourseFilter" onchange="renderModalTechnicians()" class="p-1.5 rounded-lg border border-slate-200 bg-white font-semibold text-geely-blue focus:outline-none">
+            <option value="ALL">Tất cả khóa học</option>
+          </select>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+          <span id="batchSelectedCounter" class="text-[11px] text-slate-500 font-semibold hidden">Đã chọn: 0</span>
+          <button id="btnBatchDelete" type="button" onclick="handleBatchDelete()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center space-x-1.5 shadow-sm transition disabled:opacity-40" disabled>
+            <i class="fa-solid fa-trash-can"></i>
+            <span>Xóa các mục đã chọn</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto flex-1 custom-scrollbar border border-slate-100 rounded-xl text-xs">
+        <table class="w-full text-left whitespace-nowrap">
+          <thead class="bg-slate-50 text-slate-500 uppercase font-bold sticky top-0 border-b border-slate-200">
+            <tr>
+              <th class="py-2.5 px-3 text-center">
+                <input type="checkbox" id="selectAllModalCheck" onchange="toggleSelectAllModal(this)" class="w-4 h-4 text-geely-blue rounded">
+              </th>
+              <th class="py-2.5 px-3">Kỹ Thuật Viên</th>
+              <th class="py-2.5 px-3">Khóa Học</th>
+              <th class="py-2.5 px-3">Mã Chứng Chỉ</th>
+              <th class="py-2.5 px-3">Điểm Số</th>
+              <th class="py-2.5 px-3">Thời Gian Học</th>
+              <th class="py-2.5 px-3 text-right">Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="modalTechTableBody" class="divide-y divide-slate-100">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP NHẬP MÃ CHỨNG CHỈ TỰ ĐIỀN TAY -->
+  <div id="manualCertModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+          <i class="fa-solid fa-pen-to-square text-amber-600"></i>
+          <span>Điền Mã Chứng Chỉ Thủ Công</span>
+        </h3>
+        <button onclick="closeManualCertModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs mb-4">
+        <div>
+          <span class="text-slate-400 block font-medium">Kỹ thuật viên:</span>
+          <span id="manualCertTraineeName" class="font-bold text-slate-800 text-sm uppercase"></span>
+        </div>
+        <div>
+          <span class="text-slate-400 block font-medium">Khóa học:</span>
+          <span id="manualCertCourseName" class="font-semibold text-geely-blue"></span>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Mã chứng chỉ:</label>
+          <textarea id="manualCertInput" rows="3" placeholder="Nhập mã chứng chỉ..." class="w-full p-2.5 rounded-xl border border-slate-200 font-mono text-xs focus:ring-2 focus:ring-geely-accent focus:outline-none"></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-2">
+        <button type="button" onclick="closeManualCertModal()" class="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold text-xs">Hủy</button>
+        <button type="button" onclick="saveManualCertCode()" class="px-4 py-2 rounded-xl bg-geely-blue text-white font-bold hover:bg-slate-900 transition text-xs">Lưu Mã</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANGE PASSWORD MODAL -->
+  <div id="changePasswordModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+          <i class="fa-solid fa-key text-geely-accent"></i>
+          <span>Đổi Mật Khẩu</span>
+        </h3>
+        <button onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <p id="changePasswordUserLabel" class="text-xs text-slate-500 mb-4"></p>
+      <form id="changePasswordForm" onsubmit="handleChangePassword(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Mật khẩu hiện tại *</label>
+          <input type="password" id="currentPasswordInput" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Mật khẩu mới *</label>
+          <input type="password" id="newPasswordInput" required minlength="6" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Xác nhận mật khẩu mới *</label>
+          <input type="password" id="confirmNewPasswordInput" required minlength="6" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+        </div>
+        <div class="pt-2 flex items-center justify-end space-x-2">
+          <button type="button" onclick="closeChangePasswordModal()" class="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold text-xs">Hủy</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-geely-blue text-white font-bold hover:bg-slate-900 transition text-xs">Lưu Mật Khẩu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT COURSE MODAL -->
+  <div id="editCourseModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center space-x-2">
+          <i class="fa-solid fa-pen-to-square text-geely-accent"></i>
+          <span>Điều Chỉnh Thông Tin Khóa Học</span>
+        </h3>
+        <button onclick="closeEditCourseModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="editCourseForm" onsubmit="handleSaveEditedCourse(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="editCourseId">
+        <input type="hidden" id="editCourseOldName">
+
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Tên khóa học *</label>
+          <input type="text" id="editCourseNameInput" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase font-bold text-geely-blue">
+        </div>
+
+        <div class="p-3 bg-amber-50/70 border border-amber-200 rounded-xl">
+          <label class="inline-flex items-center space-x-2 cursor-pointer w-full">
+            <input type="checkbox" id="editCourseIsManualCert" onchange="toggleManualCourseFieldsEdit()" class="w-4 h-4 text-amber-600 rounded focus:ring-amber-500">
+            <span class="font-bold text-amber-900">Chứng chỉ tự điền (Điền tay)</span>
+          </label>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div id="editCoursePrefixContainer">
+            <label class="block font-semibold text-slate-600 mb-1">Tiền tố chứng chỉ (Prefix) *</label>
+            <input type="text" id="editCoursePrefixInput" class="w-full p-2.5 rounded-xl border border-slate-200 uppercase font-mono">
+          </div>
+          <div id="editCourseDigitsContainer">
+            <label class="block font-semibold text-slate-600 mb-1">Số chữ số</label>
+            <input type="number" id="editCourseDigitsInput" value="4" min="3" max="6" class="w-full p-2.5 rounded-xl border border-slate-200">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Điểm chuẩn đạt</label>
+            <input type="text" id="editCourseScoreInput" class="w-full p-2.5 rounded-xl border border-slate-200">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Thời gian đào tạo (Text)</label>
+            <input type="text" id="editCourseDateInput" class="w-full p-2.5 rounded-xl border border-slate-200">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Giảng viên phụ trách</label>
+          <input type="text" id="editCourseTrainerInput" class="w-full p-2.5 rounded-xl border border-slate-200 uppercase">
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
+          <button type="button" onclick="closeEditCourseModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold">Hủy</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-geely-blue text-white font-bold hover:bg-slate-900 shadow transition">Lưu Thay Đổi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT DEALER LOCATION MODAL -->
+  <div id="dealerLocationModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+          <i class="fa-solid fa-location-crosshairs text-geely-accent"></i>
+          <span id="dealerLocModalName">Ghim Tọa Độ Đại Lý</span>
+        </h3>
+        <button onclick="closeDealerLocationModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <p class="text-xs text-slate-500 mb-3">Nhấp chuột trực tiếp lên bản đồ dưới đây để thay đổi vị trí ghim định vị của đại lý:</p>
+      
+      <div id="editDealerMapBox" class="relative w-full aspect-[1/1.5] rounded-xl overflow-hidden bg-slate-100 border border-slate-200 cursor-crosshair mb-4" onclick="handleEditDealerMapClick(event)">
+        <img src="Vietnam_location_map.png" alt="Map" class="w-full h-full object-fill pointer-events-none select-none" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Vietnam_location_map.svg/512px-Vietnam_location_map.svg.png';">
+        <div id="editDealerPinDot" class="absolute w-4 h-4 bg-rose-600 border-2 border-white rounded-full shadow-lg transform -translate-x-1/2 -translate-y-1/2 transition-all"></div>
+      </div>
+
+      <div class="flex items-center justify-between text-xs mb-4 font-mono font-bold text-slate-600">
+        <span id="editDealerCoordBadge">Tọa độ hiện tại: -</span>
+      </div>
+
+      <div class="flex items-center justify-end space-x-2">
+        <button type="button" onclick="closeDealerLocationModal()" class="px-3 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold text-xs">Hủy</button>
+        <button type="button" onclick="saveDealerLocation()" class="px-4 py-2 rounded-xl bg-geely-blue text-white font-bold hover:bg-slate-900 transition text-xs">Lưu Tọa Độ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    const PRIMARY_GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxXy-DFSlE-KsuGqu1U2uWPq56WKzrb6ZHPojS9HAkOTRaE2m7We1LrHKuETA1sjGIt/exec';
+
+    const INITIAL_RAW_RECORDS = [
+      ["GEELY THAI NGUYEN", "NGUYEN TIEN HUNG", "ONLINE UMU", "1-31/7/2025", "GMTC LEVEL 1 (NEW)", "360/460", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0015"],
+      ["GEELY HA NOI", "NGUYEN VAN A", "ONLINE UMU", "1-31/10/2026", "GMTC LEVEL 1 (NEW)", "90/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0100"]
+    ];
+
+    const INITIAL_USERS = [
+      { username: 'admin', fullname: 'Quản trị viên', role: 'admin', hash: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', plainPassword: 'admin' },
+      { username: 'viewer', fullname: 'Nhân viên Xem', role: 'viewer', hash: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', plainPassword: '123' }
+    ];
+
+    const DEFAULT_COORDS = {
+      "GEELY HA NOI": { x: 48, y: 24 },
+      "GEELY LONG BIEN": { x: 50, y: 24 },
+      "GEELY PHAM VAN DONG": { x: 48, y: 23 },
+      "GEELY GIAI PHONG": { x: 48, y: 25 },
+      "GEELY HA DONG": { x: 46, y: 25 },
+      "GEELY HAI PHONG": { x: 58, y: 25 },
+      "GEELY DA NANG": { x: 67, y: 46 },
+      "GEELY HO CHI MINH": { x: 45, y: 78 },
+      "GEELY TAN PHU": { x: 44, y: 78 },
+      "GEELY PHU MY HUNG": { x: 45, y: 80 },
+      "GEELY VO VAN KIET": { x: 44, y: 78 },
+      "GEELY CAN THO": { x: 38, y: 86 },
+      "GEELY CA MAU": { x: 34, y: 92 },
+      "GEELY PHU QUOC": { x: 24, y: 89 }
+    };
+
+    const state = {
+      currentUser: null,
+      records: [],
+      dealers: [],
+      courses: [],
+      users: [],
+      syncUrl: PRIMARY_GOOGLE_SHEET_URL,
+      currentModalDealer: null,
+      selectedModalRecords: new Set(),
+      recentCandidates: [],
+      editingDealerLocId: null
+    };
+
+    function normalizeStr(s) {
+      if (!s) return '';
+      return String(s).trim().replace(/\s+/g, ' ');
+    }
+
+    async function sha256(str) {
+      try {
+        const textAsBuffer = new TextEncoder().encode(str);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', textAsBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      } catch (e) {
+        return str;
+      }
+    }
+
+    function extractCertCodes(certField) {
+      if (!certField) return [];
+      return String(certField).split(/[\r\n,;]+/).map(c => c.trim()).filter(c => c.length > 0);
+    }
+
+    function formatCertCodeHTML(certField) {
+      const codes = extractCertCodes(certField);
+      if (codes.length === 0) return '';
+      return codes.map(c => `<span class="inline-block px-2 py-0.5 rounded-md font-mono font-bold bg-amber-50 text-amber-800 border border-amber-300 text-[11px] whitespace-nowrap shadow-sm">${c}</span>`).join(' ');
+    }
+
+    function guessRegion(dealerName) {
+      const name = (dealerName || '').toUpperCase();
+      if (name.includes('DA NANG') || name.includes('HA TINH') || name.includes('QUANG BINH') || name.includes('QUANG NGAI') || name.includes('QUANG NAM') || name.includes('GIA LAI') || name.includes('KON TUM') || name.includes('DAK LAK') || name.includes('DAK NONG') || name.includes('NHA TRANG') || name.includes('NINH THUAN') || name.includes('BINH THUAN') || name.includes('DA LAT') || name.includes('THANH HOA') || name.includes('NGHI SON')) {
+        return 'Miền Trung & Tây Nguyên';
+      }
+      if (name.includes('HO CHI MINH') || name.includes('BINH DUONG') || name.includes('BINH PHUOC') || name.includes('DONG NAI') || name.includes('TAY NINH') || name.includes('BA RIA') || name.includes('VUNG TAU') || name.includes('LONG AN') || name.includes('TIEN GIANG') || name.includes('BEN TRE') || name.includes('TRA VINH') || name.includes('VINH LONG') || name.includes('DONG THAP') || name.includes('AN GIANG') || name.includes('KIEN GIANG') || name.includes('CAN THO') || name.includes('HAU GIANG') || name.includes('SOC TRANG') || name.includes('BAC LIEU') || name.includes('CA MAU') || name.includes('PHU QUOC') || name.includes('TAN PHU') || name.includes('PHU MY HUNG') || name.includes('VO VAN KIET') || name.includes('CHE LAN VIEN')) {
+        return 'Miền Nam';
+      }
+      return 'Miền Bắc';
+    }
+
+    function getDealerPercentCoords(dealerName) {
+      const found = state.dealers.find(d => normalizeStr(d.name).toUpperCase() === normalizeStr(dealerName).toUpperCase());
+      if (found && found.mapPercentX && found.mapPercentY) {
+        return { x: found.mapPercentX, y: found.mapPercentY };
+      }
+      for (const key in DEFAULT_COORDS) {
+        if (normalizeStr(dealerName).toUpperCase().includes(key)) {
+          return DEFAULT_COORDS[key];
+        }
+      }
+      return { x: 50, y: 50 };
+    }
+
+    function togglePassVisibility(inputId, iconId) {
+      const inp = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash';
+      } else {
+        inp.type = 'password';
+        icon.className = 'fa-regular fa-eye';
+      }
+    }
+
+    function updateSyncBadge(isConnected) {
+      const badge = document.getElementById('syncStatusBadge');
+      if (!badge) return;
+      if (isConnected) {
+        badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200";
+        badge.innerHTML = `<i class="fa-solid fa-cloud-check mr-1 text-emerald-500"></i> Đã kết nối Google Sheets Geely`;
+      } else {
+        badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200";
+        badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1 text-amber-500"></i> Chưa kết nối`;
+      }
+    }
+
+    function saveAndTestSyncUrl() {
+      pullFromGoogleSheets(false);
+    }
+
+    function copyAppsScriptCode() {
+      const textarea = document.getElementById('appsScriptCodeBlock');
+      if (!textarea) return;
+      textarea.select();
+      document.execCommand('copy');
+      showToast('Đã sao chép mã Code.gs vào clipboard!', 'success');
+    }
+
+    function toggleManualCourseFields() {
+      const isManual = document.getElementById('courseIsManualCert').checked;
+      document.getElementById('coursePrefixContainer').style.display = isManual ? 'none' : 'block';
+      document.getElementById('courseDigitsContainer').style.display = isManual ? 'none' : 'block';
+    }
+
+    function toggleManualCourseFieldsEdit() {
+      const isManual = document.getElementById('editCourseIsManualCert').checked;
+      document.getElementById('editCoursePrefixContainer').style.display = isManual ? 'none' : 'block';
+      document.getElementById('editCourseDigitsContainer').style.display = isManual ? 'none' : 'block';
+    }
+
+    async function handleLogin(e) {
+      if (e) e.preventDefault();
+      const userVal = normalizeStr(document.getElementById('loginUser').value).toLowerCase();
+      const passVal = document.getElementById('loginPass').value;
+      const statusP = document.getElementById('loginSyncStatus');
+      const submitBtn = document.getElementById('loginSubmitBtn');
+      const btnText = document.getElementById('loginBtnText');
+      const btnIcon = document.getElementById('loginBtnIcon');
+
+      // Hiệu ứng chờ kiểm tra đăng nhập
+      submitBtn.disabled = true;
+      btnText.innerText = "Đang kiểm tra...";
+      btnIcon.className = "fa-solid fa-spinner fa-spin text-sm";
+      statusP.innerHTML = `<span class="text-sky-600 font-bold"><i class="fa-solid fa-rotate fa-spin mr-1"></i> Đang xác thực tài khoản trực tuyến...</span>`;
+
+      try {
+        const response = await fetch(state.syncUrl + '?t=' + Date.now());
+        const res = await response.json();
+        if (res && res.status === 'SUCCESS' && res.data && res.data.users) {
+          state.users = res.data.users.map(u => ({
+            username: normalizeStr(u.username).toLowerCase(),
+            fullname: u.fullname || u.username,
+            role: (u.role || 'viewer').toLowerCase(),
+            hash: (u.hash || '').toLowerCase().trim(),
+            plainPassword: u.plainPassword || ''
+          }));
+          localStorage.setItem('geely_users', JSON.stringify(state.users));
+        }
+      } catch (err) {
+        console.warn('Lỗi đọc user online:', err);
+      }
+
+      const inputHash = (await sha256(passVal)).toLowerCase();
+      let matchedUser = state.users.find(u => {
+        if (u.username.toLowerCase() !== userVal) return false;
+        return (u.hash && u.hash === inputHash) || (u.plainPassword && u.plainPassword === passVal) || (u.plainPassword === '' && u.hash === '');
+      });
+
+      // Khôi phục nút bấm sau khi kiểm tra xong
+      submitBtn.disabled = false;
+      btnText.innerText = "Đăng nhập hệ thống";
+      btnIcon.className = "fa-solid fa-arrow-right-to-bracket text-sm";
+
+      if (matchedUser) {
+        state.currentUser = matchedUser;
+        sessionStorage.setItem('geely_session_user', JSON.stringify(matchedUser));
+        enterApplication();
+        showToast(`Đăng nhập thành công! Xin chào ${matchedUser.fullname || matchedUser.username}`, 'success');
+      } else {
+        statusP.innerHTML = `<span class="text-rose-500 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Sai tài khoản hoặc mật khẩu!</span>`;
+        showToast('Sai tài khoản hoặc mật khẩu!', 'error');
+      }
+    }
+
+    function enterApplication() {
+      document.getElementById('loginScreen').style.display = 'none';
+      const appContainer = document.getElementById('appContainer');
+      appContainer.classList.remove('hidden');
+      appContainer.classList.add('flex');
+
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
+      document.getElementById('currentUserLabel').innerText = state.currentUser.fullname || state.currentUser.username;
+      document.getElementById('currentUserRole').innerText = isAdmin ? 'Quản trị viên (Admin)' : 'Người xem (Viewer)';
+
+      // PHÂN QUYỀN HIỂN THỊ DỰA TRÊN ROLE
+      document.getElementById('headerReportBtn').style.display = isAdmin ? 'flex' : 'none';
+      document.getElementById('nav-entry').style.display = isAdmin ? 'flex' : 'none';
+      document.getElementById('nav-queue').style.display = isAdmin ? 'flex' : 'none';
+      document.getElementById('nav-users').style.display = isAdmin ? 'flex' : 'none';
+
+      // Tab Quản lý đại lý & khóa học luôn hiện cho cả viewer (để xem danh mục), nhưng ẩn form thêm mới và cột thao tác đối với viewer
+      document.getElementById('nav-dealers-courses').style.display = 'flex';
+
+      const createDealerBox = document.getElementById('createDealerFormBox');
+      const createCourseBox = document.getElementById('createCourseFormBox');
+      const dealersTableCard = document.getElementById('dealersManagerTableCard');
+      const courseTableCard = document.getElementById('courseTableCard');
+      const newDealerMapSection = document.getElementById('newDealerMapSection');
+
+      if (createDealerBox) createDealerBox.style.display = isAdmin ? 'block' : 'none';
+      if (createCourseBox) createCourseBox.style.display = isAdmin ? 'block' : 'none';
+      if (newDealerMapSection) newDealerMapSection.style.display = isAdmin ? 'block' : 'none';
+
+      if (dealersTableCard) {
+        dealersTableCard.className = isAdmin ? "lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm" : "lg:col-span-3 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm";
+      }
+      if (courseTableCard) {
+        courseTableCard.className = isAdmin ? "lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm" : "lg:col-span-3 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm";
+      }
+
+      const addUserBox = document.getElementById('addUserBox');
+      if (addUserBox) addUserBox.style.display = isAdmin ? 'block' : 'none';
+
+      renderDashboardStats();
+      renderDashboardView();
+      renderDealersManagerTable();
+      populateDropdowns();
+      renderCourseTable();
+      renderUsersTable();
+      renderGapQueueTable();
+      filterReportRecords();
+      renderRecentCandidatesTable();
+      updateSyncBadge(true);
+    }
+
+    function switchTab(tabId) {
+      if (!state.currentUser) return;
+      const isAdmin = state.currentUser.role === 'admin';
+      if (!isAdmin && (tabId === 'entry' || tabId === 'queue' || tabId === 'users' || tabId === 'report')) {
+        showToast('Tài khoản Viewer không có quyền truy cập tab này!', 'error');
+        return;
+      }
+
+      document.querySelectorAll('.tab-content').forEach(c => { c.classList.remove('block'); c.classList.add('hidden'); });
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}`).classList.add('block');
+
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.className = 'tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 whitespace-nowrap transition';
+      });
+      const activeBtn = document.getElementById(`nav-${tabId}`);
+      if (activeBtn) activeBtn.className = 'tab-btn px-3.5 py-2 rounded-lg font-semibold text-white bg-white/10 flex items-center space-x-2 whitespace-nowrap transition';
+
+      if (tabId === 'dashboard') { renderDashboardStats(); renderDashboardView(); }
+      else if (tabId === 'dealers-courses') { renderDealersManagerTable(); renderCourseTable(); }
+      else if (tabId === 'entry') { populateDropdowns(); calculateNextCertCode(); renderRecentCandidatesTable(); }
+      else if (tabId === 'queue') { renderGapQueueTable(); }
+      else if (tabId === 'users') { renderUsersTable(); }
+      else if (tabId === 'report') { populateReportFilters(); filterReportRecords(); }
+    }
+
+    function switchDealersCoursesSubTab(sub) {
+      const btnD = document.getElementById('subtab-btn-dealers');
+      const btnC = document.getElementById('subtab-btn-courses');
+      const boxD = document.getElementById('subtab-content-dealers');
+      const boxC = document.getElementById('subtab-content-courses');
+      if (sub === 'dealers') {
+        btnD.className = "px-5 py-2.5 rounded-xl font-bold bg-geely-blue text-white shadow-md flex items-center space-x-2 transition text-xs";
+        btnC.className = "px-5 py-2.5 rounded-xl font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition text-xs";
+        boxD.classList.remove('hidden'); boxD.classList.add('block');
+        boxC.classList.remove('hidden'); boxC.classList.add('hidden');
+        renderDealersManagerTable();
+      } else {
+        btnC.className = "px-5 py-2.5 rounded-xl font-bold bg-geely-blue text-white shadow-md flex items-center space-x-2 transition text-xs";
+        btnD.className = "px-5 py-2.5 rounded-xl font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition text-xs";
+        boxC.classList.remove('hidden'); boxC.classList.add('block');
+        boxD.classList.remove('hidden'); boxD.classList.add('hidden');
+        renderCourseTable();
+      }
+    }
+
+    function switchUsersSyncSubTab(sub) {
+      const btnA = document.getElementById('subtab-btn-accounts');
+      const btnG = document.getElementById('subtab-btn-googlesync');
+      const boxA = document.getElementById('subtab-content-accounts');
+      const boxG = document.getElementById('subtab-content-googlesync');
+      if (sub === 'accounts') {
+        btnA.className = "px-5 py-2.5 rounded-xl font-bold bg-geely-blue text-white shadow-md flex items-center space-x-2 transition text-xs";
+        btnG.className = "px-5 py-2.5 rounded-xl font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition text-xs";
+        boxA.classList.remove('hidden'); boxA.classList.add('block');
+        boxG.classList.remove('hidden'); boxG.classList.add('hidden');
+        renderUsersTable();
+      } else {
+        btnG.className = "px-5 py-2.5 rounded-xl font-bold bg-geely-blue text-white shadow-md flex items-center space-x-2 transition text-xs";
+        btnA.className = "px-5 py-2.5 rounded-xl font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition text-xs";
+        boxG.classList.remove('hidden'); boxG.classList.add('block');
+        boxA.classList.remove('hidden'); boxA.classList.add('hidden');
+      }
+    }
+
+    function renderDashboardStats() {
+      const uniqueDealers = new Set(state.records.map(r => r.dealer).filter(Boolean));
+      state.dealers.forEach(d => uniqueDealers.add(d.name));
+      const uniqueTechs = new Set(state.records.map(r => `${r.dealer}_${r.trainee}`));
+      let totalCertsCount = 0;
+      state.records.forEach(r => { totalCertsCount += extractCertCodes(r.certCode).length; });
+
+      document.getElementById('statTotalDealers').innerText = uniqueDealers.size;
+      document.getElementById('statTotalTechs').innerText = uniqueTechs.size;
+      document.getElementById('statTotalCerts').innerText = totalCertsCount;
+    }
+
+    function renderDashboardView() {
+      renderDealerCards();
+      renderMapPins();
+    }
+
+    function renderDealerCards() {
+      const container = document.getElementById('dealersGrid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const searchVal = (document.getElementById('dealerSearchInput').value || '').trim().toUpperCase();
+      const sortVal = document.getElementById('dealerSortSelect').value;
+      const dealerDataMap = new Map();
+
+      state.dealers.forEach(d => {
+        dealerDataMap.set(d.name, { name: d.name, region: d.region || guessRegion(d.name), techs: new Set(), certCount: 0, records: [] });
+      });
+
+      state.records.forEach(r => {
+        if (!dealerDataMap.has(r.dealer)) {
+          dealerDataMap.set(r.dealer, { name: r.dealer, region: guessRegion(r.dealer), techs: new Set(), certCount: 0, records: [] });
+        }
+        const item = dealerDataMap.get(r.dealer);
+        item.techs.add(r.trainee);
+        item.certCount += extractCertCodes(r.certCode).length;
+        item.records.push(r);
+      });
+
+      let list = Array.from(dealerDataMap.values());
+      if (searchVal) {
+        list = list.filter(d => d.name.includes(searchVal) || d.region.toUpperCase().includes(searchVal) || Array.from(d.techs).some(t => t.toUpperCase().includes(searchVal)));
+      }
+
+      if (sortVal === 'tech-desc') list.sort((a, b) => b.techs.size - a.techs.size);
+      else if (sortVal === 'tech-asc') list.sort((a, b) => a.techs.size - b.techs.size);
+      else if (sortVal === 'cert-desc') list.sort((a, b) => b.certCount - a.certCount);
+      else if (sortVal === 'name-asc') list.sort((a, b) => a.name.localeCompare(b.name));
+
+      document.getElementById('filteredDealerCount').innerText = `Hiển thị ${list.length} đại lý`;
+
+      if (list.length === 0) {
+        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-200">Không tìm thấy đại lý phù hợp.</div>`;
+        return;
+      }
+
+      list.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-4 rounded-2xl border-2 border-slate-200 hover:border-geely-accent shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group";
+        card.onclick = () => openDealerModal(item.name);
+        card.onmouseenter = () => highlightPinOnMap(item.name, true);
+        card.onmouseleave = () => highlightPinOnMap(item.name, false);
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 uppercase">${item.region}</span>
+              <span class="text-slate-300 group-hover:text-geely-accent text-xs"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+            </div>
+            <h4 class="font-black text-slate-900 text-xs group-hover:text-geely-accent transition line-clamp-1 uppercase">${item.name}</h4>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-3 pt-2.5 border-t border-slate-100 text-center">
+            <div class="bg-emerald-50/60 p-1.5 rounded-xl border border-emerald-100">
+              <span class="text-[9px] text-emerald-800 font-bold block uppercase">KTV</span>
+              <span class="text-sm font-black text-emerald-700">${item.techs.size}</span>
+            </div>
+            <div class="bg-amber-50/60 p-1.5 rounded-xl border border-amber-100">
+              <span class="text-[9px] text-amber-800 font-bold block uppercase">Chứng chỉ</span>
+              <span class="text-sm font-black text-amber-700">${item.certCount}</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderMapPins() {
+      const layer = document.getElementById('mapMarkersLayer');
+      if (!layer) return;
+      layer.innerHTML = '';
+
+      const dealerDataMap = new Map();
+      state.dealers.forEach(d => {
+        dealerDataMap.set(d.name, { name: d.name, region: d.region || guessRegion(d.name), techs: new Set(), certCount: 0 });
+      });
+      state.records.forEach(r => {
+        if (!dealerDataMap.has(r.dealer)) {
+          dealerDataMap.set(r.dealer, { name: r.dealer, region: guessRegion(r.dealer), techs: new Set(), certCount: 0 });
+        }
+        const item = dealerDataMap.get(r.dealer);
+        item.techs.add(r.trainee);
+        item.certCount += extractCertCodes(r.certCode).length;
+      });
+
+      const list = Array.from(dealerDataMap.values());
+      document.getElementById('mapPinCountBadge').innerText = `${list.length} điểm`;
+      document.getElementById('totalActivePins').innerText = list.length;
+
+      list.forEach(item => {
+        const coords = getDealerPercentCoords(item.name);
+        const pin = document.createElement('div');
+        pin.id = `map-pin-${item.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        // CHẤM ĐEN CƠ BẢN CỐ ĐỊNH TRÊN BẢN ĐỒ
+        pin.className = "absolute w-3 h-3 bg-slate-900 border-2 border-white rounded-full shadow-md transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all hover:z-30";
+        pin.style.left = `${coords.x}%`;
+        pin.style.top = `${coords.y}%`;
+
+        pin.onmouseenter = (e) => {
+          showPinTooltip(item, e);
+          highlightPinOnMap(item.name, true);
+        };
+        pin.onmouseleave = () => {
+          hidePinTooltip();
+          highlightPinOnMap(item.name, false);
+        };
+        pin.onclick = () => openDealerModal(item.name);
+
+        layer.appendChild(pin);
+      });
+    }
+
+    function highlightPinOnMap(dealerName, isHighlight) {
+      const pinId = `map-pin-${dealerName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      const pin = document.getElementById(pinId);
+      if (!pin) return;
+      if (isHighlight) {
+        // KHI RÊ CHUỘT: GIỮ NGUYÊN NÚT ĐEN VÀ THÊM VÒNG NHÁY ĐỎ BAO QUANH
+        pin.innerHTML = `<span class="absolute -inset-1.5 rounded-full bg-rose-500 opacity-75 animate-ping pointer-events-none"></span>`;
+        pin.className = "absolute w-3 h-3 bg-slate-900 border-2 border-white rounded-full shadow-2xl transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-30 scale-90";
+      } else {
+        pin.innerHTML = '';
+        pin.className = "absolute w-3 h-3 bg-slate-900 border-2 border-white rounded-full shadow-md transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all";
+      }
+    }
+
+    function showPinTooltip(item, event) {
+      const tooltip = document.getElementById('mapTooltip');
+      if (!tooltip) return;
+      document.getElementById('tooltipDealerName').innerText = item.name;
+      document.getElementById('tooltipRegion').innerText = item.region;
+      document.getElementById('tooltipTechs').innerText = item.techs.size;
+      document.getElementById('tooltipCerts').innerText = item.certCount;
+
+      const mapBox = document.getElementById('vietnamMapContainer').getBoundingClientRect();
+      const pinRect = event.currentTarget.getBoundingClientRect();
+      
+      const left = pinRect.left - mapBox.left + pinRect.width / 2;
+      const top = pinRect.top - mapBox.top - 8;
+
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+      tooltip.classList.remove('hidden');
+    }
+
+    function hidePinTooltip() {
+      const tooltip = document.getElementById('mapTooltip');
+      if (tooltip) tooltip.classList.add('hidden');
+    }
+
+    function handleNewDealerMapClick(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+      const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+      const dot = document.getElementById('newDealerPinDot');
+      dot.style.left = `${x}%`;
+      dot.style.top = `${y}%`;
+      dot.classList.remove('hidden');
+      document.getElementById('entryMapX').value = x;
+      document.getElementById('entryMapY').value = y;
+      document.getElementById('newDealerCoordBadge').innerText = `Đã ghim: X:${x}%, Y:${y}%`;
+    }
+
+    function openDealerLocationModal(dealerId) {
+      const dealer = state.dealers.find(d => d.id === dealerId);
+      if (!dealer) return;
+      state.editingDealerLocId = dealerId;
+      document.getElementById('dealerLocModalName').innerText = `Ghim Tọa Độ: ${dealer.name}`;
+      const coords = (dealer.mapPercentX && dealer.mapPercentY) ? { x: dealer.mapPercentX, y: dealer.mapPercentY } : getDealerPercentCoords(dealer.name);
+      const dot = document.getElementById('editDealerPinDot');
+      dot.style.left = `${coords.x}%`;
+      dot.style.top = `${coords.y}%`;
+      dot.dataset.x = coords.x;
+      dot.dataset.y = coords.y;
+      document.getElementById('editDealerCoordBadge').innerText = `Tọa độ hiện tại: X:${coords.x}%, Y:${coords.y}%`;
+      document.getElementById('dealerLocationModal').classList.remove('hidden');
+      document.getElementById('dealerLocationModal').classList.add('flex');
+    }
+
+    function closeDealerLocationModal() {
+      document.getElementById('dealerLocationModal').classList.remove('flex');
+      document.getElementById('dealerLocationModal').classList.add('hidden');
+      state.editingDealerLocId = null;
+    }
+
+    function handleEditDealerMapClick(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+      const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+      const dot = document.getElementById('editDealerPinDot');
+      dot.style.left = `${x}%`;
+      dot.style.top = `${y}%`;
+      dot.dataset.x = x;
+      dot.dataset.y = y;
+      document.getElementById('editDealerCoordBadge').innerText = `Đã chọn: X:${x}%, Y:${y}%`;
+    }
+
+    function saveDealerLocation() {
+      if (!state.editingDealerLocId) return;
+      const dealer = state.dealers.find(d => d.id === state.editingDealerLocId);
+      if (!dealer) return;
+      const dot = document.getElementById('editDealerPinDot');
+      const newX = parseInt(dot.dataset.x, 10);
+      const newY = parseInt(dot.dataset.y, 10);
+      if (!isNaN(newX) && !isNaN(newY)) {
+        dealer.mapPercentX = newX;
+        dealer.mapPercentY = newY;
+        saveDealersToLocal();
+        showToast(`Đã lưu tọa độ cho đại lý ${dealer.name}!`, 'success');
+      }
+      closeDealerLocationModal();
+      renderDealersManagerTable();
+      renderDashboardView();
+    }
+
+    function handleCreateDealer(e) {
+      e.preventDefault();
+      let name = normalizeStr(document.getElementById('dealerNameInput').value).toUpperCase();
+      if (!name.startsWith('GEELY ')) name = 'GEELY ' + name;
+      const region = document.getElementById('dealerRegionInput').value;
+      const address = normalizeStr(document.getElementById('dealerAddressInput').value) || 'Đại lý ủy quyền Geely';
+      const hotline = normalizeStr(document.getElementById('dealerPhoneInput').value) || '1900 xxxx';
+      const manager = normalizeStr(document.getElementById('dealerContactInput').value) || 'Bộ phận Dịch vụ';
+      const mapX = parseInt(document.getElementById('entryMapX').value, 10) || null;
+      const mapY = parseInt(document.getElementById('entryMapY').value, 10) || null;
+
+      if (state.dealers.some(d => d.name === name)) {
+        showToast(`Đại lý "${name}" đã tồn tại!`, 'error');
+        return;
+      }
+
+      state.dealers.push({ id: `DLR-${Date.now()}`, name, region, address, hotline, manager, mapPercentX: mapX, mapPercentY: mapY });
+      saveDealersToLocal();
+      document.getElementById('createDealerForm').reset();
+      document.getElementById('newDealerPinDot').classList.add('hidden');
+      showToast(`Đã thêm đại lý ${name}!`, 'success');
+      renderDealersManagerTable();
+      renderDashboardView();
+      populateDropdowns();
+    }
+
+    function renderDealersManagerTable() {
+      const tbody = document.getElementById('dealersManagerTableBody');
+      const actionHeader = document.getElementById('dealerActionHeaderCol');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const searchVal = (document.getElementById('dealerTabSearch')?.value || '').trim().toUpperCase();
+      let list = [...state.dealers];
+      if (searchVal) list = list.filter(d => d.name.includes(searchVal) || d.region.toUpperCase().includes(searchVal));
+
+      document.getElementById('dealerCountBadge').innerText = `${list.length} Đại lý`;
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
+      if (actionHeader) actionHeader.style.display = isAdmin ? 'table-cell' : 'none';
+
+      list.forEach((d, idx) => {
+        const techsCount = new Set(state.records.filter(r => r.dealer === d.name).map(r => r.trainee)).size;
+        let certsCount = 0;
+        state.records.filter(r => r.dealer === d.name).forEach(r => { certsCount += extractCertCodes(r.certCode).length; });
+
+        const mapBtnHTML = isAdmin 
+          ? `<button onclick="openDealerLocationModal('${d.id}')" class="px-2 py-1 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold text-[10px] border border-sky-200"><i class="fa-solid fa-location-dot mr-1"></i> ${d.mapPercentX ? `${d.mapPercentX}%,${d.mapPercentY}%` : 'Ghim'}</button>`
+          : `<span class="text-[10px] text-slate-500 font-mono">${d.mapPercentX ? `${d.mapPercentX}%,${d.mapPercentY}%` : 'Chưa ghim'}</span>`;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 text-slate-400 font-bold">${idx + 1}</td>
+          <td class="py-2.5 px-3 font-bold text-slate-800 uppercase">${d.name}</td>
+          <td class="py-2.5 px-3 text-slate-500">${d.region}</td>
+          <td class="py-2.5 px-3 text-center font-bold text-slate-700">${techsCount}</td>
+          <td class="py-2.5 px-3 text-center font-bold text-amber-600">${certsCount}</td>
+          <td class="py-2.5 px-3 text-center">${mapBtnHTML}</td>
+          ${isAdmin ? `<td class="py-2.5 px-3 text-right"><button onclick="deleteDealer('${d.id}', '${d.name.replace(/'/g, "\\'")}')" class="text-rose-500 hover:text-rose-700 p-1.5"><i class="fa-solid fa-trash-can"></i></button></td>` : ''}
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteDealer(dealerId, dealerName) {
+      if (state.records.some(r => r.dealer === dealerName)) {
+        showToast(`Không thể xóa đại lý "${dealerName}" vì đang có hồ sơ nhân sự!`, 'error');
+        return;
+      }
+      if (!window.confirm(`Xác nhận xóa đại lý "${dealerName}"?`)) return;
+      state.dealers = state.dealers.filter(d => d.id !== dealerId);
+      saveDealersToLocal();
+      showToast(`Đã xóa đại lý ${dealerName}!`, 'success');
+      renderDealersManagerTable();
+      renderDashboardView();
+      populateDropdowns();
+    }
+
+    function populateDropdowns() {
+      const dealerSelect = document.getElementById('entryDealer');
+      const courseSelect = document.getElementById('entryCourse');
+      if (!dealerSelect || !courseSelect) return;
+      dealerSelect.innerHTML = '';
+      courseSelect.innerHTML = '';
+
+      Array.from(new Set(state.dealers.map(d => d.name))).sort().forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name; opt.innerText = name; dealerSelect.appendChild(opt);
+      });
+      state.courses.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.name; opt.innerText = c.name; courseSelect.appendChild(opt);
+      });
+      handleCourseChange();
+    }
+
+    function handleCourseChange() {
+      const courseName = document.getElementById('entryCourse').value;
+      const courseObj = state.courses.find(c => c.name === courseName);
+      if (courseObj) {
+        document.getElementById('entryType').value = courseObj.type || 'Online';
+        if (courseObj.trainingDate) document.getElementById('entryTime').value = courseObj.trainingDate;
+        if (courseObj.defaultTrainer) document.getElementById('entryTrainer').value = courseObj.defaultTrainer;
+      }
+      calculateNextCertCode();
+    }
+
+    function calculateNextCertCode() {
+      const courseName = document.getElementById('entryCourse').value;
+      const courseObj = state.courses.find(c => c.name === courseName);
+      const isManual = courseObj ? courseObj.isManualCert : false;
+
+      const certInput = document.getElementById('entryCertCode');
+      const certLabel = document.getElementById('entryCertLabel');
+      const gapsNotice = document.getElementById('certGapsNotice');
+      const explanation = document.getElementById('certExplanation');
+      const refreshBtn = document.getElementById('btnRefreshCert');
+
+      if (isManual) {
+        certLabel.innerText = "Mã số Chứng chỉ (Tự điền tay)";
+        certInput.readOnly = false;
+        certInput.className = "w-full p-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:ring-2 focus:ring-geely-accent focus:outline-none";
+        certInput.placeholder = "Nhập mã chứng chỉ thủ công...";
+        certInput.value = "";
+        gapsNotice.classList.add('hidden');
+        refreshBtn.classList.add('hidden');
+        explanation.innerText = "Khóa học này sử dụng chứng chỉ điền tay.";
+        return;
+      }
+
+      certLabel.innerText = "Mã số Chứng chỉ (Tự động tính)";
+      certInput.readOnly = false;
+      certInput.className = "w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-amber-700 font-bold focus:ring-2 focus:ring-geely-accent focus:outline-none";
+      certInput.placeholder = "";
+      refreshBtn.classList.remove('hidden');
+
+      const prefix = courseObj ? courseObj.prefix : (courseName.includes('LEVEL II') ? 'GMTC-D-2-VN-' : 'GMTC-D-1-VN-');
+      const digits = courseObj ? courseObj.digits : 4;
+      const nums = [];
+      state.records.forEach(r => {
+        extractCertCodes(r.certCode).forEach(c => {
+          if (c.toUpperCase().startsWith(prefix.toUpperCase())) {
+            const val = parseInt(c.substring(prefix.length).trim(), 10);
+            if (!isNaN(val) && val > 0) nums.push(val);
+          }
+        });
+      });
+
+      let nextNum = 1; let isGap = false;
+      if (nums.length > 0) {
+        const maxNum = Math.max(...nums);
+        for (let i = 1; i <= maxNum; i++) {
+          if (!nums.includes(i)) { nextNum = i; isGap = true; break; }
+        }
+        if (!isGap) nextNum = maxNum + 1;
+      }
+      certInput.value = `${prefix}${String(nextNum).padStart(digits, '0')}`;
+      if (isGap) {
+        gapsNotice.innerText = `Bù số khuyết: #${nextNum}`;
+        gapsNotice.classList.remove('hidden');
+        explanation.innerText = `Phát hiện số thứ tự #${nextNum} bị khuyết. Hệ thống cấp bù số này.`;
+      } else {
+        gapsNotice.classList.add('hidden');
+        explanation.innerText = `Cấp số tiếp theo #${nextNum} theo tiền tố ${prefix}.`;
+      }
+    }
+
+    function handleSaveRecord(e) {
+      e.preventDefault();
+      const dealer = document.getElementById('entryDealer').value;
+      const trainee = normalizeStr(document.getElementById('entryTrainee').value).toUpperCase();
+      const course = document.getElementById('entryCourse').value;
+      const certCode = normalizeStr(document.getElementById('entryCertCode').value);
+      const type = document.getElementById('entryType').value;
+      const time = normalizeStr(document.getElementById('entryTime').value);
+      const entryDate = document.getElementById('entryInputDate').value || new Date().toISOString().slice(0, 10);
+      const issuedDate = document.getElementById('entryIssuedDate').value;
+      const scoreVal = normalizeStr(document.getElementById('entryScore').value);
+      const trainer = normalizeStr(document.getElementById('entryTrainer').value).toUpperCase() || 'LE KHANH VAN';
+      const isPassed = document.getElementById('entryPassed').checked;
+
+      const newRecord = {
+        id: `REC-${Date.now()}`,
+        country: 'VIET NAM',
+        dealer, trainee,
+        position: 'TECHNICIAN',
+        place: type === 'Online' ? 'ONLINE UMU' : 'HO CHI MINH',
+        type, time, course,
+        score: scoreVal,
+        trainer,
+        eval: isPassed ? 'PASSED' : 'FAILED',
+        certCode, entryDate, issuedDate
+      };
+
+      state.records.push(newRecord);
+      saveRecordsToLocal();
+      state.recentCandidates.unshift(newRecord);
+
+      showToast(`Đã lưu hồ sơ của ${trainee}!`, 'success');
+      document.getElementById('entryTrainee').value = '';
+      calculateNextCertCode();
+      renderDashboardStats();
+      renderDashboardView();
+      renderGapQueueTable();
+      filterReportRecords();
+      renderRecentCandidatesTable();
+    }
+
+    function renderRecentCandidatesTable() {
+      const tbody = document.getElementById('recentCandidatesTableBody');
+      const badge = document.getElementById('recentCandidatesBadge');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      badge.innerText = `${state.recentCandidates.length} ứng viên`;
+
+      if (state.recentCandidates.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400">Chưa có ứng viên nào được tạo trong phiên này.</td></tr>`;
+        return;
+      }
+
+      state.recentCandidates.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-mono font-bold text-emerald-700">${r.entryDate || '-'}</td>
+          <td class="py-2.5 px-3 font-bold text-slate-800 uppercase">${r.trainee}</td>
+          <td class="py-2.5 px-3 font-semibold text-slate-600">${r.dealer}</td>
+          <td class="py-2.5 px-3 text-geely-blue font-semibold">${r.course}</td>
+          <td class="py-2.5 px-3">${formatCertCodeHTML(r.certCode) || '<span class="text-rose-500 italic">Chưa cấp</span>'}</td>
+          <td class="py-2.5 px-3 font-mono text-[11px] text-slate-600">${r.issuedDate || '-'}</td>
+          <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">${r.time || '-'}</td>
+          <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Đã lưu</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function resetEntryForm() {
+      document.getElementById('recordEntryForm').reset();
+      const today = new Date().toISOString().slice(0, 10);
+      document.getElementById('entryInputDate').value = today;
+      document.getElementById('entryIssuedDate').value = today;
+      document.getElementById('entryPassed').checked = true;
+      calculateNextCertCode();
+    }
+
+    function openDealerModal(dealerName) {
+      state.currentModalDealer = dealerName;
+      state.selectedModalRecords.clear();
+      document.body.classList.add('overflow-hidden');
+      document.getElementById('modalDealerTitle').innerText = dealerName;
+      document.getElementById('modalDealerSubtitle').innerText = `Danh sách nhân sự & Chứng chỉ đào tạo GMTC`;
+
+      const courseSelect = document.getElementById('modalCourseFilter');
+      courseSelect.innerHTML = `<option value="ALL">Tất cả khóa học</option>`;
+      const dealerCourses = new Set();
+      state.records.filter(r => r.dealer === dealerName).forEach(r => dealerCourses.add(r.course));
+      dealerCourses.forEach(c => {
+        const opt = document.createElement('option'); opt.value = c; opt.innerText = c; courseSelect.appendChild(opt);
+      });
+
+      renderModalTechnicians();
+      document.getElementById('dealerModal').classList.remove('hidden');
+      document.getElementById('dealerModal').classList.add('flex');
+    }
+
+    function closeDealerModal() {
+      document.getElementById('dealerModal').classList.remove('flex');
+      document.getElementById('dealerModal').classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+      state.currentModalDealer = null;
+      state.selectedModalRecords.clear();
+    }
+
+    function renderModalTechnicians() {
+      const tbody = document.getElementById('modalTechTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const filterVal = document.getElementById('modalCourseFilter').value;
+      let records = state.records.filter(r => r.dealer === state.currentModalDealer);
+      if (filterVal !== 'ALL') records = records.filter(r => r.course === filterVal);
+      updateBatchCounter();
+
+      if (records.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Chưa có dữ liệu đào tạo cho đại lý này.</td></tr>`;
+        return;
+      }
+
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
+      records.forEach(r => {
+        const isChecked = state.selectedModalRecords.has(r.id);
+        const courseObj = state.courses.find(c => normalizeStr(c.name).toUpperCase() === normalizeStr(r.course).toUpperCase());
+        const isManual = courseObj ? courseObj.isManualCert : false;
+
+        let certActionBtn = '';
+        if (isAdmin && (!r.certCode || r.certCode.trim() === '')) {
+          if (isManual) {
+            certActionBtn = `<button onclick="openManualCertModal('${r.id}', '${r.trainee.replace(/'/g, "\\'")}', '${r.course.replace(/'/g, "\\'")}')" class="px-2 py-1 rounded bg-amber-500 hover:bg-amber-600 text-white font-bold text-[10px] shadow"><i class="fa-solid fa-pen mr-1"></i> Điền mã</button>`;
+          } else {
+            certActionBtn = `<button onclick="handleAutoAssignCert('${r.id}')" class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] shadow"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Cấp số</button>`;
+          }
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 text-center"><input type="checkbox" onchange="toggleSelectModalRecord('${r.id}', this)" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-geely-blue rounded"></td>
+          <td class="py-2.5 px-3 font-bold text-slate-800 uppercase">${r.trainee}</td>
+          <td class="py-2.5 px-3 font-semibold text-geely-blue">${r.course}</td>
+          <td class="py-2.5 px-3"><div class="flex items-center space-x-2"><div class="flex flex-wrap gap-1">${formatCertCodeHTML(r.certCode) || '<span class="text-rose-500 italic">Chưa cấp</span>'}</div>${certActionBtn}</div></td>
+          <td class="py-2.5 px-3 font-bold text-emerald-600">${r.score || '-'}</td>
+          <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">${r.time || '-'}</td>
+          <td class="py-2.5 px-3 text-right">${isAdmin ? `<button onclick="deleteSingleRecord('${r.id}')" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash-can"></i></button>` : '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    let currentManualCertRecId = null;
+    function openManualCertModal(recId, trainee, course) {
+      currentManualCertRecId = recId;
+      document.getElementById('manualCertTraineeName').innerText = trainee;
+      document.getElementById('manualCertCourseName').innerText = course;
+      const rec = state.records.find(r => r.id === recId);
+      document.getElementById('manualCertInput').value = rec ? (rec.certCode || '') : '';
+      document.getElementById('manualCertModal').classList.remove('hidden');
+      document.getElementById('manualCertModal').classList.add('flex');
+    }
+
+    function closeManualCertModal() {
+      document.getElementById('manualCertModal').classList.remove('flex');
+      document.getElementById('manualCertModal').classList.add('hidden');
+      currentManualCertRecId = null;
+    }
+
+    function saveManualCertCode() {
+      if (!currentManualCertRecId) return;
+      const val = document.getElementById('manualCertInput').value.trim();
+      const rec = state.records.find(r => r.id === currentManualCertRecId);
+      if (rec) {
+        rec.certCode = val;
+        saveRecordsToLocal();
+        showToast('Đã lưu mã chứng chỉ thủ công!', 'success');
+        closeManualCertModal();
+        if (state.currentModalDealer) renderModalTechnicians();
+        renderDashboardStats();
+        renderDashboardView();
+        renderGapQueueTable();
+        filterReportRecords();
+      }
+    }
+
+    function handleAutoAssignCert(recId) {
+      const rec = state.records.find(r => r.id === recId);
+      if (!rec) return;
+      const courseObj = state.courses.find(c => normalizeStr(c.name).toUpperCase() === normalizeStr(rec.course).toUpperCase());
+      const prefix = courseObj ? courseObj.prefix : 'GMTC-D-1-VN-';
+      const digits = courseObj ? courseObj.digits : 4;
+
+      const nums = [];
+      state.records.forEach(r => {
+        extractCertCodes(r.certCode).forEach(c => {
+          if (c.toUpperCase().startsWith(prefix.toUpperCase())) {
+            const val = parseInt(c.substring(prefix.length).trim(), 10);
+            if (!isNaN(val) && val > 0) nums.push(val);
+          }
+        });
+      });
+
+      let assignedNum = 1;
+      if (nums.length > 0) {
+        const maxNum = Math.max(...nums);
+        for (let i = 1; i <= maxNum; i++) {
+          if (!nums.includes(i)) { assignedNum = i; break; }
+        }
+        if (assignedNum === 1 && nums.includes(1)) assignedNum = maxNum + 1;
+      }
+      const generatedCode = `${prefix}${String(assignedNum).padStart(digits, '0')}`;
+      rec.certCode = generatedCode;
+      saveRecordsToLocal();
+      showToast(`Đã cấp mã ${generatedCode}!`, 'success');
+      if (state.currentModalDealer) renderModalTechnicians();
+      renderDashboardStats();
+      renderDashboardView();
+      renderGapQueueTable();
+      filterReportRecords();
+    }
+
+    function toggleSelectModalRecord(recId, cb) {
+      if (cb.checked) state.selectedModalRecords.add(recId);
+      else state.selectedModalRecords.delete(recId);
+      updateBatchCounter();
+    }
+
+    function toggleSelectAllModal(masterCb) {
+      const filterVal = document.getElementById('modalCourseFilter').value;
+      let records = state.records.filter(r => r.dealer === state.currentModalDealer);
+      if (filterVal !== 'ALL') records = records.filter(r => r.course === filterVal);
+      if (masterCb.checked) records.forEach(r => state.selectedModalRecords.add(r.id));
+      else records.forEach(r => state.selectedModalRecords.delete(r.id));
+      renderModalTechnicians();
+    }
+
+    function updateBatchCounter() {
+      const counter = document.getElementById('batchSelectedCounter');
+      const btn = document.getElementById('btnBatchDelete');
+      const count = state.selectedModalRecords.size;
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
+      if (count > 0) { counter.innerText = `Đã chọn: ${count}`; counter.classList.remove('hidden'); }
+      else { counter.classList.add('hidden'); }
+      btn.disabled = (count === 0 || !isAdmin);
+    }
+
+    function deleteSingleRecord(recId) {
+      const rec = state.records.find(r => r.id === recId);
+      if (!rec) return;
+      if (!window.confirm(`Xác nhận xóa nhân sự ${rec.trainee}?`)) return;
+      state.records = state.records.filter(r => r.id !== recId);
+      state.selectedModalRecords.delete(recId);
+      saveRecordsToLocal();
+      showToast('Đã xóa hồ sơ nhân sự!', 'success');
+      if (state.currentModalDealer) renderModalTechnicians();
+      renderDashboardStats();
+      renderDashboardView();
+      renderGapQueueTable();
+      filterReportRecords();
+    }
+
+    function handleBatchDelete() {
+      const count = state.selectedModalRecords.size;
+      if (count === 0) return;
+      if (!window.confirm(`Xác nhận xóa ${count} nhân sự đã chọn?`)) return;
+      state.records = state.records.filter(r => !state.selectedModalRecords.has(r.id));
+      state.selectedModalRecords.clear();
+      saveRecordsToLocal();
+      showToast(`Đã xóa ${count} nhân sự!`, 'success');
+      renderModalTechnicians();
+      renderDashboardStats();
+      renderDashboardView();
+      renderGapQueueTable();
+      filterReportRecords();
+    }
+
+    function handleCreateCourse(e) {
+      e.preventDefault();
+      const name = normalizeStr(document.getElementById('courseNameInput').value).toUpperCase();
+      const isManualCert = document.getElementById('courseIsManualCert').checked;
+      const prefix = normalizeStr(document.getElementById('coursePrefixInput').value).toUpperCase() || 'CUSTOM-';
+      const digits = parseInt(document.getElementById('courseDigitsInput').value, 10) || 4;
+      const scorePass = normalizeStr(document.getElementById('courseScoreInput').value) || '80/100';
+      const trainingDate = normalizeStr(document.getElementById('courseDateInput').value);
+      const trainer = normalizeStr(document.getElementById('courseTrainerInput').value).toUpperCase() || 'LE KHANH VAN';
+
+      if (state.courses.some(c => normalizeStr(c.name).toUpperCase() === name)) {
+        showToast(`Khóa học "${name}" đã tồn tại!`, 'error'); return;
+      }
+
+      state.courses.push({ id: `CRS-${Date.now()}`, name, prefix, digits, scorePass, trainingDate, defaultTrainer: trainer, type: 'Online', isManualCert });
+      saveCoursesToLocal();
+      document.getElementById('createCourseForm').reset();
+      toggleManualCourseFields();
+      showToast(`Đã tạo khóa học ${name}!`, 'success');
+      renderCourseTable();
+      populateDropdowns();
+    }
+
+    function openEditCourseModal(courseId) {
+      const course = state.courses.find(c => c.id === courseId);
+      if (!course) return;
+      document.getElementById('editCourseId').value = course.id;
+      document.getElementById('editCourseOldName').value = course.name;
+      document.getElementById('editCourseNameInput').value = course.name;
+      document.getElementById('editCourseIsManualCert').checked = Boolean(course.isManualCert);
+      document.getElementById('editCoursePrefixInput').value = course.prefix || '';
+      document.getElementById('editCourseDigitsInput').value = course.digits || 4;
+      document.getElementById('editCourseScoreInput').value = course.scorePass || '';
+      document.getElementById('editCourseDateInput').value = course.trainingDate || '';
+      document.getElementById('editCourseTrainerInput').value = course.defaultTrainer || '';
+      toggleManualCourseFieldsEdit();
+      document.getElementById('editCourseModal').classList.remove('hidden');
+      document.getElementById('editCourseModal').classList.add('flex');
+    }
+
+    function closeEditCourseModal() {
+      document.getElementById('editCourseModal').classList.remove('flex');
+      document.getElementById('editCourseModal').classList.add('hidden');
+    }
+
+    function handleSaveEditedCourse(e) {
+      e.preventDefault();
+      const courseId = document.getElementById('editCourseId').value;
+      const oldName = document.getElementById('editCourseOldName').value;
+      const newName = normalizeStr(document.getElementById('editCourseNameInput').value).toUpperCase();
+      const isManual = document.getElementById('editCourseIsManualCert').checked;
+      const prefix = normalizeStr(document.getElementById('editCoursePrefixInput').value).toUpperCase();
+      const digits = parseInt(document.getElementById('editCourseDigitsInput').value, 10) || 4;
+      const scorePass = normalizeStr(document.getElementById('editCourseScoreInput').value);
+      const trainingDate = normalizeStr(document.getElementById('editCourseDateInput').value);
+      const trainer = normalizeStr(document.getElementById('editCourseTrainerInput').value).toUpperCase();
+
+      const courseObj = state.courses.find(c => c.id === courseId);
+      if (!courseObj) return;
+
+      courseObj.name = newName;
+      courseObj.isManualCert = isManual;
+      courseObj.prefix = isManual ? (prefix || 'CUSTOM-') : prefix;
+      courseObj.digits = digits;
+      courseObj.scorePass = scorePass;
+      courseObj.trainingDate = trainingDate;
+      courseObj.defaultTrainer = trainer;
+
+      if (oldName !== newName) {
+        state.records.forEach(r => { if (normalizeStr(r.course).toUpperCase() === oldName.toUpperCase()) r.course = newName; });
+        saveRecordsToLocal();
+      }
+
+      saveCoursesToLocal();
+      closeEditCourseModal();
+      showToast(`Đã cập nhật khóa học "${newName}"!`, 'success');
+      renderCourseTable();
+      populateDropdowns();
+      renderDashboardView();
+      filterReportRecords();
+    }
+
+    function renderCourseTable() {
+      const tbody = document.getElementById('courseTableBody');
+      const actionHeader = document.getElementById('courseActionHeaderCol');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      document.getElementById('totalCoursesBadge').innerText = `${state.courses.length} khóa học`;
+      const isAdmin = state.currentUser && state.currentUser.role === 'admin';
+      if (actionHeader) actionHeader.style.display = isAdmin ? 'table-cell' : 'none';
+
+      state.courses.forEach(c => {
+        const count = state.records.filter(r => normalizeStr(r.course).toUpperCase() === normalizeStr(c.name).toUpperCase() && r.certCode && r.certCode.trim() !== '').length;
+        const certTypeBadge = c.isManualCert ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">Điền tay</span>` : `<span class="font-mono font-bold">${c.prefix} + ${c.digits} số</span>`;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-3 font-bold text-geely-blue">${c.name}</td>
+          <td class="py-3 px-3">${certTypeBadge}</td>
+          <td class="py-3 px-3 font-semibold text-emerald-600">${c.scorePass || '-'}</td>
+          <td class="py-3 px-3 text-slate-500 font-mono text-xs">${c.trainingDate || '-'}</td>
+          <td class="py-3 px-3 font-bold text-amber-600">${count} CC</td>
+          ${isAdmin ? `<td class="py-3 px-3 text-right"><div class="flex items-center justify-end space-x-1"><button onclick="openEditCourseModal('${c.id}')" class="text-geely-accent p-1.5"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteCourse('${c.id}', '${c.name.replace(/'/g, "\\'")}')" class="text-rose-500 p-1.5"><i class="fa-solid fa-trash-can"></i></button></div></td>` : ''}
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteCourse(courseId, courseName) {
+      if (!window.confirm(`Xác nhận xóa khóa học "${courseName}"?`)) return;
+      state.courses = state.courses.filter(c => c.id !== courseId);
+      saveCoursesToLocal();
+      showToast(`Đã xóa khóa học ${courseName}!`, 'success');
+      renderCourseTable();
+      populateDropdowns();
+    }
+
+    function renderGapQueueTable() {
+      const tbody = document.getElementById('gapQueueTableBody');
+      const badgeCount = document.getElementById('queueBadgeCount');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      badgeCount.innerText = '0';
+    }
+
+    function renderUsersTable() {
+      const tbody = document.getElementById('usersTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      state.users.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-3 px-3 font-bold text-slate-800">${u.username}</td>
+          <td class="py-3 px-3">${u.fullname || '-'}</td>
+          <td class="py-3 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role === 'admin' ? 'bg-sky-100 text-sky-800' : 'bg-slate-100 text-slate-700'}">${u.role === 'admin' ? 'Quản trị viên' : 'Người xem'}</span></td>
+          <td class="py-3 px-3 font-mono text-[10px] text-slate-400 max-w-xs truncate">${u.hash || 'Mặc định'}</td>
+          <td class="py-3 px-3 text-right">-</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function handleCreateUser(e) {
+      e.preventDefault();
+      const username = normalizeStr(document.getElementById('newUsername').value).toLowerCase();
+      const fullname = normalizeStr(document.getElementById('newFullName').value);
+      const password = document.getElementById('newPassword').value;
+      const role = document.getElementById('newRole').value;
+
+      if (state.users.some(u => u.username === username)) { showToast('Tài khoản đã tồn tại!', 'error'); return; }
+      sha256(password).then(hash => {
+        state.users.push({ username, fullname, role, hash });
+        saveUsersToLocal();
+        document.getElementById('createUserForm').reset();
+        showToast('Đã tạo tài khoản thành công!', 'success');
+        renderUsersTable();
+      });
+    }
+
+    function openChangePasswordModal() {
+      document.getElementById('changePasswordUserLabel').innerText = `Tài khoản: ${state.currentUser.username}`;
+      document.getElementById('changePasswordForm').reset();
+      document.getElementById('changePasswordModal').classList.remove('hidden');
+      document.getElementById('changePasswordModal').classList.add('flex');
+    }
+
+    function closeChangePasswordModal() {
+      document.getElementById('changePasswordModal').classList.remove('flex');
+      document.getElementById('changePasswordModal').classList.add('hidden');
+    }
+
+    async function handleChangePassword(e) {
+      e.preventDefault();
+      const curPass = document.getElementById('currentPasswordInput').value;
+      const newPass = document.getElementById('newPasswordInput').value;
+      const confirmPass = document.getElementById('confirmNewPasswordInput').value;
+      if (newPass !== confirmPass) { showToast('Mật khẩu mới không khớp!', 'error'); return; }
+
+      const userIdx = state.users.findIndex(u => u.username.toLowerCase() === state.currentUser.username.toLowerCase());
+      if (userIdx === -1) return;
+      const newHash = await sha256(newPass);
+      state.users[userIdx].hash = newHash;
+      state.currentUser.hash = newHash;
+      saveUsersToLocal();
+      closeChangePasswordModal();
+      showToast('Đổi mật khẩu thành công!', 'success');
+    }
+
+    function filterReportRecords() {
+      const timeFilter = document.getElementById('reportTimeFilter').value;
+      const courseFilter = document.getElementById('reportCourseFilter').value;
+      const dealerFilter = document.getElementById('reportDealerFilter').value;
+      const entryFrom = document.getElementById('reportEntryDateFrom').value;
+      const entryTo = document.getElementById('reportEntryDateTo').value;
+      const dateFrom = document.getElementById('reportDateFrom').value;
+      const dateTo = document.getElementById('reportDateTo').value;
+
+      let filtered = [...state.records];
+      if (timeFilter !== 'ALL') filtered = filtered.filter(r => r.time === timeFilter);
+      if (courseFilter !== 'ALL') filtered = filtered.filter(r => r.course === courseFilter);
+      if (dealerFilter !== 'ALL') filtered = filtered.filter(r => r.dealer === dealerFilter);
+      if (entryFrom) filtered = filtered.filter(r => r.entryDate && r.entryDate >= entryFrom);
+      if (entryTo) filtered = filtered.filter(r => r.entryDate && r.entryDate <= entryTo);
+      if (dateFrom) filtered = filtered.filter(r => r.issuedDate && r.issuedDate >= dateFrom);
+      if (dateTo) filtered = filtered.filter(r => r.issuedDate && r.issuedDate <= dateTo);
+
+      document.getElementById('reportCountLabel').innerText = `${filtered.length} bản ghi`;
+      const tbody = document.getElementById('reportTableBody');
+      tbody.innerHTML = '';
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" class="py-8 text-center text-slate-400">Không có dữ liệu báo cáo phù hợp.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 border-r border-slate-200 text-center font-bold text-slate-500">${idx + 1}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-mono text-[11px] text-emerald-700 bg-emerald-50/30">${r.entryDate || '-'}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-semibold">${r.country || 'VIET NAM'}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-slate-800">${r.dealer}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-geely-blue">${r.trainee}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200">${r.position || 'TECHNICIAN'}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-mono text-[11px]">${r.time}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-semibold">${r.course}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-bold text-emerald-600">${r.score}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200">${r.trainer}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-bold text-emerald-600">${r.eval}</td>
+          <td class="py-2.5 px-3 text-right"><div class="flex flex-wrap justify-end gap-1">${formatCertCodeHTML(r.certCode) || '-'}</div></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function populateReportFilters() {
+      const timeFilter = document.getElementById('reportTimeFilter');
+      const courseFilter = document.getElementById('reportCourseFilter');
+      const dealerFilter = document.getElementById('reportDealerFilter');
+      if (!timeFilter) return;
+
+      timeFilter.innerHTML = `<option value="ALL">Tất cả đợt</option>`;
+      courseFilter.innerHTML = `<option value="ALL">Tất cả khóa học</option>`;
+      dealerFilter.innerHTML = `<option value="ALL">Tất cả Đại lý</option>`;
+
+      const times = new Set(); const courses = new Set(); const dealers = new Set();
+      state.records.forEach(r => { if (r.time) times.add(r.time); if (r.course) courses.add(r.course); if (r.dealer) dealers.add(r.dealer); });
+      times.forEach(t => { const opt = document.createElement('option'); opt.value = t; opt.innerText = t; timeFilter.appendChild(opt); });
+      courses.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; courseFilter.appendChild(opt); });
+      Array.from(dealers).sort().forEach(d => { const opt = document.createElement('option'); opt.value = d; opt.innerText = d; dealerFilter.appendChild(opt); });
+    }
+
+    function exportToExcel() {
+      const headers = ["No.", "Entry Date", "Country", "Dealer Name", "Trainee Name", "Position", "Training Time", "Training Course", "Exam Score", "Trainer", "Evaluation of the trainer", "Certificate code", "Issued Date"];
+      const dataRows = state.records.map((r, idx) => [idx + 1, r.entryDate || '', r.country || 'VIET NAM', r.dealer, r.trainee, r.position || 'TECHNICIAN', String(r.time || ''), r.course, r.score, r.trainer, r.eval, r.certCode || '', r.issuedDate || '']);
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...dataRows]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Training Record");
+      XLSX.writeFile(wb, `GEELY_GMTC_REPORT_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      showToast('Đã xuất file Excel thành công!', 'success');
+    }
+
+    function saveCoursesToLocal() { localStorage.setItem('geely_courses', JSON.stringify(state.courses)); pushToGoogleSheets(false); }
+    function saveRecordsToLocal() { localStorage.setItem('geely_records', JSON.stringify(state.records)); pushToGoogleSheets(false); }
+    function saveDealersToLocal() { localStorage.setItem('geely_custom_dealers', JSON.stringify(state.dealers)); pushToGoogleSheets(false); }
+    function saveUsersToLocal() { localStorage.setItem('geely_users', JSON.stringify(state.users)); pushToGoogleSheets(false); }
+
+    async function pushToGoogleSheets(showNotification = false) {
+      try {
+        await fetch(state.syncUrl, {
+          method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ records: state.records, dealers: state.dealers, courses: state.courses, users: state.users })
+        });
+        updateSyncBadge(true);
+        if (showNotification) showToast('Đồng bộ lên Google Sheets thành công!', 'success');
+      } catch (err) { console.warn(err); }
+    }
+
+    async function pullFromGoogleSheets(silent = false) {
+      const syncIcon = document.getElementById('headerSyncIcon');
+      if (syncIcon) syncIcon.classList.add('fa-spin');
+      if (!silent) showToast('Đang đồng bộ dữ liệu từ Google Sheets...', 'info');
+
+      try {
+        const response = await fetch(state.syncUrl + '?t=' + Date.now());
+        const res = await response.json();
+        if (res && res.status === 'SUCCESS' && res.data) {
+          if (res.data.records) { state.records = res.data.records; localStorage.setItem('geely_records', JSON.stringify(state.records)); }
+          if (res.data.dealers) { state.dealers = res.data.dealers; localStorage.setItem('geely_custom_dealers', JSON.stringify(state.dealers)); }
+          if (res.data.courses) { state.courses = res.data.courses; localStorage.setItem('geely_courses', JSON.stringify(state.courses)); }
+          if (res.data.users) { state.users = res.data.users; localStorage.setItem('geely_users', JSON.stringify(state.users)); }
+
+          renderDashboardStats();
+          renderDashboardView();
+          renderDealersManagerTable();
+          populateDropdowns();
+          renderCourseTable();
+          renderUsersTable();
+          filterReportRecords();
+          updateSyncBadge(true);
+          if (!silent) showToast('Đồng bộ dữ liệu từ Google Sheets thành công!', 'success');
+        }
+      } catch (err) { console.warn(err); }
+      finally { if (syncIcon) syncIcon.classList.remove('fa-spin'); }
+    }
+
+    let toastTimeout;
+    function hideToast() {
+      const toast = document.getElementById('toast');
+      toast.className = "fixed top-5 right-5 z-50 transform transition-all duration-300 translate-y-[-120%] opacity-0 pointer-events-none flex items-center justify-between p-4 rounded-xl shadow-2xl text-white font-medium max-w-md";
+    }
+    function showToast(message, type = 'info', duration = 2500) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = message;
+      let colorClass = type === 'success' ? 'bg-emerald-600' : (type === 'error' ? 'bg-rose-600' : 'bg-geely-blue');
+      toast.className = `fixed top-5 right-5 z-50 transition-all duration-300 translate-y-0 opacity-100 pointer-events-auto flex items-center justify-between p-4 rounded-xl shadow-2xl ${colorClass} text-white font-medium max-w-md`;
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(hideToast, duration);
+    }
+
+    async function initAppState() {
+      const today = new Date().toISOString().slice(0, 10);
+      if (document.getElementById('entryInputDate')) document.getElementById('entryInputDate').value = today;
+      if (document.getElementById('entryIssuedDate')) document.getElementById('entryIssuedDate').value = today;
+
+      document.getElementById('sheetApiUrl').value = state.syncUrl;
+      document.getElementById('appsScriptCodeBlock').value = `/** GEELY GMTC APPS SCRIPT **/`;
+
+      const localRecs = localStorage.getItem('geely_records');
+      state.records = localRecs ? JSON.parse(localRecs) : INITIAL_RAW_RECORDS.map((r, i) => ({
+        id: `REC-${i+1}`, country: 'VIET NAM', dealer: r[0], trainee: r[1], position: 'TECHNICIAN', place: r[2], type: 'Online', time: r[3], course: r[4], score: r[5], trainer: r[6], eval: r[7], certCode: r[8], entryDate: '2026-11-05', issuedDate: '2026-11-01'
+      }));
+
+      const localCourses = localStorage.getItem('geely_courses');
+      state.courses = localCourses ? JSON.parse(localCourses) : [
+        { id: 'CRS-1', name: 'GMTC LEVEL 1 (NEW)', prefix: 'GMTC-D-1-VN-', digits: 4, scorePass: '80/100', trainingDate: '1-31/10/2026', defaultTrainer: 'LE KHANH VAN', type: 'Online', isManualCert: false },
+        { id: 'CRS-2', name: 'GMTC LEVEL II', prefix: 'GMTC-D-2-VN-', digits: 4, scorePass: '80/100', trainingDate: '21-22/5/2026', defaultTrainer: 'LE KHANH VAN', type: 'Offline', isManualCert: false }
+      ];
+
+      const localDealers = localStorage.getItem('geely_custom_dealers');
+      state.dealers = localDealers ? JSON.parse(localDealers) : Array.from(new Set(state.records.map(r => r.dealer))).map((name, i) => ({
+        id: `DLR-${i+1}`, name, region: guessRegion(name), address: 'Đại lý ủy quyền Geely', hotline: '1900 xxxx', manager: 'Bộ phận Dịch vụ'
+      }));
+
+      const localUsers = localStorage.getItem('geely_users');
+      state.users = localUsers ? JSON.parse(localUsers) : INITIAL_USERS;
+
+      // Tự động đồng bộ ngầm dữ liệu từ Google Sheets ngay khi khởi động
+      await pullFromGoogleSheets(true);
+
+      const savedUser = sessionStorage.getItem('geely_session_user');
+      if (savedUser) {
+        try { state.currentUser = JSON.parse(savedUser); enterApplication(); } catch(e){}
+      }
+    }
+
+    // NÚT ĐĂNG XUẤT HỆ THỐNG
+    function handleLogout() {
+      state.currentUser = null;
+      sessionStorage.removeItem('geely_session_user');
+      const appContainer = document.getElementById('appContainer');
+      appContainer.classList.remove('flex');
+      appContainer.classList.add('hidden');
+      
+      // KHÔI PHỤC HOÀN TOÀN TRẠNG THÁI FORM ĐĂNG NHẬP BAN ĐẦU
+      const submitBtn = document.getElementById('loginSubmitBtn');
+      const btnText = document.getElementById('loginBtnText');
+      const btnIcon = document.getElementById('loginBtnIcon');
+      const statusP = document.getElementById('loginSyncStatus');
+      
+      if (submitBtn) submitBtn.disabled = false;
+      if (btnText) btnText.innerText = "Đăng nhập hệ thống";
+      if (btnIcon) btnIcon.className = "fa-solid fa-arrow-right-to-bracket text-sm";
+      if (statusP) statusP.innerHTML = `<span>Hệ thống xác thực trực tuyến qua Google Sheets</span>`;
+
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('loginForm').reset();
+      showToast('Đã đăng xuất khỏi hệ thống', 'info');
+    }
+
+    window.onload = function() { initAppState(); };
+  </script>
+</body>
+</html>
