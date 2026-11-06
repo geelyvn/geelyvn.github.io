@@ -300,8 +300,8 @@
               </div>
 
               <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
-                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-700 inline-block"></span><span>Đại lý</span></span>
-                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping inline-block"></span><span>Đang soi</span></span>
+                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-900 inline-block border border-white shadow-xs"></span><span>Đại lý</span></span>
+                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block border border-white shadow-xs"></span><span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping inline-block -ml-1"></span><span>Đang soi</span></span>
                 <span class="font-bold text-emerald-600"><i class="fa-solid fa-location-dot mr-1"></i><span id="totalActivePins">0</span> Điểm</span>
               </div>
             </div>
@@ -1553,7 +1553,7 @@
         const coords = getDealerPercentCoords(item.name);
         const pin = document.createElement('div');
         pin.id = `map-pin-${item.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
-        // CHẤM ĐEN CƠ BẢN CỐ ĐỊNH TRÊN BẢN ĐỒ
+        // CHẤM ĐỊNH VỊ MÀU ĐEN CỐ ĐỊNH TRÊN BẢN ĐỒ
         pin.className = "absolute w-3 h-3 bg-slate-900 border-2 border-white rounded-full shadow-md transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all hover:z-30";
         pin.style.left = `${coords.x}%`;
         pin.style.top = `${coords.y}%`;
@@ -1577,9 +1577,9 @@
       const pin = document.getElementById(pinId);
       if (!pin) return;
       if (isHighlight) {
-        // KHI RÊ CHUỘT: GIỮ NGUYÊN NÚT ĐEN VÀ THÊM VÒNG NHÁY ĐỎ BAO QUANH
-        pin.innerHTML = `<span class="absolute -inset-1.5 rounded-full bg-rose-500 opacity-75 animate-ping pointer-events-none"></span>`;
-        pin.className = "absolute w-3 h-3 bg-slate-900 border-2 border-white rounded-full shadow-2xl transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-30 scale-90";
+        // KHI RÊ CHUỘT: NÚT ĐỔI THÀNH MÀU XANH LÁ VÀ CÓ VÒNG NHÁY ĐỎ BAO QUANH
+        pin.innerHTML = `<span class="absolute -inset-2 rounded-full bg-rose-500 opacity-75 animate-ping pointer-events-none"></span>`;
+        pin.className = "absolute w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full shadow-2xl transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-30 scale-110";
       } else {
         pin.innerHTML = '';
         pin.className = "absolute w-3 h-3 bg-slate-900 border-2 border-white rounded-full shadow-md transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all";
@@ -2235,12 +2235,169 @@
       populateDropdowns();
     }
 
+    function switchQueueSubTab(sub) {
+      const btnGaps = document.getElementById('subtab-btn-gaps');
+      const btnDup = document.getElementById('subtab-btn-duplicates');
+      const boxGaps = document.getElementById('subtab-content-gaps');
+      const boxDup = document.getElementById('subtab-content-duplicates');
+      if (sub === 'gaps') {
+        btnGaps.className = "px-4 py-2 font-bold border-b-2 border-geely-blue text-geely-blue flex items-center space-x-2 transition";
+        btnDup.className = "px-4 py-2 font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center space-x-2 transition";
+        boxGaps.classList.remove('hidden'); boxGaps.classList.add('block');
+        boxDup.classList.remove('hidden'); boxDup.classList.add('hidden');
+      } else {
+        btnDup.className = "px-4 py-2 font-bold border-b-2 border-geely-blue text-geely-blue flex items-center space-x-2 transition";
+        btnGaps.className = "px-4 py-2 font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center space-x-2 transition";
+        boxDup.classList.remove('hidden'); boxDup.classList.add('block');
+        boxGaps.classList.remove('hidden'); boxGaps.classList.add('hidden');
+      }
+    }
+
     function renderGapQueueTable() {
-      const tbody = document.getElementById('gapQueueTableBody');
+      const gapsTbody = document.getElementById('gapQueueTableBody');
+      const dupTbody = document.getElementById('duplicatesTableBody');
       const badgeCount = document.getElementById('queueBadgeCount');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-      badgeCount.innerText = '0';
+      const dupBadgeCount = document.getElementById('duplicateBadgeCount');
+      const subtabGapsCount = document.getElementById('subtabGapsCount');
+      const subtabDupCount = document.getElementById('subtabDuplicatesCount');
+      if (!gapsTbody) return;
+
+      gapsTbody.innerHTML = '';
+      if (dupTbody) dupTbody.innerHTML = '';
+
+      // TẬP HỢP TẤT CẢ TIỀN TỐ (PREFIX) ĐÃ THIẾT LẬP HOẶC XUẤT HIỆN TRONG DỮ LIỆU
+      const prefixMap = new Map();
+      
+      // 1. Lấy từ danh mục các Khóa học đã thiết lập
+      state.courses.forEach(c => {
+        if (!c.isManualCert && c.prefix && c.prefix.trim() !== '') {
+          const pref = c.prefix.trim().toUpperCase();
+          prefixMap.set(pref, { prefix: c.prefix.trim(), digits: c.digits || 4, courseName: c.name });
+        }
+      });
+      
+      // Dự phòng tiền tố tiêu chuẩn GMTC
+      if (!prefixMap.has('GMTC-D-1-VN-')) prefixMap.set('GMTC-D-1-VN-', { prefix: 'GMTC-D-1-VN-', digits: 4, courseName: 'GMTC LEVEL 1 (NEW)' });
+      if (!prefixMap.has('GMTC-D-2-VN-')) prefixMap.set('GMTC-D-2-VN-', { prefix: 'GMTC-D-2-VN-', digits: 4, courseName: 'GMTC LEVEL II' });
+
+      // 2. Tự động phát hiện thêm bất kỳ tiền tố nào khác xuất hiện thực tế trong bảng dữ liệu hồ sơ
+      state.records.forEach(r => {
+        const codes = extractCertCodes(r.certCode);
+        codes.forEach(code => {
+          const cleanCode = code.trim().toUpperCase();
+          // Kiểm tra xem mã có kết thúc bằng chuỗi số không (vd: ABC-0012)
+          const match = cleanCode.match(/^(.*?)(\d+)$/);
+          if (match) {
+            const detectedPrefix = match[1];
+            const numDigits = match[2].length;
+            if (detectedPrefix && !prefixMap.has(detectedPrefix)) {
+              prefixMap.set(detectedPrefix, {
+                prefix: detectedPrefix,
+                digits: numDigits >= 3 ? numDigits : 4,
+                courseName: r.course || 'Khóa học phát hiện'
+              });
+            }
+          }
+        });
+      });
+
+      // QUÉT MÃ TRÙNG LẶP & CÁC SỐ ĐÃ DÙNG THEO TỪNG TIỀN TỐ
+      const allCodesMap = new Map();
+      const usedNumbersByPrefix = new Map();
+
+      prefixMap.forEach((_, key) => {
+        usedNumbersByPrefix.set(key, new Set());
+      });
+
+      state.records.forEach(r => {
+        const codes = extractCertCodes(r.certCode);
+        codes.forEach(code => {
+          const cleanCode = code.toUpperCase().trim();
+          if (!allCodesMap.has(cleanCode)) {
+            allCodesMap.set(cleanCode, []);
+          }
+          allCodesMap.get(cleanCode).push(r);
+
+          prefixMap.forEach((info, prefKey) => {
+            if (cleanCode.startsWith(prefKey)) {
+              const numStr = cleanCode.substring(prefKey.length).trim();
+              const num = parseInt(numStr, 10);
+              if (!isNaN(num) && num > 0) {
+                usedNumbersByPrefix.get(prefKey).add(num);
+              }
+            }
+          });
+        });
+      });
+
+      // 1. TÌM CÁC SỐ CHỨNG CHỈ BỊ KHUYẾT (GAPS) TRÊN TẤT CẢ TIỀN TỐ
+      const gapList = [];
+      prefixMap.forEach((info, prefKey) => {
+        const usedNums = Array.from(usedNumbersByPrefix.get(prefKey) || []).sort((a, b) => a - b);
+        if (usedNums.length > 0) {
+          const maxNum = Math.max(...usedNums);
+          for (let i = 1; i < maxNum; i++) {
+            if (!usedNums.includes(i)) {
+              const gapCode = `${info.prefix}${String(i).padStart(info.digits, '0')}`;
+              gapList.push({ prefix: info.prefix, num: i, code: gapCode, courseName: info.courseName });
+            }
+          }
+        }
+      });
+
+      badgeCount.innerText = gapList.length;
+      if (subtabGapsCount) subtabGapsCount.innerText = gapList.length;
+
+      if (gapList.length === 0) {
+        gapsTbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400 font-medium"><i class="fa-solid fa-circle-check text-emerald-500 mr-2 text-base"></i>Tuyệt vời! Không có số chứng chỉ nào bị khuyết cần cấp bù.</td></tr>`;
+      } else {
+        gapList.forEach((gap, idx) => {
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-amber-50/50 transition border-b border-slate-100";
+          tr.innerHTML = `
+            <td class="py-2.5 px-3 text-slate-400 font-bold">${idx + 1}</td>
+            <td class="py-2.5 px-3 font-semibold text-slate-700">${gap.prefix} <span class="text-slate-400 text-[10px]">(${gap.courseName})</span></td>
+            <td class="py-2.5 px-3 font-mono font-bold text-amber-700 bg-amber-50/60 rounded">${gap.code}</td>
+            <td class="py-2.5 px-3 font-mono font-bold text-slate-600">#${gap.num}</td>
+            <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fa-solid fa-hourglass-half mr-1"></i>Chờ cấp bù tự động</span></td>
+          `;
+          gapsTbody.appendChild(tr);
+        });
+      }
+
+      // 2. TÌM VÀ HIỂN THỊ CÁC MÃ BỊ TRÙNG LẶP
+      const duplicateCodes = Array.from(allCodesMap.entries()).filter(([code, recs]) => recs.length > 1);
+      if (subtabDupCount) subtabDupCount.innerText = duplicateCodes.length;
+      if (dupBadgeCount) {
+        if (duplicateCodes.length > 0) {
+          dupBadgeCount.innerText = `${duplicateCodes.length} trùng`;
+          dupBadgeCount.classList.remove('hidden');
+        } else {
+          dupBadgeCount.classList.add('hidden');
+        }
+      }
+
+      if (dupTbody) {
+        if (duplicateCodes.length === 0) {
+          dupTbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400 font-medium"><i class="fa-solid fa-circle-check text-emerald-500 mr-2 text-base"></i>Hệ thống an toàn! Không có mã chứng chỉ nào bị trùng lặp.</td></tr>`;
+        } else {
+          duplicateCodes.forEach(([code, recs], idx) => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-rose-50/40 transition border-b border-slate-100";
+            const detailsHtml = recs.map(r => `<span class="inline-block bg-slate-100 text-slate-800 font-medium px-2 py-0.5 rounded text-[11px] mr-1.5 mb-1 border border-slate-200"><strong>${r.trainee}</strong> (${r.dealer})</span>`).join('');
+            tr.innerHTML = `
+              <td class="py-2.5 px-3 text-center text-slate-400 font-bold">${idx + 1}</td>
+              <td class="py-2.5 px-3 font-mono font-bold text-rose-600">${code}</td>
+              <td class="py-2.5 px-3 text-center font-bold text-rose-700 bg-rose-50/60 rounded">${recs.length} lần</td>
+              <td class="py-2.5 px-3 whitespace-normal">${detailsHtml}</td>
+              <td class="py-2.5 px-3 text-right">
+                <button onclick="openDealerModal('${recs[0].dealer.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded-lg bg-geely-blue text-white font-bold text-[10px] hover:bg-slate-900 transition">Kiểm tra</button>
+              </td>
+            `;
+            dupTbody.appendChild(tr);
+          });
+        }
+      }
     }
 
     function renderUsersTable() {
