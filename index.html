@@ -158,7 +158,7 @@
               <button onclick="openChangePasswordModal()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 transition" title="Đổi mật khẩu">
                 <i class="fa-solid fa-key text-xs"></i>
               </button>
-              <button onclick="handleLogout()" class="p-2 rounded-xl bg-rose-500/20 hover:bg-rose-500 text-rose-200 hover:text-white transition" title="Đăng xuất">
+              <button type="button" onclick="handleLogout()" class="p-2 rounded-xl bg-rose-500/20 hover:bg-rose-500 text-rose-200 hover:text-white transition" title="Đăng xuất">
                 <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
               </button>
             </div>
@@ -200,10 +200,11 @@
       
       <!-- TAB 1: DASHBOARD (KÈM BẢN ĐỒ VIỆT NAM TRỰC QUAN) -->
       <div id="tab-dashboard" class="tab-content block space-y-6">
-        <!-- KPI METRICS -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- KPI METRICS (CHIA KTV & CVDV) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- 1. TỔNG ĐẠI LÝ -->
           <div class="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center space-x-4">
-            <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl">
+            <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-xl">
               <i class="fa-solid fa-store"></i>
             </div>
             <div>
@@ -211,45 +212,48 @@
               <h3 id="statTotalDealers" class="text-2xl font-black text-slate-800 leading-tight">66</h3>
             </div>
           </div>
-          <!-- Ô KỸ THUẬT VIÊN (MÀU XANH LÁ) CHIA ĐÔI: KTV & CHỨNG CHỈ KTV -->
-          <div class="bg-gradient-to-br from-white to-emerald-50/40 p-4 rounded-2xl border-2 border-emerald-400 shadow-sm flex items-center space-x-3">
-            <div class="w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shadow-md shadow-emerald-500/25 shrink-0">
-              <i class="fa-solid fa-wrench"></i>
+
+          <!-- 2. KỸ THUẬT VIÊN (CHIA ĐÔI: SỐ LƯỢNG KTV & CHỨNG CHỈ KTV - MÀU XANH LÁ) -->
+          <div class="bg-white p-4 rounded-2xl border-2 border-emerald-300 bg-gradient-to-br from-white to-emerald-50/40 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center space-x-2 mb-2">
+              <span class="w-6 h-6 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-xs shadow-sm">
+                <i class="fa-solid fa-wrench"></i>
+              </span>
+              <span class="text-xs uppercase font-extrabold text-emerald-800 tracking-tight">Kỹ Thuật Viên (KTV)</span>
             </div>
-            <div class="flex-1">
-              <p class="text-[11px] uppercase font-black text-emerald-800 tracking-wider">Kỹ Thuật Viên</p>
-              <div class="grid grid-cols-2 gap-2 mt-1 pt-1 border-t border-emerald-200 text-center">
-                <div class="bg-emerald-100/70 rounded-lg py-0.5">
-                  <span class="text-[9px] uppercase font-bold text-emerald-700 block">Số KTV</span>
-                  <span id="statTotalTechs" class="text-base font-black text-emerald-900 leading-tight">0</span>
-                </div>
-                <div class="bg-emerald-100/70 rounded-lg py-0.5">
-                  <span class="text-[9px] uppercase font-bold text-emerald-700 block">Chứng chỉ</span>
-                  <span id="statTotalTechCerts" class="text-base font-black text-emerald-900 leading-tight">0</span>
-                </div>
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-emerald-200/70">
+              <div>
+                <p class="text-[10px] font-bold text-emerald-700 uppercase">Nhân sự KTV</p>
+                <h3 id="statTotalTechs" class="text-xl font-black text-emerald-900 leading-tight">0</h3>
+              </div>
+              <div class="border-l border-emerald-200/70 pl-2.5">
+                <p class="text-[10px] font-bold text-emerald-700 uppercase">Chứng chỉ KTV</p>
+                <h3 id="statTechCerts" class="text-xl font-black text-emerald-700 leading-tight">0</h3>
               </div>
             </div>
           </div>
 
-          <!-- Ô CỐ VẤN DỊCH VỤ (MÀU XANH DƯƠNG) CHIA ĐÔI: CVDV & CHỨNG CHỈ CVDV -->
-          <div class="bg-gradient-to-br from-white to-sky-50/40 p-4 rounded-2xl border-2 border-sky-400 shadow-sm flex items-center space-x-3">
-            <div class="w-11 h-11 rounded-xl bg-sky-600 text-white flex items-center justify-center text-lg shadow-md shadow-sky-500/25 shrink-0">
-              <i class="fa-solid fa-headset"></i>
+          <!-- 3. CỐ VẤN DỊCH VỤ (CHIA ĐÔI: SỐ LƯỢNG CVDV & CHỨNG CHỈ CVDV - MÀU XANH DƯƠNG) -->
+          <div class="bg-white p-4 rounded-2xl border-2 border-sky-300 bg-gradient-to-br from-white to-sky-50/40 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center space-x-2 mb-2">
+              <span class="w-6 h-6 rounded-lg bg-sky-600 text-white flex items-center justify-center text-xs shadow-sm">
+                <i class="fa-solid fa-user-tie"></i>
+              </span>
+              <span class="text-xs uppercase font-extrabold text-sky-900 tracking-tight">Cố Vấn Dịch Vụ (CVDV)</span>
             </div>
-            <div class="flex-1">
-              <p class="text-[11px] uppercase font-black text-sky-800 tracking-wider">Cố Vấn Dịch Vụ</p>
-              <div class="grid grid-cols-2 gap-2 mt-1 pt-1 border-t border-sky-200 text-center">
-                <div class="bg-sky-100/70 rounded-lg py-0.5">
-                  <span class="text-[9px] uppercase font-bold text-sky-700 block">Số CVDV</span>
-                  <span id="statTotalAdvisors" class="text-base font-black text-sky-900 leading-tight">0</span>
-                </div>
-                <div class="bg-sky-100/70 rounded-lg py-0.5">
-                  <span class="text-[9px] uppercase font-bold text-sky-700 block">Chứng chỉ</span>
-                  <span id="statTotalAdvisorCerts" class="text-base font-black text-sky-900 leading-tight">0</span>
-                </div>
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-sky-200/70">
+              <div>
+                <p class="text-[10px] font-bold text-sky-700 uppercase">Nhân sự CVDV</p>
+                <h3 id="statTotalAdvisors" class="text-xl font-black text-sky-950 leading-tight">0</h3>
+              </div>
+              <div class="border-l border-sky-200/70 pl-2.5">
+                <p class="text-[10px] font-bold text-sky-700 uppercase">Chứng chỉ CVDV</p>
+                <h3 id="statAdvisorCerts" class="text-xl font-black text-sky-700 leading-tight">0</h3>
               </div>
             </div>
           </div>
+
+          <!-- 4. TỶ LỆ ĐẠT CHUẨN -->
           <div class="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm flex items-center space-x-4">
             <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
               <i class="fa-solid fa-circle-check"></i>
@@ -267,12 +271,12 @@
             <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm">
               <i class="fa-solid fa-magnifying-glass"></i>
             </span>
-            <input type="text" id="dealerSearchInput" oninput="renderDashboardView()" placeholder="Tìm tên đại lý, khu vực hoặc tên kỹ thuật viên..." class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent focus:border-transparent">
+            <input type="text" id="dealerSearchInput" oninput="renderDashboardView()" placeholder="Tìm tên đại lý, khu vực hoặc tên nhân sự..." class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-geely-accent focus:border-transparent">
           </div>
           <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
             <select id="dealerSortSelect" onchange="renderDashboardView()" class="px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-geely-accent font-medium">
-              <option value="tech-desc">Sắp xếp: Kỹ thuật viên (Cao -> Thấp)</option>
-              <option value="tech-asc">Sắp xếp: Kỹ thuật viên (Thấp -> Cao)</option>
+              <option value="tech-desc">Sắp xếp: Nhân sự (Cao -> Thấp)</option>
+              <option value="tech-asc">Sắp xếp: Nhân sự (Thấp -> Cao)</option>
               <option value="cert-desc">Sắp xếp: Chứng chỉ (Cao -> Thấp)</option>
               <option value="name-asc">Sắp xếp: Tên đại lý (A -> Z)</option>
             </select>
@@ -291,17 +295,17 @@
 
           <!-- BẢN ĐỒ VIỆT NAM ĐỊNH VỊ (DESKTOP STICKY) -->
           <div class="lg:col-span-4 sticky top-20 hidden lg:block">
-            <div class="bg-white p-4 rounded-3xl border border-slate-300 shadow-xl relative overflow-hidden">
-              <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+            <div class="bg-white p-3.5 rounded-3xl border border-slate-300 shadow-xl relative overflow-hidden">
+              <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-100">
                 <h4 class="font-bold text-slate-800 text-xs flex items-center space-x-1.5 uppercase tracking-wider">
                   <i class="fa-solid fa-map-location-dot text-geely-accent"></i>
-                  <span>Bản Đồ Phân Bố Đại Lý Toàn Quốc</span>
+                  <span>Bản Đồ Phân Bố Đại Lý</span>
                 </h4>
                 <span id="mapPinCountBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">0 điểm</span>
               </div>
 
-              <!-- CONTAINER BẢN ĐỒ - THU NHỎ LẠI VỪA KHUNG HÌNH (aspect-[1/1.5]) -->
-              <div id="vietnamMapContainer" class="relative w-full aspect-[1/1.5] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-inner group">
+              <!-- CONTAINER BẢN ĐỒ -->
+              <div id="vietnamMapContainer" class="relative w-full aspect-[1/1.45] max-h-[480px] mx-auto rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-inner group">
                 <img src="Vietnam_location_map.png" alt="Vietnam Map" class="w-full h-full object-fill select-none pointer-events-none" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Vietnam_location_map.svg/512px-Vietnam_location_map.svg.png';">
                 
                 <!-- LỚP MARKER CHẤM ĐẠI LÝ -->
@@ -310,19 +314,25 @@
                 </div>
 
                 <!-- TOOLTIP KHI RÊ CHUỘT VÀO CHẤM TRÊN BẢN ĐỒ -->
-                <div id="mapTooltip" class="absolute hidden z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full mb-2 w-48 bg-slate-900/95 text-white p-3 rounded-xl shadow-2xl backdrop-blur-md border border-white/10 text-xs transition-all duration-150">
+                <div id="mapTooltip" class="absolute hidden z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full mb-2 w-52 bg-slate-900/95 text-white p-3 rounded-xl shadow-2xl backdrop-blur-md border border-white/10 text-xs transition-all duration-150">
                   <p id="tooltipDealerName" class="font-black text-geely-accent uppercase mb-0.5 tracking-tight"></p>
                   <p id="tooltipRegion" class="text-[10px] text-slate-300 mb-1.5 font-medium"></p>
-                  <div class="pt-1.5 border-t border-white/10 flex items-center justify-between font-bold text-[11px]">
-                    <span class="text-emerald-400">KTV: <span id="tooltipTechs">0</span></span>
-                    <span class="text-amber-400">Chứng chỉ: <span id="tooltipCerts">0</span></span>
+                  <div class="pt-1.5 border-t border-white/10 space-y-1 text-[11px] font-bold">
+                    <div class="flex justify-between text-emerald-400">
+                      <span>KTV: <span id="tooltipTechs">0</span></span>
+                      <span>CC: <span id="tooltipTechCerts">0</span></span>
+                    </div>
+                    <div class="flex justify-between text-sky-400">
+                      <span>CVDV: <span id="tooltipAdvisors">0</span></span>
+                      <span>CC: <span id="tooltipAdvisorCerts">0</span></span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
-                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-900 inline-block border border-white shadow-xs"></span><span>Đại lý</span></span>
-                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block border border-white shadow-xs"></span><span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping inline-block -ml-1"></span><span>Đang soi</span></span>
+              <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-900 inline-block"></span><span>Đại lý</span></span>
+                <span class="flex items-center space-x-1.5"><span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span></span><span>Đang soi</span></span>
                 <span class="font-bold text-emerald-600"><i class="fa-solid fa-location-dot mr-1"></i><span id="totalActivePins">0</span> Điểm</span>
               </div>
             </div>
@@ -330,9 +340,8 @@
         </div>
       </div>
 
-      <!-- TAB 2: QUẢN LÝ ĐẠI LÝ & KHÓA HỌC (GỢP CHUNG 2 SUB-TAB) -->
+      <!-- TAB 2: QUẢN LÝ ĐẠI LÝ & KHÓA HỌC -->
       <div id="tab-dealers-courses" class="tab-content hidden space-y-6">
-        <!-- SUB-TAB HEADER SELECTOR -->
         <div class="flex items-center space-x-2 border-b border-slate-200 pb-3">
           <button id="subtab-btn-dealers" onclick="switchDealersCoursesSubTab('dealers')" class="px-5 py-2.5 rounded-xl font-bold bg-geely-blue text-white shadow-md flex items-center space-x-2 transition text-xs">
             <i class="fa-solid fa-store"></i>
@@ -378,10 +387,9 @@
                   <input type="text" id="dealerContactInput" placeholder="Họ tên người phụ trách..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none">
                 </div>
 
-                <!-- BẢN ĐỒ CHẤM VỊ TRÍ KHI THÊM ĐẠI LÝ (ẨN ĐỐI VỚI VIEWER) -->
                 <div id="newDealerMapSection">
                   <label class="block font-semibold text-slate-600 mb-1">Ghim vị trí trên bản đồ (Bấm vào bản đồ để chọn tọa độ)</label>
-                  <div id="newDealerMap" class="relative w-full aspect-[1/1.5] rounded-xl overflow-hidden bg-slate-100 border border-slate-200 cursor-crosshair" onclick="handleNewDealerMapClick(event)">
+                  <div id="newDealerMap" class="relative w-full aspect-[1/1.45] rounded-xl overflow-hidden bg-slate-100 border border-slate-200 cursor-crosshair" onclick="handleNewDealerMapClick(event)">
                     <img src="Vietnam_location_map.png" alt="Map" class="w-full h-full object-fill pointer-events-none select-none" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Vietnam_location_map.svg/512px-Vietnam_location_map.svg.png';">
                     <div id="newDealerPinDot" class="absolute w-4 h-4 bg-rose-600 border-2 border-white rounded-full shadow-lg transform -translate-x-1/2 -translate-y-1/2 hidden transition-all"></div>
                   </div>
@@ -417,6 +425,7 @@
                       <th class="py-2.5 px-3">Tên Đại Lý</th>
                       <th class="py-2.5 px-3">Khu Vực</th>
                       <th class="py-2.5 px-3 text-center">KTV</th>
+                      <th class="py-2.5 px-3 text-center">CVDV</th>
                       <th class="py-2.5 px-3 text-center">Chứng chỉ</th>
                       <th class="py-2.5 px-3 text-center">Map GPS</th>
                       <th class="py-2.5 px-3 text-right" id="dealerActionHeaderCol">Thao tác</th>
@@ -445,16 +454,14 @@
                   <input type="text" id="courseNameInput" required placeholder="Ví dụ: GMTC LEVEL 3" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase">
                 </div>
 
-                <!-- CHỌN ĐỐI TƯỢNG ĐÀO TẠO CỦA KHÓA HỌC -->
                 <div>
-                  <label class="block font-semibold text-slate-600 mb-1">Đối tượng áp dụng *</label>
-                  <select id="courseTargetRoleInput" class="w-full p-2.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+                  <label class="block font-semibold text-slate-600 mb-1">Đối tượng áp dụng mặc định *</label>
+                  <select id="courseTargetRoleInput" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-white font-bold text-geely-blue">
                     <option value="Kỹ thuật viên">Kỹ thuật viên (KTV)</option>
                     <option value="Cố vấn dịch vụ">Cố vấn dịch vụ (CVDV)</option>
                   </select>
                 </div>
 
-                <!-- CHECKBOX CHỨNG CHỈ TỰ ĐIỀN TAY -->
                 <div class="p-3 bg-amber-50/70 border border-amber-200 rounded-xl">
                   <label class="inline-flex items-center space-x-2 cursor-pointer w-full">
                     <input type="checkbox" id="courseIsManualCert" onchange="toggleManualCourseFields()" class="w-4 h-4 text-amber-600 rounded focus:ring-amber-500">
@@ -528,7 +535,7 @@
               <i class="fa-solid fa-file-circle-plus text-geely-accent"></i>
               <span>Nhập Liệu Đào Tạo & Cấp Mã Chứng Chỉ Tự Động</span>
             </h3>
-            <p class="text-xs text-slate-500 mt-1">Hệ thống tự động phát hiện số thứ tự còn thiếu (nếu có nhân sự nghỉ việc bị xóa) hoặc tự động tăng số kế tiếp.</p>
+            <p class="text-xs text-slate-500 mt-1">Hệ thống tự động chọn đối tượng (Kỹ thuật viên / Cố vấn dịch vụ) theo khóa học hoặc bạn có thể chủ động chọn lại thủ công.</p>
           </div>
 
           <form id="recordEntryForm" onsubmit="handleSaveRecord(event)" class="space-y-4 text-xs">
@@ -540,43 +547,43 @@
                 </select>
               </div>
               <div>
-                <label class="block font-semibold text-slate-600 mb-1">Họ và tên Học viên *</label>
+                <label class="block font-semibold text-slate-600 mb-1">Họ và tên Nhân sự *</label>
                 <input type="text" id="entryTrainee" required placeholder="Nhập họ và tên..." class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none uppercase">
               </div>
             </div>
 
-            <!-- CHỌN KHÓA ĐÀO TẠO & Ô CHỌN ĐỐI TƯỢNG (KTV / CVDV) TỰ ĐỘNG + CHỌN LẠI THỦ CÔNG -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div class="sm:col-span-2">
+              <div>
                 <label class="block font-semibold text-slate-600 mb-1">Khóa đào tạo *</label>
                 <select id="entryCourse" onchange="handleCourseChange()" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-white font-semibold text-geely-blue">
                   <!-- Rendered dynamically -->
                 </select>
               </div>
+
               <div>
                 <label class="block font-semibold text-slate-600 mb-1 flex items-center justify-between">
-                  <span>Đối tượng nhân sự *</span>
-                  <span class="text-[10px] text-geely-accent font-semibold">(Tự động/Chọn lại)</span>
+                  <span>Chức danh / Đối tượng *</span>
+                  <span class="text-[10px] text-sky-600 font-bold">Tự động / Thủ công</span>
                 </label>
-                <select id="entryTargetRole" class="w-full p-2.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-800 focus:ring-2 focus:ring-geely-accent focus:outline-none">
-                  <option value="Kỹ thuật viên">Kỹ thuật viên</option>
-                  <option value="Cố vấn dịch vụ">Cố vấn dịch vụ</option>
+                <select id="entryTargetRole" required class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-sky-50/40 font-bold text-slate-800">
+                  <option value="Kỹ thuật viên">Kỹ thuật viên (KTV)</option>
+                  <option value="Cố vấn dịch vụ">Cố vấn dịch vụ (CVDV)</option>
                 </select>
               </div>
-            </div>
 
-            <div>
-              <label class="block font-semibold text-slate-600 mb-1 flex items-center justify-between">
-                <span id="entryCertLabel">Mã số Chứng chỉ (Tự động tính)</span>
-                <span id="certGapsNotice" class="text-[10px] text-amber-600 font-bold hidden"></span>
-              </label>
-              <div class="flex items-center space-x-2">
-                <input type="text" id="entryCertCode" class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono font-bold text-amber-700 focus:ring-2 focus:ring-geely-accent focus:outline-none whitespace-nowrap">
-                <button type="button" id="btnRefreshCert" onclick="calculateNextCertCode()" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition" title="Tính lại số chứng chỉ">
-                  <i class="fa-solid fa-arrows-rotate"></i>
-                </button>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1 flex items-center justify-between">
+                  <span id="entryCertLabel">Mã số Chứng chỉ (Tự động)</span>
+                  <span id="certGapsNotice" class="text-[10px] text-amber-600 font-bold hidden"></span>
+                </label>
+                <div class="flex items-center space-x-2">
+                  <input type="text" id="entryCertCode" class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono font-bold text-amber-700 focus:ring-2 focus:ring-geely-accent focus:outline-none whitespace-nowrap">
+                  <button type="button" id="btnRefreshCert" onclick="calculateNextCertCode()" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition" title="Tính lại số chứng chỉ">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                  </button>
+                </div>
+                <p id="certExplanation" class="text-[10px] text-slate-400 mt-1 italic"></p>
               </div>
-              <p id="certExplanation" class="text-[10px] text-slate-400 mt-1 italic"></p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -650,12 +657,11 @@
                   <tr>
                     <th class="py-2.5 px-3">Ngày Nhập</th>
                     <th class="py-2.5 px-3">Học Viên</th>
-                    <th class="py-2.5 px-3">Đối Tượng</th>
+                    <th class="py-2.5 px-3">Chức Danh</th>
                     <th class="py-2.5 px-3">Đại Lý</th>
                     <th class="py-2.5 px-3">Khóa Học</th>
                     <th class="py-2.5 px-3">Mã Chứng Chỉ</th>
                     <th class="py-2.5 px-3">Ngày Cấp</th>
-                    <th class="py-2.5 px-3">Thời Gian Học</th>
                     <th class="py-2.5 px-3 text-right">Trạng Thái</th>
                   </tr>
                 </thead>
@@ -668,7 +674,7 @@
         </div>
       </div>
 
-      <!-- TAB: GAP QUEUE (CHỨNG CHỈ CHỜ CẤP LẠI - GOM THEO QUY ƯỚC) -->
+      <!-- TAB: GAP QUEUE (CHỨNG CHỈ CHỜ CẤP LẠI - DẠNG DROPBOX THEO LOẠI CHỨNG CHỈ) -->
       <div id="tab-queue" class="tab-content hidden space-y-6">
         <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
@@ -677,7 +683,7 @@
                 <i class="fa-solid fa-shield-halved text-geely-accent"></i>
                 <span>Kiểm Soát & Quản Lý Mã Số Chứng Chỉ</span>
               </h3>
-              <p class="text-xs text-slate-500 mt-1">Tổng hợp số chứng chỉ khuyết chờ cấp bù và tự động rà soát phát hiện các mã chứng chỉ bị trùng lặp.</p>
+              <p class="text-xs text-slate-500 mt-1">Tổng hợp số chứng chỉ khuyết chờ cấp bù theo từng loại chứng chỉ (dạng Dropbox) và tự động phát hiện mã trùng lặp.</p>
             </div>
             <button onclick="renderGapQueueTable()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs flex items-center space-x-1.5 transition">
               <i class="fa-solid fa-arrows-rotate"></i>
@@ -699,23 +705,10 @@
             </button>
           </div>
 
-          <!-- SUB-TAB 1: GAPS QUEUE TABLE -->
+          <!-- SUB-TAB 1: GAPS QUEUE (GROUPED BY CERTIFICATE TYPE DROPDOWN / ACCORDION) -->
           <div id="subtab-content-gaps" class="block">
-            <div class="overflow-x-auto max-h-[500px] custom-scrollbar border border-slate-100 rounded-xl mt-4 text-xs">
-              <table class="w-full text-left whitespace-nowrap">
-                <thead class="bg-slate-50 text-slate-500 uppercase font-bold sticky top-0 border-b border-slate-200">
-                  <tr>
-                    <th class="py-2.5 px-3">STT</th>
-                    <th class="py-2.5 px-3">Quy Ước Tiền Tố (Prefix)</th>
-                    <th class="py-2.5 px-3">Mã Bị Khuyết / Chờ Cấp</th>
-                    <th class="py-2.5 px-3">Số Thứ Tự</th>
-                    <th class="py-2.5 px-3">Trạng Thái</th>
-                  </tr>
-                </thead>
-                <tbody id="gapQueueTableBody" class="divide-y divide-slate-100">
-                  <!-- Rendered dynamically -->
-                </tbody>
-              </table>
+            <div id="gapQueueGroupsContainer" class="space-y-3 mt-4 text-xs">
+              <!-- Rendered dynamically as collapsible dropdown accordions by certificate type -->
             </div>
           </div>
 
@@ -751,9 +744,8 @@
         </div>
       </div>
 
-      <!-- TAB 4: QUẢN TRỊ & GOOGLE SYNC (GỢP CHUNG 2 SUB-TAB) -->
+      <!-- TAB 4: QUẢN TRỊ & GOOGLE SYNC -->
       <div id="tab-users" class="tab-content hidden space-y-6">
-        <!-- SUB-TAB HEADER SELECTOR -->
         <div class="flex items-center space-x-2 border-b border-slate-200 pb-3">
           <button id="subtab-btn-accounts" onclick="switchUsersSyncSubTab('accounts')" class="px-5 py-2.5 rounded-xl font-bold bg-geely-blue text-white shadow-md flex items-center space-x-2 transition text-xs">
             <i class="fa-solid fa-users-gear"></i>
@@ -833,7 +825,7 @@
                   <i class="fa-brands fa-google text-emerald-600"></i>
                   <span>Kết Nối Google Sheets Trực Tuyến Miễn Phí 100%</span>
                 </h3>
-                <p class="text-xs text-slate-500 mt-1">Toàn bộ dữ liệu được liên kết và lưu trữ vĩnh viễn trên Google Drive của bạn.</p>
+                <p class="text-xs text-slate-500 mt-1">Hỗ trợ đồng bộ cột targetRole (Kỹ thuật viên / Cố vấn dịch vụ) vào sheet TrainingRecord & Courses.</p>
               </div>
               <span id="syncStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <i class="fa-solid fa-cloud-check mr-1 text-emerald-500"></i> Đã kết nối Google Sheets Geely
@@ -854,20 +846,20 @@
 
               <div>
                 <div class="flex items-center justify-between mb-1.5">
-                  <label class="font-semibold text-slate-600">Mã nguồn Google Apps Script (Code.gs)</label>
+                  <label class="font-semibold text-slate-600">Mã nguồn Google Apps Script (Code.gs) - Cập nhật cột targetRole</label>
                   <button type="button" onclick="copyAppsScriptCode()" class="text-geely-accent hover:underline font-bold flex items-center space-x-1">
                     <i class="fa-regular fa-copy"></i>
                     <span>Sao chép mã Code.gs</span>
                   </button>
                 </div>
-                <textarea id="appsScriptCodeBlock" readonly rows="8" class="w-full p-3 rounded-xl border border-slate-200 bg-slate-900 text-slate-200 font-mono text-[11px] leading-relaxed custom-scrollbar focus:outline-none"></textarea>
+                <textarea id="appsScriptCodeBlock" readonly rows="10" class="w-full p-3 rounded-xl border border-slate-200 bg-slate-900 text-slate-200 font-mono text-[11px] leading-relaxed custom-scrollbar focus:outline-none"></textarea>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- TAB 5: REPORT & EXCEL EXPORT (CHỈ ADMIN) -->
+      <!-- TAB 5: REPORT & EXCEL EXPORT -->
       <div id="tab-report" class="tab-content hidden space-y-6">
         <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
           <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
@@ -884,16 +876,7 @@
             </button>
           </div>
 
-          <!-- REPORT FILTERS -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 py-4 text-xs">
-            <div>
-              <label class="block font-semibold text-slate-600 mb-1">Đối tượng</label>
-              <select id="reportRoleFilter" onchange="filterReportRecords()" class="w-full p-2 rounded-xl border border-slate-200 bg-white">
-                <option value="ALL">Tất cả (KTV & CVDV)</option>
-                <option value="Kỹ thuật viên">Kỹ thuật viên</option>
-                <option value="Cố vấn dịch vụ">Cố vấn dịch vụ</option>
-              </select>
-            </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 py-4 text-xs">
             <div>
               <label class="block font-semibold text-slate-600 mb-1">Lọc theo Đợt / Thời gian học</label>
               <select id="reportTimeFilter" onchange="filterReportRecords()" class="w-full p-2 rounded-xl border border-slate-200 bg-white">
@@ -931,7 +914,6 @@
             </div>
           </div>
 
-          <!-- PREVIEW TABLE -->
           <div class="overflow-x-auto max-h-[600px] custom-scrollbar border border-slate-200 rounded-xl text-[11px]">
             <table class="w-full text-left whitespace-nowrap border-collapse">
               <thead class="bg-geely-blue text-white uppercase text-[10px] sticky top-0 font-bold tracking-wider">
@@ -941,7 +923,7 @@
                   <th class="py-2.5 px-3 border-r border-white/10">Country</th>
                   <th class="py-2.5 px-3 border-r border-white/10">Dealer Name</th>
                   <th class="py-2.5 px-3 border-r border-white/10">Trainee Name</th>
-                  <th class="py-2.5 px-3 border-r border-white/10">Position / Đối tượng</th>
+                  <th class="py-2.5 px-3 border-r border-white/10">Role / Position</th>
                   <th class="py-2.5 px-3 border-r border-white/10">Training Time</th>
                   <th class="py-2.5 px-3 border-r border-white/10">Training Course</th>
                   <th class="py-2.5 px-3 border-r border-white/10">Exam Score</th>
@@ -961,7 +943,7 @@
     </main>
   </div>
 
-  <!-- DRILL-DOWN DEALER DETAIL MODAL -->
+  <!-- DRILL-DOWN DEALER DETAIL MODAL (CÓ SUB-TAB KỸ THUẬT VIÊN & CỐ VẤN DỊCH VỤ) -->
   <div id="dealerModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full p-6 sm:p-8 max-h-[90vh] flex flex-col border border-slate-200">
       <div class="flex items-start justify-between pb-4 border-b border-slate-100">
@@ -978,7 +960,7 @@
       </div>
 
       <!-- FILTER & BATCH ACTION BAR IN MODAL -->
-      <div class="py-3 flex flex-wrap items-center justify-between gap-3 text-xs border-b border-slate-100">
+      <div class="py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div class="flex items-center space-x-2">
           <span class="font-bold text-slate-600">Lọc khóa học:</span>
           <select id="modalCourseFilter" onchange="renderModalTechnicians()" class="p-1.5 rounded-lg border border-slate-200 bg-white font-semibold text-geely-blue focus:outline-none">
@@ -995,29 +977,28 @@
         </div>
       </div>
 
-      <!-- SUB-TAB CHỌN KỸ THUẬT VIÊN HOẶC CỐ VẤN DỊCH VỤ -->
-      <div class="flex items-center space-x-2 py-2 text-xs border-b border-slate-100">
-        <button id="modalTabTech" onclick="switchModalRoleTab('Kỹ thuật viên')" class="px-4 py-1.5 rounded-lg font-bold bg-emerald-600 text-white shadow-sm flex items-center space-x-1.5 transition">
-          <i class="fa-solid fa-wrench text-xs"></i>
-          <span>Kỹ Thuật Viên</span>
-          <span id="modalTechCountBadge" class="ml-1 bg-white/20 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
+      <!-- SUB-TABS CHIA LÀM 2: KỸ THUẬT VIÊN & CỐ VẤN DỊCH VỤ -->
+      <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl mb-3 text-xs">
+        <button id="modalRoleTab-KTV" type="button" onclick="switchModalRoleTab('Kỹ thuật viên')" class="py-2 px-3 rounded-lg font-bold bg-emerald-600 text-white shadow flex items-center justify-center space-x-2 transition">
+          <i class="fa-solid fa-wrench"></i>
+          <span>Kỹ thuật viên</span>
+          <span id="modalKtvCountBadge" class="bg-white/20 px-1.5 py-0.2 rounded-full text-[10px]">0</span>
         </button>
-        <button id="modalTabAdvisor" onclick="switchModalRoleTab('Cố vấn dịch vụ')" class="px-4 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900 bg-slate-100 flex items-center space-x-1.5 transition">
-          <i class="fa-solid fa-headset text-xs"></i>
-          <span>Cố Vấn Dịch Vụ</span>
-          <span id="modalAdvisorCountBadge" class="ml-1 bg-slate-200 text-slate-700 text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
+        <button id="modalRoleTab-CVDV" type="button" onclick="switchModalRoleTab('Cố vấn dịch vụ')" class="py-2 px-3 rounded-lg font-bold text-slate-600 hover:bg-white/60 flex items-center justify-center space-x-2 transition">
+          <i class="fa-solid fa-user-tie"></i>
+          <span>Cố vấn dịch vụ</span>
+          <span id="modalCvdvCountBadge" class="bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded-full text-[10px]">0</span>
         </button>
       </div>
 
-      <div class="overflow-x-auto flex-1 custom-scrollbar border border-slate-100 rounded-xl text-xs mt-2">
+      <div class="overflow-x-auto flex-1 custom-scrollbar border border-slate-100 rounded-xl text-xs">
         <table class="w-full text-left whitespace-nowrap">
           <thead class="bg-slate-50 text-slate-500 uppercase font-bold sticky top-0 border-b border-slate-200">
             <tr>
               <th class="py-2.5 px-3 text-center">
                 <input type="checkbox" id="selectAllModalCheck" onchange="toggleSelectAllModal(this)" class="w-4 h-4 text-geely-blue rounded">
               </th>
-              <th class="py-2.5 px-3">Học Viên</th>
-              <th class="py-2.5 px-3">Đối Tượng</th>
+              <th class="py-2.5 px-3">Họ Tên Nhân Sự</th>
               <th class="py-2.5 px-3">Khóa Học</th>
               <th class="py-2.5 px-3">Mã Chứng Chỉ</th>
               <th class="py-2.5 px-3">Điểm Số</th>
@@ -1048,7 +1029,7 @@
 
       <div class="space-y-3 text-xs mb-4">
         <div>
-          <span class="text-slate-400 block font-medium">Kỹ thuật viên:</span>
+          <span class="text-slate-400 block font-medium">Nhân sự:</span>
           <span id="manualCertTraineeName" class="font-bold text-slate-800 text-sm uppercase"></span>
         </div>
         <div>
@@ -1125,8 +1106,8 @@
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-600 mb-1">Đối tượng áp dụng *</label>
-          <select id="editCourseTargetRoleInput" class="w-full p-2.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 focus:ring-2 focus:ring-geely-accent focus:outline-none">
+          <label class="block font-semibold text-slate-600 mb-1">Đối tượng áp dụng mặc định *</label>
+          <select id="editCourseTargetRoleInput" class="w-full p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-geely-accent focus:outline-none bg-white font-bold text-geely-blue">
             <option value="Kỹ thuật viên">Kỹ thuật viên (KTV)</option>
             <option value="Cố vấn dịch vụ">Cố vấn dịch vụ (CVDV)</option>
           </select>
@@ -1186,7 +1167,7 @@
       </div>
       <p class="text-xs text-slate-500 mb-3">Nhấp chuột trực tiếp lên bản đồ dưới đây để thay đổi vị trí ghim định vị của đại lý:</p>
       
-      <div id="editDealerMapBox" class="relative w-full aspect-[1/1.5] rounded-xl overflow-hidden bg-slate-100 border border-slate-200 cursor-crosshair mb-4" onclick="handleEditDealerMapClick(event)">
+      <div id="editDealerMapBox" class="relative w-full aspect-[1/1.45] rounded-xl overflow-hidden bg-slate-100 border border-slate-200 cursor-crosshair mb-4" onclick="handleEditDealerMapClick(event)">
         <img src="Vietnam_location_map.png" alt="Map" class="w-full h-full object-fill pointer-events-none select-none" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Vietnam_location_map.svg/512px-Vietnam_location_map.svg.png';">
         <div id="editDealerPinDot" class="absolute w-4 h-4 bg-rose-600 border-2 border-white rounded-full shadow-lg transform -translate-x-1/2 -translate-y-1/2 transition-all"></div>
       </div>
@@ -1206,6 +1187,62 @@
   <script>
     const PRIMARY_GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxXy-DFSlE-KsuGqu1U2uWPq56WKzrb6ZHPojS9HAkOTRaE2m7We1LrHKuETA1sjGIt/exec';
 
+    const APPS_SCRIPT_CODE_TEMPLATE = `/**
+ * GOOGLE APPS SCRIPT CHO HỆ THỐNG ĐÀO TẠO & CHỨNG CHỈ GEELY GMTC
+ * Hỗ trợ phân loại đối tượng: Kỹ thuật viên / Cố vấn dịch vụ (cột targetRole)
+ */
+function doGet(e) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const data = {
+    records: readSheet(ss, 'TrainingRecord'),
+    dealers: readSheet(ss, 'Dealers'),
+    courses: readSheet(ss, 'Courses'),
+    users: readSheet(ss, 'Users')
+  };
+  return ContentService.createTextOutput(JSON.stringify({ status: 'SUCCESS', data: data }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  try {
+    const payload = JSON.parse(e.postData.contents);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (payload.records) writeSheet(ss, 'TrainingRecord', payload.records, ['id', 'entryDate', 'country', 'dealer', 'trainee', 'targetRole', 'position', 'place', 'type', 'time', 'course', 'score', 'trainer', 'eval', 'certCode', 'issuedDate']);
+    if (payload.dealers) writeSheet(ss, 'Dealers', payload.dealers, ['id', 'name', 'region', 'address', 'hotline', 'manager', 'mapPercentX', 'mapPercentY']);
+    if (payload.courses) writeSheet(ss, 'Courses', payload.courses, ['id', 'name', 'targetRole', 'prefix', 'digits', 'scorePass', 'trainingDate', 'defaultTrainer', 'type', 'isManualCert']);
+    if (payload.users) writeSheet(ss, 'Users', payload.users, ['username', 'fullname', 'role', 'hash', 'plainPassword']);
+    return ContentService.createTextOutput(JSON.stringify({ status: 'SUCCESS' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: 'ERROR', message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function readSheet(ss, name) {
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) return [];
+  const rows = sheet.getDataRange().getValues();
+  if (rows.length < 2) return [];
+  const headers = rows[0];
+  return rows.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = row[i]);
+    return obj;
+  });
+}
+
+function writeSheet(ss, name, items, headers) {
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) sheet = ss.insertSheet(name);
+  sheet.clear();
+  sheet.appendRow(headers);
+  if (items && items.length > 0) {
+    const rows = items.map(item => headers.map(h => item[h] !== undefined ? item[h] : ''));
+    sheet.getRange(2, 1, rows.length, headers.length).setValues(rows);
+  }
+}`;
+
     const INITIAL_RAW_RECORDS = [
       ["GEELY THAI NGUYEN", "NGUYEN TIEN HUNG", "ONLINE UMU", "1-31/7/2025", "GMTC LEVEL 1 (NEW)", "360/460", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0015", "Kỹ thuật viên"],
       ["GEELY HA NOI", "NGUYEN VAN A", "ONLINE UMU", "1-31/10/2026", "GMTC LEVEL 1 (NEW)", "90/100", "LE KHANH VAN", "PASSED", "GMTC-D-1-VN-0100", "Kỹ thuật viên"]
@@ -1217,20 +1254,57 @@
     ];
 
     const DEFAULT_COORDS = {
-      "GEELY HA NOI": { x: 48, y: 24 },
-      "GEELY LONG BIEN": { x: 50, y: 24 },
-      "GEELY PHAM VAN DONG": { x: 48, y: 23 },
-      "GEELY GIAI PHONG": { x: 48, y: 25 },
-      "GEELY HA DONG": { x: 46, y: 25 },
-      "GEELY HAI PHONG": { x: 58, y: 25 },
-      "GEELY DA NANG": { x: 67, y: 46 },
-      "GEELY HO CHI MINH": { x: 45, y: 78 },
-      "GEELY TAN PHU": { x: 44, y: 78 },
-      "GEELY PHU MY HUNG": { x: 45, y: 80 },
-      "GEELY VO VAN KIET": { x: 44, y: 78 },
-      "GEELY CAN THO": { x: 38, y: 86 },
-      "GEELY CA MAU": { x: 34, y: 92 },
-      "GEELY PHU QUOC": { x: 24, y: 89 }
+      "GEELY HA NOI": { x: 46, y: 21 },
+      "GEELY LONG BIEN": { x: 47, y: 21 },
+      "GEELY PHAM VAN DONG": { x: 45, y: 20 },
+      "GEELY GIAI PHONG": { x: 46, y: 22 },
+      "GEELY HA DONG": { x: 45, y: 22 },
+      "GEELY THAI NGUYEN": { x: 46, y: 16 },
+      "GEELY BAC NINH": { x: 49, y: 20 },
+      "GEELY BAC GIANG": { x: 50, y: 19 },
+      "GEELY VINH PHUC": { x: 44, y: 19 },
+      "GEELY PHU THO": { x: 41, y: 19 },
+      "GEELY QUANG NINH": { x: 58, y: 20 },
+      "GEELY HAI PHONG": { x: 54, y: 23 },
+      "GEELY HAI DUONG": { x: 51, y: 22 },
+      "GEELY HUNG YEN": { x: 49, y: 22 },
+      "GEELY THAI BINH": { x: 51, y: 25 },
+      "GEELY NAM DINH": { x: 49, y: 26 },
+      "GEELY NINH BINH": { x: 47, y: 27 },
+      "GEELY THANH HOA": { x: 45, y: 31 },
+      "GEELY NGHE AN": { x: 42, y: 37 },
+      "GEELY HA TINH": { x: 46, y: 42 },
+      "GEELY QUANG BINH": { x: 52, y: 47 },
+      "GEELY QUANG TRI": { x: 57, y: 51 },
+      "GEELY HUE": { x: 62, y: 54 },
+      "GEELY DA NANG": { x: 67, y: 57 },
+      "GEELY QUANG NAM": { x: 68, y: 60 },
+      "GEELY QUANG NGAI": { x: 71, y: 63 },
+      "GEELY BINH DINH": { x: 73, y: 69 },
+      "GEELY PHU YEN": { x: 74, y: 74 },
+      "GEELY NHA TRANG": { x: 73, y: 79 },
+      "GEELY DAK LAK": { x: 65, y: 74 },
+      "GEELY GIA LAI": { x: 66, y: 67 },
+      "GEELY DA LAT": { x: 66, y: 82 },
+      "GEELY BINH THUAN": { x: 67, y: 86 },
+      "GEELY DONG NAI": { x: 57, y: 86 },
+      "GEELY BINH DUONG": { x: 53, y: 85 },
+      "GEELY HO CHI MINH": { x: 53, y: 87 },
+      "GEELY TAN PHU": { x: 52, y: 87 },
+      "GEELY PHU MY HUNG": { x: 53, y: 88 },
+      "GEELY VO VAN KIET": { x: 52, y: 87 },
+      "GEELY VUNG TAU": { x: 57, y: 90 },
+      "GEELY LONG AN": { x: 50, y: 88 },
+      "GEELY TIEN GIANG": { x: 50, y: 90 },
+      "GEELY BEN TRE": { x: 51, y: 91 },
+      "GEELY VINH LONG": { x: 47, y: 91 },
+      "GEELY CAN THO": { x: 45, y: 92 },
+      "GEELY AN GIANG": { x: 40, y: 90 },
+      "GEELY KIEN GIANG": { x: 39, y: 93 },
+      "GEELY SOC TRANG": { x: 47, y: 95 },
+      "GEELY BAC LIEU": { x: 44, y: 96 },
+      "GEELY CA MAU": { x: 40, y: 97 },
+      "GEELY PHU QUOC": { x: 29, y: 92 }
     };
 
     const state = {
@@ -1241,27 +1315,32 @@
       users: [],
       syncUrl: PRIMARY_GOOGLE_SHEET_URL,
       currentModalDealer: null,
-      currentModalRole: 'Kỹ thuật viên',
+      currentModalRoleTab: 'Kỹ thuật viên',
       selectedModalRecords: new Set(),
       recentCandidates: [],
       editingDealerLocId: null
     };
 
+    function getRecordRole(rec) {
+      if (rec && rec.targetRole) {
+        const r = String(rec.targetRole).trim().toLowerCase();
+        if (r.includes('cố vấn') || r.includes('cvdv') || r.includes('advisor')) return 'Cố vấn dịch vụ';
+        return 'Kỹ thuật viên';
+      }
+      if (rec && rec.position) {
+        const pos = String(rec.position).trim().toUpperCase();
+        if (pos.includes('ADVISOR') || pos.includes('CỐ VẤN') || pos.includes('CVDV')) return 'Cố vấn dịch vụ';
+      }
+      if (rec && rec.course) {
+        const cObj = state.courses.find(c => normalizeStr(c.name).toUpperCase() === normalizeStr(rec.course).toUpperCase());
+        if (cObj && cObj.targetRole) return cObj.targetRole;
+      }
+      return 'Kỹ thuật viên';
+    }
+
     function normalizeStr(s) {
       if (!s) return '';
       return String(s).trim().replace(/\s+/g, ' ');
-    }
-
-    // Xác định vai trò (Kỹ thuật viên hoặc Cố vấn dịch vụ)
-    function resolveTargetRole(r) {
-      if (r && r.targetRole) return r.targetRole;
-      if (r && r.position) {
-        const pos = r.position.toUpperCase();
-        if (pos.includes('SERVICE ADVISOR') || pos.includes('CỐ VẤN') || pos.includes('ADVISOR') || pos.includes('CVDV')) {
-          return 'Cố vấn dịch vụ';
-        }
-      }
-      return 'Kỹ thuật viên';
     }
 
     async function sha256(str) {
@@ -1288,7 +1367,7 @@
 
     function guessRegion(dealerName) {
       const name = (dealerName || '').toUpperCase();
-      if (name.includes('DA NANG') || name.includes('HA TINH') || name.includes('QUANG BINH') || name.includes('QUANG NGAI') || name.includes('QUANG NAM') || name.includes('GIA LAI') || name.includes('KON TUM') || name.includes('DAK LAK') || name.includes('DAK NONG') || name.includes('NHA TRANG') || name.includes('NINH THUAN') || name.includes('BINH THUAN') || name.includes('DA LAT') || name.includes('THANH HOA') || name.includes('NGHI SON')) {
+      if (name.includes('DA NANG') || name.includes('HA TINH') || name.includes('QUANG BINH') || name.includes('QUANG NGAI') || name.includes('QUANG NAM') || name.includes('GIA LAI') || name.includes('KON TUM') || name.includes('DAK LAK') || name.includes('DAK NONG') || name.includes('NHA TRANG') || name.includes('NINH THUAN') || name.includes('BINH THUAN') || name.includes('DA LAT') || name.includes('THANH HOA') || name.includes('NGHI SON') || name.includes('NGHE AN') || name.includes('HUE') || name.includes('QUANG TRI') || name.includes('BINH DINH') || name.includes('PHU YEN')) {
         return 'Miền Trung & Tây Nguyên';
       }
       if (name.includes('HO CHI MINH') || name.includes('BINH DUONG') || name.includes('BINH PHUOC') || name.includes('DONG NAI') || name.includes('TAY NINH') || name.includes('BA RIA') || name.includes('VUNG TAU') || name.includes('LONG AN') || name.includes('TIEN GIANG') || name.includes('BEN TRE') || name.includes('TRA VINH') || name.includes('VINH LONG') || name.includes('DONG THAP') || name.includes('AN GIANG') || name.includes('KIEN GIANG') || name.includes('CAN THO') || name.includes('HAU GIANG') || name.includes('SOC TRANG') || name.includes('BAC LIEU') || name.includes('CA MAU') || name.includes('PHU QUOC') || name.includes('TAN PHU') || name.includes('PHU MY HUNG') || name.includes('VO VAN KIET') || name.includes('CHE LAN VIEN')) {
@@ -1298,16 +1377,20 @@
     }
 
     function getDealerPercentCoords(dealerName) {
-      const found = state.dealers.find(d => normalizeStr(d.name).toUpperCase() === normalizeStr(dealerName).toUpperCase());
+      const upperName = normalizeStr(dealerName).toUpperCase();
+      const found = state.dealers.find(d => normalizeStr(d.name).toUpperCase() === upperName);
       if (found && found.mapPercentX && found.mapPercentY) {
         return { x: found.mapPercentX, y: found.mapPercentY };
       }
       for (const key in DEFAULT_COORDS) {
-        if (normalizeStr(dealerName).toUpperCase().includes(key)) {
+        if (upperName.includes(key)) {
           return DEFAULT_COORDS[key];
         }
       }
-      return { x: 50, y: 50 };
+      const region = guessRegion(upperName);
+      if (region === 'Miền Bắc') return { x: 46, y: 22 };
+      if (region === 'Miền Trung & Tây Nguyên') return { x: 67, y: 58 };
+      return { x: 52, y: 88 };
     }
 
     function togglePassVisibility(inputId, iconId) {
@@ -1367,7 +1450,6 @@
       const btnText = document.getElementById('loginBtnText');
       const btnIcon = document.getElementById('loginBtnIcon');
 
-      // Hiệu ứng chờ kiểm tra đăng nhập
       submitBtn.disabled = true;
       btnText.innerText = "Đang kiểm tra...";
       btnIcon.className = "fa-solid fa-spinner fa-spin text-sm";
@@ -1396,7 +1478,6 @@
         return (u.hash && u.hash === inputHash) || (u.plainPassword && u.plainPassword === passVal) || (u.plainPassword === '' && u.hash === '');
       });
 
-      // Khôi phục nút bấm sau khi kiểm tra xong
       submitBtn.disabled = false;
       btnText.innerText = "Đăng nhập hệ thống";
       btnIcon.className = "fa-solid fa-arrow-right-to-bracket text-sm";
@@ -1412,6 +1493,37 @@
       }
     }
 
+    function handleLogout() {
+      state.currentUser = null;
+      sessionStorage.removeItem('geely_session_user');
+
+      const loginForm = document.getElementById('loginForm');
+      if (loginForm) loginForm.reset();
+
+      const submitBtn = document.getElementById('loginSubmitBtn');
+      const btnText = document.getElementById('loginBtnText');
+      const btnIcon = document.getElementById('loginBtnIcon');
+      const statusP = document.getElementById('loginSyncStatus');
+
+      if (submitBtn) submitBtn.disabled = false;
+      if (btnText) btnText.innerText = "Đăng nhập hệ thống";
+      if (btnIcon) btnIcon.className = "fa-solid fa-arrow-right-to-bracket text-sm";
+      if (statusP) statusP.innerHTML = `<span>Hệ thống xác thực trực tuyến qua Google Sheets</span>`;
+
+      const appContainer = document.getElementById('appContainer');
+      if (appContainer) {
+        appContainer.classList.add('hidden');
+        appContainer.classList.remove('flex');
+      }
+
+      const loginScreen = document.getElementById('loginScreen');
+      if (loginScreen) {
+        loginScreen.style.display = 'flex';
+      }
+
+      showToast('Đã đăng xuất khỏi hệ thống!', 'info');
+    }
+
     function enterApplication() {
       document.getElementById('loginScreen').style.display = 'none';
       const appContainer = document.getElementById('appContainer');
@@ -1422,12 +1534,10 @@
       document.getElementById('currentUserLabel').innerText = state.currentUser.fullname || state.currentUser.username;
       document.getElementById('currentUserRole').innerText = isAdmin ? 'Quản trị viên (Admin)' : 'Người xem (Viewer)';
 
-      // PHÂN QUYỀN HIỂN THỊ DỰA TRÊN ROLE
       document.getElementById('headerReportBtn').style.display = isAdmin ? 'flex' : 'none';
       document.getElementById('nav-entry').style.display = isAdmin ? 'flex' : 'none';
       document.getElementById('nav-queue').style.display = isAdmin ? 'flex' : 'none';
       document.getElementById('nav-users').style.display = isAdmin ? 'flex' : 'none';
-
       document.getElementById('nav-dealers-courses').style.display = 'flex';
 
       const createDealerBox = document.getElementById('createDealerFormBox');
@@ -1488,6 +1598,24 @@
       else if (tabId === 'report') { populateReportFilters(); filterReportRecords(); }
     }
 
+    function switchQueueSubTab(sub) {
+      const btnGaps = document.getElementById('subtab-btn-gaps');
+      const btnDups = document.getElementById('subtab-btn-duplicates');
+      const boxGaps = document.getElementById('subtab-content-gaps');
+      const boxDups = document.getElementById('subtab-content-duplicates');
+      if (sub === 'gaps') {
+        btnGaps.className = "px-4 py-2 font-bold border-b-2 border-geely-blue text-geely-blue flex items-center space-x-2 transition";
+        btnDups.className = "px-4 py-2 font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center space-x-2 transition";
+        boxGaps.classList.remove('hidden'); boxGaps.classList.add('block');
+        boxDups.classList.remove('block'); boxDups.classList.add('hidden');
+      } else {
+        btnDups.className = "px-4 py-2 font-bold border-b-2 border-rose-600 text-rose-600 flex items-center space-x-2 transition";
+        btnGaps.className = "px-4 py-2 font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center space-x-2 transition";
+        boxDups.classList.remove('hidden'); boxDups.classList.add('block');
+        boxGaps.classList.remove('block'); boxGaps.classList.add('hidden');
+      }
+    }
+
     function switchDealersCoursesSubTab(sub) {
       const btnD = document.getElementById('subtab-btn-dealers');
       const btnC = document.getElementById('subtab-btn-courses');
@@ -1497,13 +1625,13 @@
         btnD.className = "px-5 py-2.5 rounded-xl font-bold bg-geely-blue text-white shadow-md flex items-center space-x-2 transition text-xs";
         btnC.className = "px-5 py-2.5 rounded-xl font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition text-xs";
         boxD.classList.remove('hidden'); boxD.classList.add('block');
-        boxC.classList.remove('hidden'); boxC.classList.add('hidden');
+        boxC.classList.remove('block'); boxC.classList.add('hidden');
         renderDealersManagerTable();
       } else {
         btnC.className = "px-5 py-2.5 rounded-xl font-bold bg-geely-blue text-white shadow-md flex items-center space-x-2 transition text-xs";
         btnD.className = "px-5 py-2.5 rounded-xl font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition text-xs";
         boxC.classList.remove('hidden'); boxC.classList.add('block');
-        boxD.classList.remove('hidden'); boxD.classList.add('hidden');
+        boxD.classList.remove('block'); boxD.classList.add('hidden');
         renderCourseTable();
       }
     }
@@ -1517,13 +1645,13 @@
         btnA.className = "px-5 py-2.5 rounded-xl font-bold bg-geely-blue text-white shadow-md flex items-center space-x-2 transition text-xs";
         btnG.className = "px-5 py-2.5 rounded-xl font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition text-xs";
         boxA.classList.remove('hidden'); boxA.classList.add('block');
-        boxG.classList.remove('hidden'); boxG.classList.add('hidden');
+        boxG.classList.remove('block'); boxG.classList.add('hidden');
         renderUsersTable();
       } else {
         btnG.className = "px-5 py-2.5 rounded-xl font-bold bg-geely-blue text-white shadow-md flex items-center space-x-2 transition text-xs";
         btnA.className = "px-5 py-2.5 rounded-xl font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition text-xs";
         boxG.classList.remove('hidden'); boxG.classList.add('block');
-        boxA.classList.remove('hidden'); boxA.classList.add('hidden');
+        boxA.classList.remove('block'); boxA.classList.add('hidden');
       }
     }
 
@@ -1531,28 +1659,29 @@
       const uniqueDealers = new Set(state.records.map(r => r.dealer).filter(Boolean));
       state.dealers.forEach(d => uniqueDealers.add(d.name));
 
-      const techSet = new Set();
-      const advisorSet = new Set();
+      const uniqueTechs = new Set();
       let techCertsCount = 0;
+
+      const uniqueAdvisors = new Set();
       let advisorCertsCount = 0;
 
       state.records.forEach(r => {
-        const role = resolveTargetRole(r);
-        const certCount = extractCertCodes(r.certCode).length;
+        const role = getRecordRole(r);
+        const certLen = extractCertCodes(r.certCode).length;
         if (role === 'Cố vấn dịch vụ') {
-          advisorSet.add(`${r.dealer}_${r.trainee}`);
-          advisorCertsCount += certCount;
+          uniqueAdvisors.add(`${r.dealer}_${r.trainee}`);
+          advisorCertsCount += certLen;
         } else {
-          techSet.add(`${r.dealer}_${r.trainee}`);
-          techCertsCount += certCount;
+          uniqueTechs.add(`${r.dealer}_${r.trainee}`);
+          techCertsCount += certLen;
         }
       });
 
       document.getElementById('statTotalDealers').innerText = uniqueDealers.size;
-      document.getElementById('statTotalTechs').innerText = techSet.size;
-      document.getElementById('statTotalTechCerts').innerText = techCertsCount;
-      document.getElementById('statTotalAdvisors').innerText = advisorSet.size;
-      document.getElementById('statTotalAdvisorCerts').innerText = advisorCertsCount;
+      document.getElementById('statTotalTechs').innerText = uniqueTechs.size;
+      document.getElementById('statTechCerts').innerText = techCertsCount;
+      document.getElementById('statTotalAdvisors').innerText = uniqueAdvisors.size;
+      document.getElementById('statAdvisorCerts').innerText = advisorCertsCount;
     }
 
     function renderDashboardView() {
@@ -1574,9 +1703,9 @@
           name: d.name,
           region: d.region || guessRegion(d.name),
           techs: new Set(),
+          techCertCount: 0,
           advisors: new Set(),
-          techCerts: 0,
-          advisorCerts: 0,
+          advisorCertCount: 0,
           records: []
         });
       });
@@ -1587,38 +1716,39 @@
             name: r.dealer,
             region: guessRegion(r.dealer),
             techs: new Set(),
+            techCertCount: 0,
             advisors: new Set(),
-            techCerts: 0,
-            advisorCerts: 0,
+            advisorCertCount: 0,
             records: []
           });
         }
         const item = dealerDataMap.get(r.dealer);
-        const role = resolveTargetRole(r);
-        const certCount = extractCertCodes(r.certCode).length;
+        const role = getRecordRole(r);
+        const certLen = extractCertCodes(r.certCode).length;
+
         if (role === 'Cố vấn dịch vụ') {
           item.advisors.add(r.trainee);
-          item.advisorCerts += certCount;
+          item.advisorCertCount += certLen;
         } else {
           item.techs.add(r.trainee);
-          item.techCerts += certCount;
+          item.techCertCount += certLen;
         }
         item.records.push(r);
       });
 
       let list = Array.from(dealerDataMap.values());
       if (searchVal) {
-        list = list.filter(d => 
-          d.name.includes(searchVal) || 
-          d.region.toUpperCase().includes(searchVal) || 
+        list = list.filter(d =>
+          d.name.includes(searchVal) ||
+          d.region.toUpperCase().includes(searchVal) ||
           Array.from(d.techs).some(t => t.toUpperCase().includes(searchVal)) ||
           Array.from(d.advisors).some(a => a.toUpperCase().includes(searchVal))
         );
       }
 
-      if (sortVal === 'tech-desc') list.sort((a, b) => b.techs.size - a.techs.size);
-      else if (sortVal === 'tech-asc') list.sort((a, b) => a.techs.size - b.techs.size);
-      else if (sortVal === 'cert-desc') list.sort((a, b) => (b.techCerts + b.advisorCerts) - (a.techCerts + a.advisorCerts));
+      if (sortVal === 'tech-desc') list.sort((a, b) => (b.techs.size + b.advisors.size) - (a.techs.size + a.advisors.size));
+      else if (sortVal === 'tech-asc') list.sort((a, b) => (a.techs.size + a.advisors.size) - (b.techs.size + b.advisors.size));
+      else if (sortVal === 'cert-desc') list.sort((a, b) => (b.techCertCount + b.advisorCertCount) - (a.techCertCount + a.advisorCertCount));
       else if (sortVal === 'name-asc') list.sort((a, b) => a.name.localeCompare(b.name));
 
       document.getElementById('filteredDealerCount').innerText = `Hiển thị ${list.length} đại lý`;
@@ -1643,26 +1773,29 @@
             </div>
             <h4 class="font-black text-slate-900 text-xs group-hover:text-geely-accent transition line-clamp-1 uppercase">${item.name}</h4>
           </div>
-          <!-- 2 HÀNG: HÀNG 1 NHÂN SỰ (KTV & CVDV), HÀNG 2 CHỨNG CHỈ (CC KTV & CC CVDV) -->
+
           <div class="space-y-1.5 mt-3 pt-2.5 border-t border-slate-100 text-center">
+            <!-- HÀNG 1: KTV (XANH LÁ) & CVDV (XANH DƯƠNG) -->
             <div class="grid grid-cols-2 gap-1.5">
-              <div class="bg-emerald-50/70 p-1.5 rounded-xl border border-emerald-100">
-                <span class="text-[9px] text-emerald-800 font-bold block uppercase">KTV</span>
-                <span class="text-xs font-black text-emerald-700">${item.techs.size}</span>
+              <div class="bg-emerald-50/80 py-1.5 px-2 rounded-xl border border-emerald-200 flex items-center justify-between">
+                <span class="text-[10px] text-emerald-800 font-extrabold uppercase">KTV</span>
+                <span class="text-sm font-black text-emerald-700">${item.techs.size}</span>
               </div>
-              <div class="bg-sky-50/70 p-1.5 rounded-xl border border-sky-100">
-                <span class="text-[9px] text-sky-800 font-bold block uppercase">CVDV</span>
-                <span class="text-xs font-black text-sky-700">${item.advisors.size}</span>
+              <div class="bg-sky-50/80 py-1.5 px-2 rounded-xl border border-sky-200 flex items-center justify-between">
+                <span class="text-[10px] text-sky-800 font-extrabold uppercase">CVDV</span>
+                <span class="text-sm font-black text-sky-700">${item.advisors.size}</span>
               </div>
             </div>
+
+            <!-- HÀNG 2: CHỨNG CHỈ KTV & CHỨNG CHỈ CVDV -->
             <div class="grid grid-cols-2 gap-1.5">
-              <div class="bg-emerald-100/40 p-1.5 rounded-xl border border-emerald-200/60">
-                <span class="text-[9px] text-emerald-800 font-bold block uppercase">CC KTV</span>
-                <span class="text-xs font-black text-emerald-700">${item.techCerts}</span>
+              <div class="bg-amber-50/60 py-1 px-2 rounded-xl border border-amber-200/80 flex items-center justify-between">
+                <span class="text-[9px] text-amber-900 font-bold uppercase">CC KTV</span>
+                <span class="text-xs font-black text-amber-700">${item.techCertCount}</span>
               </div>
-              <div class="bg-sky-100/40 p-1.5 rounded-xl border border-sky-200/60">
-                <span class="text-[9px] text-sky-800 font-bold block uppercase">CC CVDV</span>
-                <span class="text-xs font-black text-sky-700">${item.advisorCerts}</span>
+              <div class="bg-indigo-50/60 py-1 px-2 rounded-xl border border-indigo-200/80 flex items-center justify-between">
+                <span class="text-[9px] text-indigo-900 font-bold uppercase">CC CVDV</span>
+                <span class="text-xs font-black text-indigo-700">${item.advisorCertCount}</span>
               </div>
             </div>
           </div>
@@ -1678,17 +1811,22 @@
 
       const dealerDataMap = new Map();
       state.dealers.forEach(d => {
-        dealerDataMap.set(d.name, { name: d.name, region: d.region || guessRegion(d.name), techs: new Set(), advisors: new Set(), certCount: 0 });
+        dealerDataMap.set(d.name, { name: d.name, region: d.region || guessRegion(d.name), techs: new Set(), techCertCount: 0, advisors: new Set(), advisorCertCount: 0 });
       });
       state.records.forEach(r => {
         if (!dealerDataMap.has(r.dealer)) {
-          dealerDataMap.set(r.dealer, { name: r.dealer, region: guessRegion(r.dealer), techs: new Set(), advisors: new Set(), certCount: 0 });
+          dealerDataMap.set(r.dealer, { name: r.dealer, region: guessRegion(r.dealer), techs: new Set(), techCertCount: 0, advisors: new Set(), advisorCertCount: 0 });
         }
         const item = dealerDataMap.get(r.dealer);
-        const role = resolveTargetRole(r);
-        if (role === 'Cố vấn dịch vụ') item.advisors.add(r.trainee);
-        else item.techs.add(r.trainee);
-        item.certCount += extractCertCodes(r.certCode).length;
+        const role = getRecordRole(r);
+        const certLen = extractCertCodes(r.certCode).length;
+        if (role === 'Cố vấn dịch vụ') {
+          item.advisors.add(r.trainee);
+          item.advisorCertCount += certLen;
+        } else {
+          item.techs.add(r.trainee);
+          item.techCertCount += certLen;
+        }
       });
 
       const list = Array.from(dealerDataMap.values());
@@ -1697,37 +1835,46 @@
 
       list.forEach(item => {
         const coords = getDealerPercentCoords(item.name);
-        const pin = document.createElement('div');
-        pin.id = `map-pin-${item.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
-        // CHẤM ĐỊNH VỊ MÀU ĐEN CỐ ĐỊNH TRÊN BẢN ĐỒ
-        pin.className = "absolute w-3 h-3 bg-slate-900 border-2 border-white rounded-full shadow-md transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all hover:z-30";
-        pin.style.left = `${coords.x}%`;
-        pin.style.top = `${coords.y}%`;
+        const pinWrapper = document.createElement('div');
+        pinWrapper.id = `map-pin-${item.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        pinWrapper.className = "absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10 flex items-center justify-center";
+        pinWrapper.style.left = `${coords.x}%`;
+        pinWrapper.style.top = `${coords.y}%`;
 
-        pin.onmouseenter = (e) => {
+        pinWrapper.innerHTML = `
+          <span class="pin-ping hidden absolute w-6 h-6 rounded-full bg-rose-500 animate-ping opacity-85"></span>
+          <span class="pin-dot relative w-3 h-3 rounded-full bg-slate-900 border-2 border-white shadow-md transition-all duration-150"></span>
+        `;
+
+        pinWrapper.onmouseenter = (e) => {
           showPinTooltip(item, e);
           highlightPinOnMap(item.name, true);
         };
-        pin.onmouseleave = () => {
+        pinWrapper.onmouseleave = () => {
           hidePinTooltip();
           highlightPinOnMap(item.name, false);
         };
-        pin.onclick = () => openDealerModal(item.name);
+        pinWrapper.onclick = () => openDealerModal(item.name);
 
-        layer.appendChild(pin);
+        layer.appendChild(pinWrapper);
       });
     }
 
     function highlightPinOnMap(dealerName, isHighlight) {
       const pinId = `map-pin-${dealerName.replace(/[^a-zA-Z0-9]/g, '_')}`;
-      const pin = document.getElementById(pinId);
-      if (!pin) return;
+      const pinWrapper = document.getElementById(pinId);
+      if (!pinWrapper) return;
+      const pingEl = pinWrapper.querySelector('.pin-ping');
+      const dotEl = pinWrapper.querySelector('.pin-dot');
+
       if (isHighlight) {
-        pin.innerHTML = `<span class="absolute -inset-2 rounded-full bg-rose-500 opacity-75 animate-ping pointer-events-none"></span>`;
-        pin.className = "absolute w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full shadow-2xl transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-30 scale-110";
+        pinWrapper.classList.add('z-30');
+        if (pingEl) pingEl.classList.remove('hidden');
+        if (dotEl) dotEl.className = "pin-dot relative w-3 h-3 rounded-full bg-emerald-500 border-2 border-white shadow-lg transition-all duration-150";
       } else {
-        pin.innerHTML = '';
-        pin.className = "absolute w-3 h-3 bg-slate-900 border-2 border-white rounded-full shadow-md transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all";
+        pinWrapper.classList.remove('z-30');
+        if (pingEl) pingEl.classList.add('hidden');
+        if (dotEl) dotEl.className = "pin-dot relative w-3 h-3 rounded-full bg-slate-900 border-2 border-white shadow-md transition-all duration-150";
       }
     }
 
@@ -1736,8 +1883,10 @@
       if (!tooltip) return;
       document.getElementById('tooltipDealerName').innerText = item.name;
       document.getElementById('tooltipRegion').innerText = item.region;
-      document.getElementById('tooltipTechs').innerText = `${item.techs.size} KTV - ${item.advisors.size} CVDV`;
-      document.getElementById('tooltipCerts').innerText = item.certCount;
+      document.getElementById('tooltipTechs').innerText = item.techs.size;
+      document.getElementById('tooltipTechCerts').innerText = item.techCertCount;
+      document.getElementById('tooltipAdvisors').innerText = item.advisors.size;
+      document.getElementById('tooltipAdvisorCerts').innerText = item.advisorCertCount;
 
       const mapBox = document.getElementById('vietnamMapContainer').getBoundingClientRect();
       const pinRect = event.currentTarget.getBoundingClientRect();
@@ -1861,7 +2010,8 @@
 
       list.forEach((d, idx) => {
         const dealerRecs = state.records.filter(r => r.dealer === d.name);
-        const techsCount = new Set(dealerRecs.filter(r => resolveTargetRole(r) === 'Kỹ thuật viên').map(r => r.trainee)).size;
+        const techsCount = new Set(dealerRecs.filter(r => getRecordRole(r) === 'Kỹ thuật viên').map(r => r.trainee)).size;
+        const advisorsCount = new Set(dealerRecs.filter(r => getRecordRole(r) === 'Cố vấn dịch vụ').map(r => r.trainee)).size;
         let certsCount = 0;
         dealerRecs.forEach(r => { certsCount += extractCertCodes(r.certCode).length; });
 
@@ -1875,7 +2025,8 @@
           <td class="py-2.5 px-3 text-slate-400 font-bold">${idx + 1}</td>
           <td class="py-2.5 px-3 font-bold text-slate-800 uppercase">${d.name}</td>
           <td class="py-2.5 px-3 text-slate-500">${d.region}</td>
-          <td class="py-2.5 px-3 text-center font-bold text-slate-700">${techsCount}</td>
+          <td class="py-2.5 px-3 text-center font-bold text-emerald-700">${techsCount}</td>
+          <td class="py-2.5 px-3 text-center font-bold text-sky-700">${advisorsCount}</td>
           <td class="py-2.5 px-3 text-center font-bold text-amber-600">${certsCount}</td>
           <td class="py-2.5 px-3 text-center">${mapBtnHTML}</td>
           ${isAdmin ? `<td class="py-2.5 px-3 text-right"><button onclick="deleteDealer('${d.id}', '${d.name.replace(/'/g, "\\'")}')" class="text-rose-500 hover:text-rose-700 p-1.5"><i class="fa-solid fa-trash-can"></i></button></td>` : ''}
@@ -1911,8 +2062,7 @@
       });
       state.courses.forEach(c => {
         const opt = document.createElement('option');
-        opt.value = c.name; opt.innerText = `${c.name} [${c.targetRole || 'Kỹ thuật viên'}]`;
-        courseSelect.appendChild(opt);
+        opt.value = c.name; opt.innerText = c.name; courseSelect.appendChild(opt);
       });
       handleCourseChange();
     }
@@ -1924,9 +2074,9 @@
         document.getElementById('entryType').value = courseObj.type || 'Online';
         if (courseObj.trainingDate) document.getElementById('entryTime').value = courseObj.trainingDate;
         if (courseObj.defaultTrainer) document.getElementById('entryTrainer').value = courseObj.defaultTrainer;
-        // TỰ ĐỘNG CHỌN ĐỐI TƯỢNG (KTV HOẶC CVDV) THEO KHÓA HỌC
-        if (courseObj.targetRole) {
-          document.getElementById('entryTargetRole').value = courseObj.targetRole;
+        const targetRoleSelect = document.getElementById('entryTargetRole');
+        if (targetRoleSelect) {
+          targetRoleSelect.value = courseObj.targetRole || 'Kỹ thuật viên';
         }
       }
       calculateNextCertCode();
@@ -2043,15 +2193,15 @@
       badge.innerText = `${state.recentCandidates.length} ứng viên`;
 
       if (state.recentCandidates.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-slate-400">Chưa có ứng viên nào được tạo trong phiên này.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400">Chưa có ứng viên nào được tạo trong phiên này.</td></tr>`;
         return;
       }
 
       state.recentCandidates.forEach(r => {
-        const role = resolveTargetRole(r);
-        const roleBadge = role === 'Cố vấn dịch vụ' 
-          ? `<span class="px-2 py-0.5 rounded font-bold bg-sky-100 text-sky-800 text-[10px]">CVDV</span>`
-          : `<span class="px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800 text-[10px]">KTV</span>`;
+        const role = getRecordRole(r);
+        const roleBadge = role === 'Cố vấn dịch vụ'
+          ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800">CVDV</span>`
+          : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">KTV</span>`;
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
@@ -2063,7 +2213,6 @@
           <td class="py-2.5 px-3 text-geely-blue font-semibold">${r.course}</td>
           <td class="py-2.5 px-3">${formatCertCodeHTML(r.certCode) || '<span class="text-rose-500 italic">Chưa cấp</span>'}</td>
           <td class="py-2.5 px-3 font-mono text-[11px] text-slate-600">${r.issuedDate || '-'}</td>
-          <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">${r.time || '-'}</td>
           <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Đã lưu</span></td>
         `;
         tbody.appendChild(tr);
@@ -2079,51 +2228,56 @@
       handleCourseChange();
     }
 
-    function switchModalRoleTab(role) {
-      state.currentModalRole = role;
-      const tabTech = document.getElementById('modalTabTech');
-      const tabAdvisor = document.getElementById('modalTabAdvisor');
-      if (role === 'Kỹ thuật viên') {
-        tabTech.className = "px-4 py-1.5 rounded-lg font-bold bg-emerald-600 text-white shadow-sm flex items-center space-x-1.5 transition";
-        tabAdvisor.className = "px-4 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900 bg-slate-100 flex items-center space-x-1.5 transition";
-      } else {
-        tabAdvisor.className = "px-4 py-1.5 rounded-lg font-bold bg-sky-600 text-white shadow-sm flex items-center space-x-1.5 transition";
-        tabTech.className = "px-4 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900 bg-slate-100 flex items-center space-x-1.5 transition";
-      }
-      populateModalCourseFilter();
-      renderModalTechnicians();
-    }
-
-    function populateModalCourseFilter() {
-      const courseSelect = document.getElementById('modalCourseFilter');
-      if (!courseSelect) return;
-      courseSelect.innerHTML = `<option value="ALL">Tất cả khóa học</option>`;
-      const filteredRecords = state.records.filter(r => r.dealer === state.currentModalDealer && resolveTargetRole(r) === state.currentModalRole);
-      const availableCourses = new Set(filteredRecords.map(r => r.course).filter(Boolean));
-      availableCourses.forEach(c => {
-        const opt = document.createElement('option'); opt.value = c; opt.innerText = c; courseSelect.appendChild(opt);
-      });
-    }
-
     function openDealerModal(dealerName) {
       state.currentModalDealer = dealerName;
-      state.currentModalRole = 'Kỹ thuật viên';
+      state.currentModalRoleTab = 'Kỹ thuật viên';
       state.selectedModalRecords.clear();
       document.body.classList.add('overflow-hidden');
       document.getElementById('modalDealerTitle').innerText = dealerName;
       document.getElementById('modalDealerSubtitle').innerText = `Danh sách nhân sự & Chứng chỉ đào tạo GMTC`;
 
-      // Cập nhật số lượng cho 2 tab
-      const dealerRecs = state.records.filter(r => r.dealer === dealerName);
-      const techCount = new Set(dealerRecs.filter(r => resolveTargetRole(r) === 'Kỹ thuật viên').map(r => r.trainee)).size;
-      const advisorCount = new Set(dealerRecs.filter(r => resolveTargetRole(r) === 'Cố vấn dịch vụ').map(r => r.trainee)).size;
-      document.getElementById('modalTechCountBadge').innerText = techCount;
-      document.getElementById('modalAdvisorCountBadge').innerText = advisorCount;
-
       switchModalRoleTab('Kỹ thuật viên');
-
       document.getElementById('dealerModal').classList.remove('hidden');
       document.getElementById('dealerModal').classList.add('flex');
+    }
+
+    function switchModalRoleTab(roleName) {
+      state.currentModalRoleTab = roleName;
+      state.selectedModalRecords.clear();
+      const selectAllCb = document.getElementById('selectAllModalCheck');
+      if (selectAllCb) selectAllCb.checked = false;
+
+      const btnKtv = document.getElementById('modalRoleTab-KTV');
+      const btnCvdv = document.getElementById('modalRoleTab-CVDV');
+
+      if (roleName === 'Kỹ thuật viên') {
+        btnKtv.className = "py-2 px-3 rounded-lg font-bold bg-emerald-600 text-white shadow flex items-center justify-center space-x-2 transition";
+        btnCvdv.className = "py-2 px-3 rounded-lg font-bold text-slate-600 hover:bg-white/60 flex items-center justify-center space-x-2 transition";
+      } else {
+        btnCvdv.className = "py-2 px-3 rounded-lg font-bold bg-sky-600 text-white shadow flex items-center justify-center space-x-2 transition";
+        btnKtv.className = "py-2 px-3 rounded-lg font-bold text-slate-600 hover:bg-white/60 flex items-center justify-center space-x-2 transition";
+      }
+
+      const allDealerRecs = state.records.filter(r => r.dealer === state.currentModalDealer);
+      const ktvRecs = allDealerRecs.filter(r => getRecordRole(r) === 'Kỹ thuật viên');
+      const cvdvRecs = allDealerRecs.filter(r => getRecordRole(r) === 'Cố vấn dịch vụ');
+
+      document.getElementById('modalKtvCountBadge').innerText = ktvRecs.length;
+      document.getElementById('modalCvdvCountBadge').innerText = cvdvRecs.length;
+
+      const roleFilteredRecs = roleName === 'Kỹ thuật viên' ? ktvRecs : cvdvRecs;
+      const courseSelect = document.getElementById('modalCourseFilter');
+      courseSelect.innerHTML = `<option value="ALL">Tất cả khóa học (${roleName})</option>`;
+      const roleCourses = new Set();
+      roleFilteredRecs.forEach(r => roleCourses.add(r.course));
+      roleCourses.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.innerText = c;
+        courseSelect.appendChild(opt);
+      });
+
+      renderModalTechnicians();
     }
 
     function closeDealerModal() {
@@ -2139,12 +2293,12 @@
       if (!tbody) return;
       tbody.innerHTML = '';
       const filterVal = document.getElementById('modalCourseFilter').value;
-      let records = state.records.filter(r => r.dealer === state.currentModalDealer && resolveTargetRole(r) === state.currentModalRole);
+      let records = state.records.filter(r => r.dealer === state.currentModalDealer && getRecordRole(r) === state.currentModalRoleTab);
       if (filterVal !== 'ALL') records = records.filter(r => r.course === filterVal);
       updateBatchCounter();
 
       if (records.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">Không có hồ sơ đào tạo nào cho đối tượng này tại đại lý.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Chưa có dữ liệu đào tạo thuộc nhóm ${state.currentModalRoleTab} cho đại lý này.</td></tr>`;
         return;
       }
 
@@ -2153,10 +2307,6 @@
         const isChecked = state.selectedModalRecords.has(r.id);
         const courseObj = state.courses.find(c => normalizeStr(c.name).toUpperCase() === normalizeStr(r.course).toUpperCase());
         const isManual = courseObj ? courseObj.isManualCert : false;
-        const role = resolveTargetRole(r);
-        const roleBadge = role === 'Cố vấn dịch vụ' 
-          ? `<span class="px-2 py-0.5 rounded font-bold bg-sky-100 text-sky-800 text-[10px]">CVDV</span>`
-          : `<span class="px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800 text-[10px]">KTV</span>`;
 
         let certActionBtn = '';
         if (isAdmin && (!r.certCode || r.certCode.trim() === '')) {
@@ -2172,7 +2322,6 @@
         tr.innerHTML = `
           <td class="py-2.5 px-3 text-center"><input type="checkbox" onchange="toggleSelectModalRecord('${r.id}', this)" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-geely-blue rounded"></td>
           <td class="py-2.5 px-3 font-bold text-slate-800 uppercase">${r.trainee}</td>
-          <td class="py-2.5 px-3">${roleBadge}</td>
           <td class="py-2.5 px-3 font-semibold text-geely-blue">${r.course}</td>
           <td class="py-2.5 px-3"><div class="flex items-center space-x-2"><div class="flex flex-wrap gap-1">${formatCertCodeHTML(r.certCode) || '<span class="text-rose-500 italic">Chưa cấp</span>'}</div>${certActionBtn}</div></td>
           <td class="py-2.5 px-3 font-bold text-emerald-600">${r.score || '-'}</td>
@@ -2261,7 +2410,7 @@
 
     function toggleSelectAllModal(masterCb) {
       const filterVal = document.getElementById('modalCourseFilter').value;
-      let records = state.records.filter(r => r.dealer === state.currentModalDealer && resolveTargetRole(r) === state.currentModalRole);
+      let records = state.records.filter(r => r.dealer === state.currentModalDealer && getRecordRole(r) === state.currentModalRoleTab);
       if (filterVal !== 'ALL') records = records.filter(r => r.course === filterVal);
       if (masterCb.checked) records.forEach(r => state.selectedModalRecords.add(r.id));
       else records.forEach(r => state.selectedModalRecords.delete(r.id));
@@ -2286,7 +2435,7 @@
       state.selectedModalRecords.delete(recId);
       saveRecordsToLocal();
       showToast('Đã xóa hồ sơ nhân sự!', 'success');
-      if (state.currentModalDealer) renderModalTechnicians();
+      if (state.currentModalDealer) switchModalRoleTab(state.currentModalRoleTab);
       renderDashboardStats();
       renderDashboardView();
       renderGapQueueTable();
@@ -2301,7 +2450,7 @@
       state.selectedModalRecords.clear();
       saveRecordsToLocal();
       showToast(`Đã xóa ${count} nhân sự!`, 'success');
-      renderModalTechnicians();
+      switchModalRoleTab(state.currentModalRoleTab);
       renderDashboardStats();
       renderDashboardView();
       renderGapQueueTable();
@@ -2390,6 +2539,7 @@
       showToast(`Đã cập nhật khóa học "${newName}"!`, 'success');
       renderCourseTable();
       populateDropdowns();
+      renderDashboardStats();
       renderDashboardView();
       filterReportRecords();
     }
@@ -2406,8 +2556,7 @@
       state.courses.forEach(c => {
         const count = state.records.filter(r => normalizeStr(r.course).toUpperCase() === normalizeStr(c.name).toUpperCase() && r.certCode && r.certCode.trim() !== '').length;
         const certTypeBadge = c.isManualCert ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">Điền tay</span>` : `<span class="font-mono font-bold">${c.prefix} + ${c.digits} số</span>`;
-
-        const targetBadge = (c.targetRole === 'Cố vấn dịch vụ')
+        const targetRoleBadge = (c.targetRole === 'Cố vấn dịch vụ')
           ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800">CVDV</span>`
           : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">KTV</span>`;
 
@@ -2415,7 +2564,7 @@
         tr.className = "hover:bg-slate-50 transition";
         tr.innerHTML = `
           <td class="py-3 px-3 font-bold text-geely-blue">${c.name}</td>
-          <td class="py-3 px-3">${targetBadge}</td>
+          <td class="py-3 px-3">${targetRoleBadge}</td>
           <td class="py-3 px-3">${certTypeBadge}</td>
           <td class="py-3 px-3 font-semibold text-emerald-600">${c.scorePass || '-'}</td>
           <td class="py-3 px-3 text-slate-500 font-mono text-xs">${c.trainingDate || '-'}</td>
@@ -2435,40 +2584,20 @@
       populateDropdowns();
     }
 
-    function switchQueueSubTab(sub) {
-      const btnGaps = document.getElementById('subtab-btn-gaps');
-      const btnDup = document.getElementById('subtab-btn-duplicates');
-      const boxGaps = document.getElementById('subtab-content-gaps');
-      const boxDup = document.getElementById('subtab-content-duplicates');
-      if (sub === 'gaps') {
-        btnGaps.className = "px-4 py-2 font-bold border-b-2 border-geely-blue text-geely-blue flex items-center space-x-2 transition";
-        btnDup.className = "px-4 py-2 font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center space-x-2 transition";
-        boxGaps.classList.remove('hidden'); boxGaps.classList.add('block');
-        boxDup.classList.remove('hidden'); boxDup.classList.add('hidden');
-      } else {
-        btnDup.className = "px-4 py-2 font-bold border-b-2 border-geely-blue text-geely-blue flex items-center space-x-2 transition";
-        btnGaps.className = "px-4 py-2 font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center space-x-2 transition";
-        boxDup.classList.remove('hidden'); boxDup.classList.add('block');
-        boxGaps.classList.remove('hidden'); boxGaps.classList.add('hidden');
-      }
-    }
-
     function renderGapQueueTable() {
-      const gapsTbody = document.getElementById('gapQueueTableBody');
+      const gapsContainer = document.getElementById('gapQueueGroupsContainer');
       const dupTbody = document.getElementById('duplicatesTableBody');
       const badgeCount = document.getElementById('queueBadgeCount');
       const dupBadgeCount = document.getElementById('duplicateBadgeCount');
       const subtabGapsCount = document.getElementById('subtabGapsCount');
       const subtabDupCount = document.getElementById('subtabDuplicatesCount');
-      if (!gapsTbody) return;
+      if (!gapsContainer) return;
 
-      gapsTbody.innerHTML = '';
+      gapsContainer.innerHTML = '';
       if (dupTbody) dupTbody.innerHTML = '';
 
-      // TẬP HỢP TẤT CẢ TIỀN TỐ (PREFIX) ĐÃ THIẾT LẬP HOẶC XUẤT HIỆN TRONG DỮ LIỆU
       const prefixMap = new Map();
       
-      // 1. Lấy từ danh mục các Khóa học đã thiết lập
       state.courses.forEach(c => {
         if (!c.isManualCert && c.prefix && c.prefix.trim() !== '') {
           const pref = c.prefix.trim().toUpperCase();
@@ -2476,11 +2605,9 @@
         }
       });
       
-      // Dự phòng tiền tố tiêu chuẩn GMTC
       if (!prefixMap.has('GMTC-D-1-VN-')) prefixMap.set('GMTC-D-1-VN-', { prefix: 'GMTC-D-1-VN-', digits: 4, courseName: 'GMTC LEVEL 1 (NEW)' });
       if (!prefixMap.has('GMTC-D-2-VN-')) prefixMap.set('GMTC-D-2-VN-', { prefix: 'GMTC-D-2-VN-', digits: 4, courseName: 'GMTC LEVEL II' });
 
-      // 2. Tự động phát hiện thêm bất kỳ tiền tố nào khác xuất hiện thực tế trong bảng dữ liệu hồ sơ
       state.records.forEach(r => {
         const codes = extractCertCodes(r.certCode);
         codes.forEach(code => {
@@ -2500,7 +2627,6 @@
         });
       });
 
-      // QUÉT MÃ TRÙNG LẶP & CÁC SỐ ĐÃ DÙNG THEO TỪNG TIỀN TỐ
       const allCodesMap = new Map();
       const usedNumbersByPrefix = new Map();
 
@@ -2529,73 +2655,147 @@
         });
       });
 
-      // 1. TÌM CÁC SỐ CHỨNG CHỈ BỊ KHUYẾT (GAPS) TRÊN TẤT CẢ TIỀN TỐ
-      const gapList = [];
+      const groupedGaps = [];
+      let totalGapsCount = 0;
+
       prefixMap.forEach((info, prefKey) => {
         const usedNums = Array.from(usedNumbersByPrefix.get(prefKey) || []).sort((a, b) => a - b);
+        const items = [];
         if (usedNums.length > 0) {
           const maxNum = Math.max(...usedNums);
           for (let i = 1; i < maxNum; i++) {
             if (!usedNums.includes(i)) {
               const gapCode = `${info.prefix}${String(i).padStart(info.digits, '0')}`;
-              gapList.push({ prefix: info.prefix, num: i, code: gapCode, courseName: info.courseName });
+              items.push({ prefix: info.prefix, num: i, code: gapCode, courseName: info.courseName });
             }
           }
         }
+        if (items.length > 0) {
+          groupedGaps.push({
+            prefKey,
+            prefix: info.prefix,
+            courseName: info.courseName,
+            items
+          });
+          totalGapsCount += items.length;
+        }
       });
 
-      badgeCount.innerText = gapList.length;
-      if (subtabGapsCount) subtabGapsCount.innerText = gapList.length;
+      badgeCount.innerText = totalGapsCount;
+      if (subtabGapsCount) subtabGapsCount.innerText = totalGapsCount;
 
-      if (gapList.length === 0) {
-        gapsTbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400 font-medium"><i class="fa-solid fa-circle-check text-emerald-500 mr-2 text-base"></i>Tuyệt vời! Không có số chứng chỉ nào bị khuyết cần cấp bù.</td></tr>`;
+      if (groupedGaps.length === 0) {
+        gapsContainer.innerHTML = `<div class="py-10 text-center text-slate-400 font-medium border border-slate-100 rounded-xl bg-slate-50/40"><i class="fa-solid fa-circle-check text-emerald-500 mr-2 text-base"></i>Tuyệt vời! Không có số chứng chỉ nào bị khuyết cần cấp bù.</div>`;
       } else {
-        gapList.forEach((gap, idx) => {
-          const tr = document.createElement('tr');
-          tr.className = "hover:bg-amber-50/50 transition border-b border-slate-100";
-          tr.innerHTML = `
-            <td class="py-2.5 px-3 text-slate-400 font-bold">${idx + 1}</td>
-            <td class="py-2.5 px-3 font-semibold text-slate-700">${gap.prefix} <span class="text-slate-400 text-[10px]">(${gap.courseName})</span></td>
-            <td class="py-2.5 px-3 font-mono font-bold text-amber-700 bg-amber-50/60 rounded">${gap.code}</td>
-            <td class="py-2.5 px-3 font-mono font-bold text-slate-600">#${gap.num}</td>
-            <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fa-solid fa-hourglass-half mr-1"></i>Chờ cấp bù tự động</span></td>
+        groupedGaps.forEach((group, gIdx) => {
+          const groupId = `gap-dropdown-${gIdx}`;
+          const chevronId = `gap-chevron-${gIdx}`;
+
+          const card = document.createElement('div');
+          card.className = "border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm";
+
+          const rowsHtml = group.items.map((gap, idx) => `
+            <tr class="hover:bg-amber-50/50 transition border-b border-slate-100 last:border-b-0">
+              <td class="py-2.5 px-4 text-slate-400 font-bold w-14">${idx + 1}</td>
+              <td class="py-2.5 px-4 font-mono font-bold text-amber-700">${gap.code}</td>
+              <td class="py-2.5 px-4 font-mono font-bold text-slate-600">#${gap.num}</td>
+              <td class="py-2.5 px-4 text-right"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fa-solid fa-hourglass-half mr-1"></i>Chờ cấp bù tự động</span></td>
+            </tr>
+          `).join('');
+
+          card.innerHTML = `
+            <button type="button" onclick="toggleGapGroupDropdown('${groupId}', '${chevronId}')" class="w-full px-4 py-3.5 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between text-left transition">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
+                  <i class="fa-solid fa-certificate"></i>
+                </div>
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <span class="font-bold text-geely-blue text-xs sm:text-sm uppercase">${group.courseName}</span>
+                    <span class="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-white border border-slate-200 text-slate-700">${group.prefix}</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 mt-0.5">Nhấn để xem chi tiết danh sách mã số còn trống</p>
+                </div>
+              </div>
+              <div class="flex items-center space-x-3">
+                <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500 text-white shadow-xs">
+                  ${group.items.length} mã chờ cấp bù
+                </span>
+                <i id="${chevronId}" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200"></i>
+              </div>
+            </button>
+            <div id="${groupId}" class="hidden border-t border-slate-200 bg-white max-h-[360px] overflow-y-auto custom-scrollbar">
+              <table class="w-full text-left whitespace-nowrap text-xs">
+                <thead class="bg-slate-50/70 text-slate-500 uppercase font-bold border-b border-slate-100 sticky top-0">
+                  <tr>
+                    <th class="py-2 px-4">STT</th>
+                    <th class="py-2 px-4">Mã Chứng Chỉ Cần Cấp Bù</th>
+                    <th class="py-2 px-4">Số Thứ Tự</th>
+                    <th class="py-2 px-4 text-right">Trạng Thái</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${rowsHtml}
+                </tbody>
+              </table>
+            </div>
           `;
-          gapsTbody.appendChild(tr);
+          gapsContainer.appendChild(card);
         });
       }
 
-      // 2. TÌM VÀ HIỂN THỊ CÁC MÃ BỊ TRÙNG LẶP
-      const duplicateCodes = Array.from(allCodesMap.entries()).filter(([code, recs]) => recs.length > 1);
-      if (subtabDupCount) subtabDupCount.innerText = duplicateCodes.length;
-      if (dupBadgeCount) {
-        if (duplicateCodes.length > 0) {
-          dupBadgeCount.innerText = `${duplicateCodes.length} trùng`;
-          dupBadgeCount.classList.remove('hidden');
-        } else {
-          dupBadgeCount.classList.add('hidden');
+      const duplicatesList = [];
+      allCodesMap.forEach((recs, code) => {
+        if (recs.length > 1) {
+          duplicatesList.push({ code, records: recs });
         }
+      });
+
+      if (dupBadgeCount) {
+        dupBadgeCount.innerText = `${duplicatesList.length} trùng`;
+        if (duplicatesList.length > 0) dupBadgeCount.classList.remove('hidden');
+        else dupBadgeCount.classList.add('hidden');
       }
+      if (subtabDupCount) subtabDupCount.innerText = duplicatesList.length;
 
       if (dupTbody) {
-        if (duplicateCodes.length === 0) {
-          dupTbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400 font-medium"><i class="fa-solid fa-circle-check text-emerald-500 mr-2 text-base"></i>Hệ thống an toàn! Không có mã chứng chỉ nào bị trùng lặp.</td></tr>`;
+        if (duplicatesList.length === 0) {
+          dupTbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400 font-medium"><i class="fa-solid fa-shield-check text-emerald-500 mr-1.5"></i>Không phát hiện mã chứng chỉ nào bị trùng lặp.</td></tr>`;
         } else {
-          duplicateCodes.forEach(([code, recs], idx) => {
+          duplicatesList.forEach((dup, idx) => {
+            const detailsHtml = dup.records.map(r => `
+              <div class="flex items-center justify-between py-1 border-b border-slate-100 last:border-b-0">
+                <span><strong class="text-slate-800">${r.trainee}</strong> - <span class="text-slate-500">${r.dealer}</span> (${r.course})</span>
+                <button onclick="deleteSingleRecord('${r.id}')" class="ml-3 text-rose-500 hover:text-rose-700 text-[11px] font-bold" title="Xóa bản ghi này"><i class="fa-solid fa-trash-can"></i></button>
+              </div>
+            `).join('');
+
             const tr = document.createElement('tr');
             tr.className = "hover:bg-rose-50/40 transition border-b border-slate-100";
-            const detailsHtml = recs.map(r => `<span class="inline-block bg-slate-100 text-slate-800 font-medium px-2 py-0.5 rounded text-[11px] mr-1.5 mb-1 border border-slate-200"><strong>${r.trainee}</strong> (${r.dealer}) [${resolveTargetRole(r)}]</span>`).join('');
             tr.innerHTML = `
               <td class="py-2.5 px-3 text-center text-slate-400 font-bold">${idx + 1}</td>
-              <td class="py-2.5 px-3 font-mono font-bold text-rose-600">${code}</td>
-              <td class="py-2.5 px-3 text-center font-bold text-rose-700 bg-rose-50/60 rounded">${recs.length} lần</td>
-              <td class="py-2.5 px-3 whitespace-normal">${detailsHtml}</td>
-              <td class="py-2.5 px-3 text-right">
-                <button onclick="openDealerModal('${recs[0].dealer.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded-lg bg-geely-blue text-white font-bold text-[10px] hover:bg-slate-900 transition">Kiểm tra</button>
-              </td>
+              <td class="py-2.5 px-3 font-mono font-bold text-rose-700">${dup.code}</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold">${dup.records.length} lần</span></td>
+              <td class="py-2.5 px-3 whitespace-normal min-w-[280px]">${detailsHtml}</td>
+              <td class="py-2.5 px-3 text-right"><button onclick="openDealerModal('${dup.records[0].dealer.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold">Xem đại lý</button></td>
             `;
             dupTbody.appendChild(tr);
           });
         }
+      }
+    }
+
+    function toggleGapGroupDropdown(groupId, chevronId) {
+      const content = document.getElementById(groupId);
+      const chevron = document.getElementById(chevronId);
+      if (!content) return;
+      const isHidden = content.classList.contains('hidden');
+      if (isHidden) {
+        content.classList.remove('hidden');
+        if (chevron) chevron.classList.add('rotate-180');
+      } else {
+        content.classList.add('hidden');
+        if (chevron) chevron.classList.remove('rotate-180');
       }
     }
 
@@ -2648,7 +2848,6 @@
 
     async function handleChangePassword(e) {
       e.preventDefault();
-      const curPass = document.getElementById('currentPasswordInput').value;
       const newPass = document.getElementById('newPasswordInput').value;
       const confirmPass = document.getElementById('confirmNewPasswordInput').value;
       if (newPass !== confirmPass) { showToast('Mật khẩu mới không khớp!', 'error'); return; }
@@ -2664,7 +2863,6 @@
     }
 
     function filterReportRecords() {
-      const roleFilter = document.getElementById('reportRoleFilter') ? document.getElementById('reportRoleFilter').value : 'ALL';
       const timeFilter = document.getElementById('reportTimeFilter').value;
       const courseFilter = document.getElementById('reportCourseFilter').value;
       const dealerFilter = document.getElementById('reportDealerFilter').value;
@@ -2674,7 +2872,6 @@
       const dateTo = document.getElementById('reportDateTo').value;
 
       let filtered = [...state.records];
-      if (roleFilter !== 'ALL') filtered = filtered.filter(r => resolveTargetRole(r) === roleFilter);
       if (timeFilter !== 'ALL') filtered = filtered.filter(r => r.time === timeFilter);
       if (courseFilter !== 'ALL') filtered = filtered.filter(r => r.course === courseFilter);
       if (dealerFilter !== 'ALL') filtered = filtered.filter(r => r.dealer === dealerFilter);
@@ -2693,11 +2890,7 @@
       }
 
       filtered.forEach((r, idx) => {
-        const role = resolveTargetRole(r);
-        const roleBadge = role === 'Cố vấn dịch vụ'
-          ? `<span class="px-2 py-0.5 rounded font-bold bg-sky-100 text-sky-800 text-[10px]">CVDV</span>`
-          : `<span class="px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800 text-[10px]">KTV</span>`;
-
+        const role = getRecordRole(r);
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
         tr.innerHTML = `
@@ -2706,7 +2899,7 @@
           <td class="py-2.5 px-3 border-r border-slate-200 font-semibold">${r.country || 'VIET NAM'}</td>
           <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-slate-800">${r.dealer}</td>
           <td class="py-2.5 px-3 border-r border-slate-200 font-bold uppercase text-geely-blue">${r.trainee}</td>
-          <td class="py-2.5 px-3 border-r border-slate-200">${roleBadge}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 font-semibold ${role === 'Cố vấn dịch vụ' ? 'text-sky-700' : 'text-emerald-700'}">${role}</td>
           <td class="py-2.5 px-3 border-r border-slate-200 font-mono text-[11px]">${r.time}</td>
           <td class="py-2.5 px-3 border-r border-slate-200 font-semibold">${r.course}</td>
           <td class="py-2.5 px-3 border-r border-slate-200 font-bold text-emerald-600">${r.score}</td>
@@ -2736,22 +2929,26 @@
     }
 
     function exportToExcel() {
-      const headers = ["No.", "Entry Date", "Country", "Dealer Name", "Trainee Name", "Position / Đối tượng", "Training Time", "Training Course", "Exam Score", "Trainer", "Evaluation of the trainer", "Certificate code", "Issued Date"];
-      const dataRows = state.records.map((r, idx) => [
-        idx + 1,
-        r.entryDate || '',
-        r.country || 'VIET NAM',
-        r.dealer,
-        r.trainee,
-        resolveTargetRole(r),
-        String(r.time || ''),
-        r.course,
-        r.score,
-        r.trainer,
-        r.eval,
-        r.certCode || '',
-        r.issuedDate || ''
-      ]);
+      const headers = ["No.", "Entry Date", "Country", "Dealer Name", "Trainee Name", "Target Role", "Position", "Training Time", "Training Course", "Exam Score", "Trainer", "Evaluation of the trainer", "Certificate code", "Issued Date"];
+      const dataRows = state.records.map((r, idx) => {
+        const role = getRecordRole(r);
+        return [
+          idx + 1,
+          r.entryDate || '',
+          r.country || 'VIET NAM',
+          r.dealer,
+          r.trainee,
+          role,
+          role === 'Cố vấn dịch vụ' ? 'SERVICE ADVISOR' : 'TECHNICIAN',
+          String(r.time || ''),
+          r.course,
+          r.score,
+          r.trainer,
+          r.eval,
+          r.certCode || '',
+          r.issuedDate || ''
+        ];
+      });
       const ws = XLSX.utils.aoa_to_sheet([headers, ...dataRows]);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Training Record");
@@ -2765,6 +2962,7 @@
     function saveUsersToLocal() { localStorage.setItem('geely_users', JSON.stringify(state.users)); pushToGoogleSheets(false); }
 
     async function pushToGoogleSheets(showNotification = false) {
+      if (state.currentUser && state.currentUser.role !== 'admin') return;
       try {
         await fetch(state.syncUrl, {
           method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
@@ -2784,21 +2982,9 @@
         const response = await fetch(state.syncUrl + '?t=' + Date.now());
         const res = await response.json();
         if (res && res.status === 'SUCCESS' && res.data) {
-          if (res.data.records) {
-            state.records = res.data.records.map(r => ({
-              ...r,
-              targetRole: resolveTargetRole(r)
-            }));
-            localStorage.setItem('geely_records', JSON.stringify(state.records));
-          }
+          if (res.data.records) { state.records = res.data.records; localStorage.setItem('geely_records', JSON.stringify(state.records)); }
           if (res.data.dealers) { state.dealers = res.data.dealers; localStorage.setItem('geely_custom_dealers', JSON.stringify(state.dealers)); }
-          if (res.data.courses) {
-            state.courses = res.data.courses.map(c => ({
-              ...c,
-              targetRole: c.targetRole || 'Kỹ thuật viên'
-            }));
-            localStorage.setItem('geely_courses', JSON.stringify(state.courses));
-          }
+          if (res.data.courses) { state.courses = res.data.courses; localStorage.setItem('geely_courses', JSON.stringify(state.courses)); }
           if (res.data.users) { state.users = res.data.users; localStorage.setItem('geely_users', JSON.stringify(state.users)); }
 
           renderDashboardStats();
@@ -2807,6 +2993,7 @@
           populateDropdowns();
           renderCourseTable();
           renderUsersTable();
+          renderGapQueueTable();
           filterReportRecords();
           updateSyncBadge(true);
           if (!silent) showToast('Đồng bộ dữ liệu từ Google Sheets thành công!', 'success');
@@ -2835,119 +3022,30 @@
       if (document.getElementById('entryIssuedDate')) document.getElementById('entryIssuedDate').value = today;
 
       document.getElementById('sheetApiUrl').value = state.syncUrl;
-      
-      // MÃ APPS SCRIPT CẬP NHẬT TRƯỜNG TARGETROLE (KTV / CVDV)
-      const appsScriptCode = `/**
- * GOOGLE APPS SCRIPT CHO HỆ THỐNG GEELY GMTC DASHBOARD
- * Tự động đồng bộ 2 chiều và hỗ trợ cột "Target Role" (Kỹ thuật viên / Cố vấn dịch vụ)
- */
-function doGet(e) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var result = {
-    status: 'SUCCESS',
-    data: {
-      records: getRecords(ss),
-      dealers: getSheetData(ss, 'Dealers'),
-      courses: getSheetData(ss, 'Courses'),
-      users: getSheetData(ss, 'Users')
-    }
-  };
-  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-}
-
-function doPost(e) {
-  try {
-    var data = JSON.parse(e.postData.contents);
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    if (data.records) saveRecords(ss, data.records);
-    if (data.dealers) saveSheetData(ss, 'Dealers', data.dealers);
-    if (data.courses) saveSheetData(ss, 'Courses', data.courses);
-    if (data.users) saveSheetData(ss, 'Users', data.users);
-    return ContentService.createTextOutput(JSON.stringify({status: 'SUCCESS'})).setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({status: 'ERROR', message: err.toString()})).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function getRecords(ss) {
-  var sheet = ss.getSheetByName('TrainingRecord');
-  if (!sheet) return [];
-  var rows = sheet.getDataRange().getValues();
-  if (rows.length <= 1) return [];
-  var headers = rows[0];
-  var records = [];
-  for (var i = 1; i < rows.length; i++) {
-    var r = rows[i];
-    var obj = {};
-    for (var j = 0; j < headers.length; j++) {
-      obj[headers[j]] = r[j];
-    }
-    records.push(obj);
-  }
-  return records;
-}
-
-function saveRecords(ss, records) {
-  var sheet = ss.getSheetByName('TrainingRecord');
-  if (!sheet) sheet = ss.insertSheet('TrainingRecord');
-  sheet.clearContents();
-  if (records.length === 0) return;
-  var headers = Object.keys(records[0]);
-  var values = [headers];
-  for (var i = 0; i < records.length; i++) {
-    var row = [];
-    for (var j = 0; j < headers.length; j++) {
-      row.push(records[i][headers[j]] || '');
-    }
-    values.push(row);
-  }
-  sheet.getRange(1, 1, values.length, headers.length).setValues(values);
-}
-
-function getSheetData(ss, name) {
-  var sheet = ss.getSheetByName(name);
-  if (!sheet) return [];
-  var rows = sheet.getDataRange().getValues();
-  if (rows.length <= 1) return [];
-  var headers = rows[0];
-  var list = [];
-  for (var i = 1; i < rows.length; i++) {
-    var obj = {};
-    for (var j = 0; j < headers.length; j++) obj[headers[j]] = rows[i][j];
-    list.push(obj);
-  }
-  return list;
-}
-
-function saveSheetData(ss, name, list) {
-  var sheet = ss.getSheetByName(name);
-  if (!sheet) sheet = ss.insertSheet(name);
-  sheet.clearContents();
-  if (list.length === 0) return;
-  var headers = Object.keys(list[0]);
-  var values = [headers];
-  for (var i = 0; i < list.length; i++) {
-    var row = [];
-    for (var j = 0; j < headers.length; j++) row.push(list[i][headers[j]] || '');
-    values.push(row);
-  }
-  sheet.getRange(1, 1, values.length, headers.length).setValues(values);
-}`;
-      document.getElementById('appsScriptCodeBlock').value = appsScriptCode;
+      document.getElementById('appsScriptCodeBlock').value = APPS_SCRIPT_CODE_TEMPLATE;
 
       const localRecs = localStorage.getItem('geely_records');
-      state.records = localRecs ? JSON.parse(localRecs).map(r => ({
-        ...r,
-        targetRole: resolveTargetRole(r)
-      })) : INITIAL_RAW_RECORDS.map((r, i) => ({
-        id: `REC-${i+1}`, country: 'VIET NAM', dealer: r[0], trainee: r[1], position: r[9] === 'Cố vấn dịch vụ' ? 'SERVICE ADVISOR' : 'TECHNICIAN', targetRole: r[9] || 'Kỹ thuật viên', place: r[2], type: 'Online', time: r[3], course: r[4], score: r[5], trainer: r[6], eval: r[7], certCode: r[8], entryDate: '2026-11-05', issuedDate: '2026-11-01'
+      state.records = localRecs ? JSON.parse(localRecs) : INITIAL_RAW_RECORDS.map((r, i) => ({
+        id: `REC-${i+1}`,
+        country: 'VIET NAM',
+        dealer: r[0],
+        trainee: r[1],
+        targetRole: r[9] || 'Kỹ thuật viên',
+        position: r[9] === 'Cố vấn dịch vụ' ? 'SERVICE ADVISOR' : 'TECHNICIAN',
+        place: r[2],
+        type: 'Online',
+        time: r[3],
+        course: r[4],
+        score: r[5],
+        trainer: r[6],
+        eval: r[7],
+        certCode: r[8],
+        entryDate: '2026-11-05',
+        issuedDate: '2026-11-01'
       }));
 
       const localCourses = localStorage.getItem('geely_courses');
-      state.courses = localCourses ? JSON.parse(localCourses).map(c => ({
-        ...c,
-        targetRole: c.targetRole || 'Kỹ thuật viên'
-      })) : [
+      state.courses = localCourses ? JSON.parse(localCourses) : [
         { id: 'CRS-1', name: 'GMTC LEVEL 1 (NEW)', targetRole: 'Kỹ thuật viên', prefix: 'GMTC-D-1-VN-', digits: 4, scorePass: '80/100', trainingDate: '1-31/10/2026', defaultTrainer: 'LE KHANH VAN', type: 'Online', isManualCert: false },
         { id: 'CRS-2', name: 'GMTC LEVEL II', targetRole: 'Kỹ thuật viên', prefix: 'GMTC-D-2-VN-', digits: 4, scorePass: '80/100', trainingDate: '21-22/5/2026', defaultTrainer: 'LE KHANH VAN', type: 'Offline', isManualCert: false }
       ];
@@ -2966,29 +3064,6 @@ function saveSheetData(ss, name, list) {
       if (savedUser) {
         try { state.currentUser = JSON.parse(savedUser); enterApplication(); } catch(e){}
       }
-    }
-
-    // NÚT ĐĂNG XUẤT HỆ THỐNG
-    function handleLogout() {
-      state.currentUser = null;
-      sessionStorage.removeItem('geely_session_user');
-      const appContainer = document.getElementById('appContainer');
-      appContainer.classList.remove('flex');
-      appContainer.classList.add('hidden');
-      
-      const submitBtn = document.getElementById('loginSubmitBtn');
-      const btnText = document.getElementById('loginBtnText');
-      const btnIcon = document.getElementById('loginBtnIcon');
-      const statusP = document.getElementById('loginSyncStatus');
-      
-      if (submitBtn) submitBtn.disabled = false;
-      if (btnText) btnText.innerText = "Đăng nhập hệ thống";
-      if (btnIcon) btnIcon.className = "fa-solid fa-arrow-right-to-bracket text-sm";
-      if (statusP) statusP.innerHTML = `<span>Hệ thống xác thực trực tuyến qua Google Sheets</span>`;
-
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('loginForm').reset();
-      showToast('Đã đăng xuất khỏi hệ thống', 'info');
     }
 
     window.onload = function() { initAppState(); };
